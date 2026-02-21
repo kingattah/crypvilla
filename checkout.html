@@ -62,6 +62,14 @@
               <input type="tel" class="form-control" name="customer_phone" required placeholder="+234 800 000 0000">
             </div>
             <div class="mb-3">
+              <label class="form-label">Delivery location <span class="text-danger">*</span></label>
+              <select class="form-select" name="delivery_location" id="deliveryLocation" required>
+                <option value="lagos">Lagos</option>
+                <option value="outside">Outside Lagos</option>
+              </select>
+              <p class="small text-muted mb-0 mt-1">Rates and free delivery depend on location.</p>
+            </div>
+            <div class="mb-3">
               <label class="form-label">Delivery address <span class="text-danger">*</span></label>
               <textarea class="form-control" name="delivery_address" required rows="3" placeholder="Street, city, state, postal code"></textarea>
             </div>
@@ -120,6 +128,11 @@
         return '₦' + (Number(n) || 0).toLocaleString();
       }
 
+      function getIsLagos() {
+        var sel = document.getElementById('deliveryLocation');
+        return sel ? sel.value === 'lagos' : true;
+      }
+
       function renderSummary() {
         var cart = window.CrypvillaCart ? window.CrypvillaCart.get() : [];
         if (!cart.length) {
@@ -130,11 +143,10 @@
         document.getElementById('checkoutEmpty').classList.add('d-none');
         document.getElementById('checkoutFormWrap').classList.remove('d-none');
 
-        var config = window.CRYPVILLA_CONFIG || {};
-        var threshold = config.FREE_SHIPPING_THRESHOLD || 200000;
-        var shippingFee = config.SHIPPING_FEE || 5000;
         var subtotal = window.CrypvillaCart.getSubtotal();
-        var shipping = subtotal >= threshold ? 0 : shippingFee;
+        var isLagos = getIsLagos();
+        var shippingResult = window.CrypvillaCart.getShipping ? window.CrypvillaCart.getShipping(cart, isLagos) : { fee: 0, hint: '' };
+        var shipping = (shippingResult && shippingResult.fee != null) ? shippingResult.fee : 0;
         var total = subtotal + shipping;
 
         var list = document.getElementById('checkoutItems');
@@ -150,16 +162,15 @@
         document.getElementById('checkoutShipping').textContent = shipping === 0 ? 'Free' : formatNaira(shipping);
         document.getElementById('checkoutTotal').textContent = formatNaira(total);
         var hint = document.getElementById('checkoutFreeShippingHint');
-        if (shipping > 0 && threshold > subtotal && hint) {
-          hint.textContent = 'Spend ' + formatNaira(threshold - subtotal) + ' more for free delivery in Lagos.';
-          hint.classList.remove('d-none');
-        } else if (hint) {
-          hint.textContent = '';
-          hint.classList.add('d-none');
+        if (hint) {
+          hint.textContent = (shippingResult && shippingResult.hint) ? shippingResult.hint : '';
+          hint.classList.toggle('d-none', !(shippingResult && shippingResult.hint));
         }
       }
 
       renderSummary();
+      var deliveryEl = document.getElementById('deliveryLocation');
+      if (deliveryEl) deliveryEl.addEventListener('change', renderSummary);
 
       document.getElementById('payBtn').addEventListener('click', function() {
         var form = document.getElementById('checkoutForm');
@@ -172,11 +183,11 @@
           alert('Your cart is empty.');
           return;
         }
-        var config = window.CRYPVILLA_CONFIG || {};
-        var threshold = config.FREE_SHIPPING_THRESHOLD || 200000;
-        var shippingFee = config.SHIPPING_FEE || 5000;
+        var cartForPay = window.CrypvillaCart.get();
         var subtotal = window.CrypvillaCart.getSubtotal();
-        var shipping = subtotal >= threshold ? 0 : shippingFee;
+        var isLagos = getIsLagos();
+        var shippingResult = window.CrypvillaCart.getShipping(cartForPay, isLagos);
+        var shipping = (shippingResult && shippingResult.fee != null) ? shippingResult.fee : 0;
         var total = Math.round(subtotal + shipping);
 
         var name = form.customer_name.value.trim();
@@ -200,11 +211,11 @@
               window.location.href = 'checkout.html?success=1&order=' + encodeURIComponent(orderNumber);
               return;
             }
-            var config = window.CRYPVILLA_CONFIG || {};
-            var shippingFee = config.SHIPPING_FEE || 5000;
-            var threshold = config.FREE_SHIPPING_THRESHOLD || 200000;
+            var cartSaved = window.CrypvillaCart.get();
             var st = window.CrypvillaCart.getSubtotal();
-            var sh = st >= threshold ? 0 : shippingFee;
+            var isLagosSaved = getIsLagos();
+            var shResult = window.CrypvillaCart.getShipping(cartSaved, isLagosSaved);
+            var sh = (shResult && shResult.fee != null) ? shResult.fee : 0;
             var tot = st + sh;
             var orderNum = 'CRV-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
             var orderRow = {
@@ -224,7 +235,7 @@
               if (ord.error || !ord.data || !ord.data.id) {
                 throw new Error(ord.error ? ord.error.message : 'Order insert failed');
               }
-              var items = cart.map(function(item) {
+              var items = cartSaved.map(function(item) {
                 return {
                   order_id: ord.data.id,
                   product_id: item.id,

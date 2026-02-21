@@ -130,7 +130,7 @@
               (pills.length ? '<div class="spec-pills">' + pills.map(function(s) { return '<span class="spec-pill">' + s + '</span>'; }).join('') + '</div>' : '') +
               '<div class="mt-2 d-flex gap-1">' +
                 '<a href="product.html?id=' + encodeURIComponent(p.id) + '" class="btn btn-sm btn-outline-secondary flex-grow-1">View</a>' +
-                '<button type="button" class="btn btn-sm btn-shop add-to-cart" data-id="' + p.id + '" data-name="' + (p.name || '').replace(/"/g, '&quot;') + '" data-price="' + p.price + '" data-image="' + (p.image_url || '').replace(/"/g, '&quot;') + '">Add to cart</button>' +
+                '<button type="button" class="btn btn-sm btn-shop add-to-cart" data-id="' + p.id + '" data-name="' + (p.name || '').replace(/"/g, '&quot;') + '" data-price="' + p.price + '" data-image="' + (p.image_url || '').replace(/"/g, '&quot;') + '" data-category="' + (p.categories ? (Array.isArray(p.categories) ? (p.categories[0] && p.categories[0].slug) || '' : (p.categories.slug || '')) : '').replace(/"/g, '&quot;') + '">Add to cart</button>' +
               '</div>' +
             '</div>' +
           '</div>';
@@ -175,12 +175,12 @@
         if (categorySlug) {
           window.supabase.from('categories').select('id').eq('slug', categorySlug).single().then(function(cat) {
             if (cat.data && cat.data.id) {
-              return window.supabase.from('products').select('id, name, slug, price, compare_at_price, image_url, specs').eq('category_id', cat.data.id).then(render);
+              return window.supabase.from('products').select('id, name, slug, price, compare_at_price, image_url, specs, categories(slug)').eq('category_id', cat.data.id).then(render);
             }
             render({ data: [] });
           });
         } else {
-          window.supabase.from('products').select('id, name, slug, price, compare_at_price, image_url, specs').then(render);
+          window.supabase.from('products').select('id, name, slug, price, compare_at_price, image_url, specs, categories(slug)').then(render);
         }
       }
 
@@ -193,8 +193,9 @@
         var name = btn.getAttribute('data-name');
         var price = btn.getAttribute('data-price');
         var image = btn.getAttribute('data-image');
+        var category = btn.getAttribute('data-category') || '';
         if (id && window.CrypvillaCart) {
-          window.CrypvillaCart.add(id, 1, { name: name, price: price, image_url: image });
+          window.CrypvillaCart.add(id, 1, { name: name, price: price, image_url: image, category_slug: category });
           updateCartCount();
           var t = btn.textContent;
           btn.textContent = 'Added';

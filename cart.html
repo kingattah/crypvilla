@@ -54,9 +54,13 @@
               <span class="text-muted">Subtotal</span>
               <span id="cartSubtotal">₦0</span>
             </p>
-            <p class="d-flex justify-content-between small text-muted mb-2" id="shippingLine">
-              <span>Shipping</span>
-              <span id="shippingAmount">Calculated at checkout</span>
+            <p class="d-flex justify-content-between small text-muted mb-1" id="shippingLine">
+              <span>Shipping (Lagos)</span>
+              <span id="shippingLagos">—</span>
+            </p>
+            <p class="d-flex justify-content-between small text-muted mb-2">
+              <span>Shipping (Outside Lagos)</span>
+              <span id="shippingOutside">—</span>
             </p>
             <p class="small mb-0" id="freeShippingHint"></p>
             <hr>
@@ -64,6 +68,7 @@
               <span>Total</span>
               <span id="cartTotal">₦0</span>
             </p>
+            <p class="small text-muted mb-0">Final total depends on delivery location at checkout.</p>
             <a href="checkout.html" class="btn btn-shop w-100">Proceed to checkout</a>
             <a href="shop.html" class="btn btn-outline-secondary w-100 mt-2">Continue shopping</a>
           </div>
@@ -142,18 +147,20 @@
         });
 
         var subtotal = window.CrypvillaCart ? window.CrypvillaCart.getSubtotal() : 0;
-        var config = window.CRYPVILLA_CONFIG || {};
-        var threshold = config.FREE_SHIPPING_THRESHOLD || 200000;
-        var shippingFee = config.SHIPPING_FEE || 5000;
-        var shipping = subtotal >= threshold ? 0 : shippingFee;
-        var total = subtotal + shipping;
+        var getSh = window.CrypvillaCart && window.CrypvillaCart.getShipping;
+        var shLagos = getSh ? window.CrypvillaCart.getShipping(cart, true).fee : 0;
+        var shOutside = getSh ? window.CrypvillaCart.getShipping(cart, false).fee : 0;
+        var totalMin = subtotal + Math.min(shLagos, shOutside);
 
         document.getElementById('cartSubtotal').textContent = formatNaira(subtotal);
-        document.getElementById('shippingAmount').textContent = shipping === 0 ? 'Free' : formatNaira(shipping);
-        document.getElementById('cartTotal').textContent = formatNaira(total);
+        document.getElementById('shippingLagos').textContent = shLagos === 0 ? 'Free' : formatNaira(shLagos);
+        document.getElementById('shippingOutside').textContent = shOutside === 0 ? 'Free' : formatNaira(shOutside);
+        document.getElementById('cartTotal').textContent = 'From ' + formatNaira(totalMin);
         var hint = document.getElementById('freeShippingHint');
-        if (shipping > 0 && threshold > subtotal) {
-          hint.textContent = 'Spend ' + formatNaira(threshold - subtotal) + ' more for free delivery in Lagos.';
+        var config = window.CRYPVILLA_CONFIG || {};
+        var threshold = config.FREE_SHIPPING_THRESHOLD || 500000;
+        if (subtotal > 0 && subtotal < threshold && (shLagos > 0 || shOutside > 0)) {
+          hint.textContent = 'Free in Lagos on orders over ' + formatNaira(threshold) + '; 4+ laptops free anywhere.';
           hint.classList.remove('d-none');
         } else {
           hint.textContent = '';

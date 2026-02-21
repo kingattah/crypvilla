@@ -185,7 +185,9 @@
         document.getElementById('addToCartBtn').onclick = function() {
           var qty = parseInt(document.getElementById('productQty').value, 10) || 1;
           if (window.CrypvillaCart) {
-            window.CrypvillaCart.add(p.id, qty, { name: p.name, price: p.price, image_url: p.image_url });
+            var cat = p.categories ? (Array.isArray(p.categories) ? p.categories[0] : p.categories) : null;
+            var catSlug = (cat && cat.slug) ? cat.slug : '';
+            window.CrypvillaCart.add(p.id, qty, { name: p.name, price: p.price, image_url: p.image_url, category_slug: catSlug });
             updateCartCount();
             var btn = document.getElementById('addToCartBtn');
             btn.textContent = 'Added to cart';
