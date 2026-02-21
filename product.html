@@ -68,12 +68,87 @@
           <p class="mb-2" id="productPrice"></p>
           <p class="text-muted small" id="productDesc"></p>
           <div class="spec-pills mb-3" id="productSpecs"></div>
+          <p class="mb-3 d-none" id="productLaptopBag"><span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">✓ Includes laptop bag</span></p>
           <div class="d-flex align-items-center gap-2 mb-3">
             <label class="text-muted small mb-0">Quantity:</label>
             <input type="number" id="productQty" class="form-control form-control-sm" style="width: 80px;" min="1" value="1">
           </div>
           <button type="button" class="btn btn-shop btn-lg" id="addToCartBtn">Add to cart</button>
+          <button type="button" class="btn btn-outline-secondary btn-lg ms-2" id="makeOfferBtn">Make an Offer</button>
           <a href="shop.html" class="btn btn-outline-secondary btn-lg ms-2">Continue shopping</a>
+          <div id="offerStatusBar" class="mt-3 mb-0">
+            <div id="offerUnderReviewBanner" class="alert alert-warning d-none mb-0">
+              <strong>Offer under review.</strong> <span id="offerUnderReviewText">We'll get back to you within 2 days. Once approved, you can complete payment here.</span>
+              <button type="button" class="btn btn-sm btn-outline-dark ms-2" id="offerCheckNowBtn">Check now</button>
+              <p id="offerUnderReviewMessage" class="small mb-0 mt-2 d-none"></p>
+            </div>
+            <div id="offerPendingBanner" class="alert alert-success d-none mb-0">
+              <strong>Pending payment</strong> — <span id="offerPendingText">Time remaining: </span><strong id="offerPendingCountdown">20:00</strong>.
+              <a href="#" id="offerPendingCheckoutBtn" class="btn btn-shop btn-sm ms-2">Proceed to pay</a>
+              <button type="button" class="btn btn-link btn-sm text-muted ms-2 p-0 align-baseline" id="offerPendingDismissBtn" aria-label="Dismiss">Dismiss</button>
+            </div>
+            <div id="offerCheckStatusWrap" class="alert alert-light border d-none mb-0">
+              <p class="mb-2 small text-muted">Made an offer? Enter the email you used to see if it&apos;s approved.</p>
+              <div class="d-flex flex-wrap gap-2 align-items-center">
+                <input type="email" class="form-control form-control-sm" id="offerCheckStatusEmail" placeholder="your@email.com" style="max-width: 220px;">
+                <button type="button" class="btn btn-shop btn-sm" id="offerCheckStatusBtn">Check status</button>
+              </div>
+              <p id="offerCheckStatusMessage" class="small mb-0 mt-2 d-none"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Make an Offer modal -->
+    <div class="modal fade" id="offerModal" tabindex="-1" aria-labelledby="offerModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="offerModalLabel">Make an Offer</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="offerFormWrap">
+              <p class="mb-1"><strong id="offerProductName"></strong></p>
+              <p class="text-muted small mb-3">Original price: <span id="offerOriginalPrice"></span> <span class="text-muted">(per unit)</span></p>
+              <div class="mb-3">
+                <label class="form-label">Number of devices <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="offerQuantityInput" min="1" value="1" placeholder="1">
+                <p class="small text-muted mb-0 mt-1">Offers for more than 3 devices require admin approval.</p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Your offer (₦ total) <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="offerPriceInput" min="0" step="0.01" placeholder="Total amount for all devices" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Email <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" id="offerEmailInput" placeholder="you@example.com" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Reason for offer (optional)</label>
+                <textarea class="form-control" id="offerReasonInput" rows="2" placeholder="e.g. Budget constraint, bulk buyer..."></textarea>
+              </div>
+              <div id="offerMessage" class="alert d-none" role="alert"></div>
+            </div>
+            <div id="offerThinking" class="text-center py-5 d-none">
+              <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+              <p class="mt-3 mb-0 text-muted">Considering your offer...</p>
+            </div>
+            <div id="offerSuccessWrap" class="d-none">
+              <div id="offerSuccessMessage" class="alert alert-success"></div>
+              <p class="mb-2"><strong>Time to complete payment:</strong> <span id="offerModalCountdown">20:00</span></p>
+              <p class="text-muted small mb-0">Click &quot;Proceed to pay&quot; below to complete your purchase at the agreed price.</p>
+            </div>
+          </div>
+          <div class="modal-footer" id="offerModalFooter">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-shop" id="offerSubmitBtn">Submit offer</button>
+          </div>
+          <div class="modal-footer d-none" id="offerSuccessFooter">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            <a href="#" class="btn btn-shop" id="offerProceedToCheckoutBtn">Proceed to pay</a>
+          </div>
         </div>
       </div>
     </div>
@@ -123,12 +198,194 @@
       var params = new URLSearchParams(window.location.search);
       var id = params.get('id');
       var slug = params.get('slug');
+      var offerToken = params.get('offer') ? params.get('offer').trim() : null;
 
       var loading = document.getElementById('loading');
       var detail = document.getElementById('productDetail');
       var notFound = document.getElementById('notFound');
+      var currentProduct = null;
+      var offerCountdownInterval = null;
+      var offerStatusPollInterval = null;
+      var offerStatusPollTimeout = null;
+
+      var PENDING_OFFER_KEY = 'crypvilla_pending_offer';
+      var PENDING_REVIEW_KEY = 'crypvilla_pending_review';
+      function savePendingOffer(token, expiresAt, productId) {
+        try {
+          sessionStorage.setItem(PENDING_OFFER_KEY, JSON.stringify({ token: token, expiresAt: expiresAt, productId: productId }));
+        } catch (e) {}
+      }
+      function getPendingOffer() {
+        try {
+          var raw = sessionStorage.getItem(PENDING_OFFER_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch (e) { return null; }
+      }
+      function clearPendingOffer() {
+        try { sessionStorage.removeItem(PENDING_OFFER_KEY); } catch (e) {}
+      }
+      function savePendingReview(productId, message, email) {
+        try {
+          sessionStorage.setItem(PENDING_REVIEW_KEY, JSON.stringify({ productId: productId, message: message || 'Your offer is under review.', email: email || '' }));
+        } catch (e) {}
+      }
+      function getPendingReview() {
+        try {
+          var raw = sessionStorage.getItem(PENDING_REVIEW_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch (e) { return null; }
+      }
+      function clearPendingReview() {
+        try { sessionStorage.removeItem(PENDING_REVIEW_KEY); } catch (e) {}
+      }
+      function stopOfferStatusPolling() {
+        if (offerStatusPollTimeout) {
+          clearTimeout(offerStatusPollTimeout);
+          offerStatusPollTimeout = null;
+        }
+        if (offerStatusPollInterval) {
+          clearInterval(offerStatusPollInterval);
+          offerStatusPollInterval = null;
+        }
+      }
+      function startOfferStatusPolling() {
+        stopOfferStatusPolling();
+        if (!window.supabase || !currentProduct) return;
+        var review = getPendingReview();
+        if (!review || review.productId !== currentProduct.id || !review.email) return;
+        function poll() {
+          if (!currentProduct) { stopOfferStatusPolling(); return; }
+          var r = getPendingReview();
+          if (!r || r.productId !== currentProduct.id || !r.email) { stopOfferStatusPolling(); return; }
+          window.supabase.rpc('get_offer_checkout_if_approved', { p_email: r.email, p_product_id: currentProduct.id }).then(function(res) {
+            if (res.data && res.data.length && res.data[0].checkout_token) {
+              var row = res.data[0];
+              var expiresAt = row.checkout_token_expires_at ? new Date(row.checkout_token_expires_at).toISOString() : new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString();
+              savePendingOffer(row.checkout_token, expiresAt, currentProduct.id);
+              clearPendingReview();
+              stopOfferStatusPolling();
+              updateOfferBanner(currentProduct.id);
+            }
+          }).catch(function() {
+            stopOfferStatusPolling();
+          });
+        }
+        poll();
+        offerStatusPollTimeout = setTimeout(poll, 3000);
+        offerStatusPollInterval = setInterval(poll, 15000);
+      }
+      function formatCountdown(secondsLeft) {
+        if (secondsLeft <= 0) return '0:00';
+        var m = Math.floor(secondsLeft / 60);
+        var s = secondsLeft % 60;
+        return m + ':' + (s < 10 ? '0' : '') + s;
+      }
+      function updateOfferBanner(productId) {
+        var paymentBanner = document.getElementById('offerPendingBanner');
+        var reviewBanner = document.getElementById('offerUnderReviewBanner');
+        var checkWrap = document.getElementById('offerCheckStatusWrap');
+        var countEl = document.getElementById('offerPendingCountdown');
+        var btn = document.getElementById('offerPendingCheckoutBtn');
+        if (!paymentBanner || !reviewBanner) return;
+        var pending = getPendingOffer();
+        var underReview = getPendingReview();
+        if (pending && pending.productId === productId) {
+          var expiresAt = new Date(pending.expiresAt);
+          var now = new Date();
+          if (expiresAt <= now) {
+            clearPendingOffer();
+            pending = null;
+          } else {
+            var sec = Math.max(0, Math.ceil((expiresAt - now) / 1000));
+            if (countEl) countEl.textContent = formatCountdown(sec);
+            paymentBanner.classList.remove('d-none');
+            reviewBanner.classList.add('d-none');
+            if (checkWrap) checkWrap.classList.add('d-none');
+            if (btn) btn.href = 'checkout.html?offer=' + encodeURIComponent(pending.token);
+            if (sec <= 0) {
+              clearPendingOffer();
+              paymentBanner.classList.add('d-none');
+            }
+            return;
+          }
+        }
+        paymentBanner.classList.add('d-none');
+        if (underReview && underReview.productId === productId) {
+          reviewBanner.classList.remove('d-none');
+          if (checkWrap) checkWrap.classList.add('d-none');
+          var reviewText = document.getElementById('offerUnderReviewText');
+          if (reviewText) reviewText.textContent = (underReview.message || 'Your offer is under review.') + ' Once approved, you can complete payment here.';
+        } else {
+          reviewBanner.classList.add('d-none');
+          if (checkWrap) checkWrap.classList.remove('d-none');
+        }
+      }
+
+      function setOfferStatusMessage(text, isSuccess) {
+        var msgEl = document.getElementById('offerCheckStatusMessage');
+        var underReviewMsg = document.getElementById('offerUnderReviewMessage');
+        if (msgEl) {
+          msgEl.textContent = text || '';
+          msgEl.classList.add('d-none');
+          if (text) {
+            msgEl.classList.remove('text-success', 'text-danger');
+            msgEl.classList.add(isSuccess ? 'text-success' : 'text-danger');
+            msgEl.classList.remove('d-none');
+          }
+        }
+        if (underReviewMsg) {
+          underReviewMsg.textContent = text || '';
+          underReviewMsg.classList.add('d-none');
+          if (text) {
+            underReviewMsg.classList.remove('text-success', 'text-danger');
+            underReviewMsg.classList.add(isSuccess ? 'text-success' : 'text-danger');
+            underReviewMsg.classList.remove('d-none');
+          }
+        }
+      }
+
+      function checkOfferStatusWithEmail(email, productId) {
+        if (!window.supabase || !currentProduct) return;
+        var productIdToUse = productId || (currentProduct && currentProduct.id);
+        if (!productIdToUse || !email || !email.trim()) return;
+        setOfferStatusMessage('', false);
+        window.supabase.rpc('get_offer_status_for_customer', { p_email: email.trim(), p_product_id: productIdToUse }).then(function(res) {
+          var row = res.data && res.data[0] ? res.data[0] : null;
+          if (!row) {
+            setOfferStatusMessage('No offer found for this email.', false);
+            return;
+          }
+          var token = row.checkout_token;
+          var status = (row.status || '').toLowerCase();
+          if (token) {
+            var expiresAt = (row.checkout_token_expires_at ? new Date(row.checkout_token_expires_at) : new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)).toISOString();
+            savePendingOffer(token, expiresAt, productIdToUse);
+            clearPendingReview();
+            stopOfferStatusPolling();
+            updateOfferBanner(productIdToUse);
+            setOfferStatusMessage('Your offer was approved. You can proceed to pay below.', true);
+            return;
+          }
+          var text = '';
+          if (status === 'rejected') {
+            text = 'Your offer was rejected.';
+            if (row.rejection_message && row.rejection_message.trim()) text += ' ' + row.rejection_message.trim();
+            if (row.counter_price != null && row.counter_price > 0) text += ' Our best price for this item: ₦' + Number(row.counter_price).toLocaleString() + '.';
+            text += ' You can make a new offer below if you\'d like to accept.';
+          } else if (status === 'pending' || status === 'countered') {
+            if (status === 'countered' && row.counter_price != null && row.counter_price > 0) text = 'We countered at ₦' + Number(row.counter_price).toLocaleString() + '. The checkout link may have expired — please make a new offer if you\'d like to accept.';
+            else text = 'Your offer is still under review.';
+          } else if (status === 'expired') text = 'Your offer has expired.';
+          else if (status === 'completed') text = 'This offer was already completed.';
+          else text = 'No approved offer found for this email.';
+          setOfferStatusMessage(text, false);
+        }).catch(function() {
+          setOfferStatusMessage('Could not check status. Try again.', false);
+        });
+      }
 
       function showProduct(p) {
+        currentProduct = p;
         if (!p) {
           loading.classList.add('d-none');
           notFound.classList.remove('d-none');
@@ -178,9 +435,24 @@
         document.title = (p.name || 'Product') + ' — Crypvilla';
         document.getElementById('breadcrumbProduct').textContent = (p.name || 'Product').substring(0, 40);
 
+        var cat = p.categories ? (Array.isArray(p.categories) ? p.categories[0] : p.categories) : null;
+        var catSlug = (cat && cat.slug) ? cat.slug : '';
+        var laptopSlugs = (window.CRYPVILLA_CONFIG && window.CRYPVILLA_CONFIG.LAPTOP_CATEGORY_SLUGS) || ['grade-a-uk-used-laptops', 'brand-new-laptops'];
+        var isLaptop = laptopSlugs.indexOf(catSlug) >= 0;
+        var bagEl = document.getElementById('productLaptopBag');
+        if (bagEl) bagEl.classList.toggle('d-none', !isLaptop);
+
         loading.classList.add('d-none');
         notFound.classList.add('d-none');
         detail.classList.remove('d-none');
+
+        updateOfferBanner(p.id);
+        if (offerCountdownInterval) clearInterval(offerCountdownInterval);
+        offerCountdownInterval = setInterval(function() {
+          if (currentProduct) updateOfferBanner(currentProduct.id);
+        }, 1000);
+        var review = getPendingReview();
+        if (review && review.productId === p.id && review.email) startOfferStatusPolling();
 
         document.getElementById('addToCartBtn').onclick = function() {
           var qty = parseInt(document.getElementById('productQty').value, 10) || 1;
@@ -195,6 +467,190 @@
             setTimeout(function() { btn.textContent = 'Add to cart'; btn.disabled = false; }, 2000);
           }
         };
+
+        var offerModal = document.getElementById('offerModal');
+        var offerProductNameEl = document.getElementById('offerProductName');
+        var offerOriginalPriceEl = document.getElementById('offerOriginalPrice');
+        var offerPriceInput = document.getElementById('offerPriceInput');
+        var offerEmailInput = document.getElementById('offerEmailInput');
+        var offerReasonInput = document.getElementById('offerReasonInput');
+        var offerMessage = document.getElementById('offerMessage');
+        var offerSubmitBtn = document.getElementById('offerSubmitBtn');
+
+        document.getElementById('makeOfferBtn').onclick = function() {
+          if (!currentProduct) return;
+          offerProductNameEl.textContent = currentProduct.name || 'Product';
+          document.getElementById('offerQuantityInput').value = 1;
+          offerOriginalPriceEl.textContent = '₦' + Number(currentProduct.price).toLocaleString();
+          offerPriceInput.value = '';
+          offerEmailInput.value = '';
+          offerReasonInput.value = '';
+          offerMessage.classList.add('d-none');
+          offerMessage.classList.remove('alert-success', 'alert-danger', 'alert-info');
+          document.getElementById('offerFormWrap').classList.remove('d-none');
+          document.getElementById('offerThinking').classList.add('d-none');
+          document.getElementById('offerSuccessWrap').classList.add('d-none');
+          document.getElementById('offerModalFooter').classList.remove('d-none');
+          document.getElementById('offerSuccessFooter').classList.add('d-none');
+          if (window.bootstrap && offerModal) {
+            var modal = window.bootstrap.Modal.getOrCreateInstance(offerModal);
+            modal.show();
+          }
+        };
+
+        var offerQuantityInput = document.getElementById('offerQuantityInput');
+        if (offerQuantityInput) {
+          offerQuantityInput.addEventListener('change', function() {
+            if (!currentProduct) return;
+            var qty = parseInt(offerQuantityInput.value, 10) || 1;
+            if (qty < 1) { offerQuantityInput.value = 1; qty = 1; }
+            offerOriginalPriceEl.textContent = '₦' + Number(currentProduct.price).toLocaleString() + (qty > 1 ? ' × ' + qty + ' = ₦' + Number(currentProduct.price * qty).toLocaleString() : '');
+          });
+        }
+
+        var offerCheckNowBtn = document.getElementById('offerCheckNowBtn');
+        if (offerCheckNowBtn) {
+          offerCheckNowBtn.addEventListener('click', function() {
+            var review = getPendingReview();
+            if (review && review.email && currentProduct) checkOfferStatusWithEmail(review.email, currentProduct.id);
+          });
+        }
+        var offerCheckStatusBtn = document.getElementById('offerCheckStatusBtn');
+        var offerCheckStatusEmail = document.getElementById('offerCheckStatusEmail');
+        if (offerCheckStatusBtn && offerCheckStatusEmail) {
+          offerCheckStatusBtn.addEventListener('click', function() {
+            var email = (offerCheckStatusEmail.value || '').trim();
+            if (!email) return;
+            if (currentProduct) checkOfferStatusWithEmail(email, currentProduct.id);
+          });
+        }
+        var offerPendingDismissBtn = document.getElementById('offerPendingDismissBtn');
+        if (offerPendingDismissBtn) {
+          offerPendingDismissBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            var pending = getPendingOffer();
+            if (pending && currentProduct && pending.productId === currentProduct.id) {
+              clearPendingOffer();
+              updateOfferBanner(currentProduct.id);
+            }
+          });
+        }
+
+        offerSubmitBtn.addEventListener('click', function() {
+          if (!currentProduct || !window.supabase) return;
+          var quantity = Math.max(1, parseInt(offerQuantityInput.value, 10) || 1);
+          var offeredPrice = parseFloat(offerPriceInput.value, 10);
+          var email = (offerEmailInput.value || '').trim();
+          var reason = (offerReasonInput.value || '').trim();
+          if (isNaN(offeredPrice) || offeredPrice <= 0) {
+            offerMessage.textContent = 'Please enter a valid offer amount.';
+            offerMessage.classList.remove('d-none', 'alert-success');
+            offerMessage.classList.add('alert-danger');
+            return;
+          }
+          if (!email) {
+            offerMessage.textContent = 'Please enter your email.';
+            offerMessage.classList.remove('d-none', 'alert-success');
+            offerMessage.classList.add('alert-danger');
+            return;
+          }
+          offerSubmitBtn.disabled = true;
+          offerSubmitBtn.textContent = 'Submitting…';
+          offerMessage.classList.add('d-none');
+
+          window.supabase.rpc('submit_offer', {
+            p_product_id: currentProduct.id,
+            p_offered_price: offeredPrice,
+            p_email: email,
+            p_reason: reason || null,
+            p_quantity: quantity
+          }).then(function(r) {
+            offerSubmitBtn.disabled = false;
+            offerSubmitBtn.textContent = 'Submit offer';
+            var data = r.data;
+            if (r.error) {
+              offerMessage.textContent = r.error.message || 'Something went wrong.';
+              offerMessage.classList.remove('d-none', 'alert-success');
+              offerMessage.classList.add('alert-danger');
+              return;
+            }
+            if (typeof data === 'string') {
+              try { data = JSON.parse(data); } catch (e) { data = null; }
+            }
+            if (!data) {
+              offerMessage.textContent = 'Invalid response. Please try again.';
+              offerMessage.classList.remove('d-none', 'alert-success');
+              offerMessage.classList.add('alert-danger');
+              return;
+            }
+            var status = data.status || '';
+            var message = data.message || '';
+            if (data.checkout_token && (status === 'approved' || status === 'countered')) {
+              var token = data.checkout_token;
+              var expiresAt = data.checkout_token_expires_at || new Date(Date.now() + 20 * 60 * 1000).toISOString();
+              offerSubmitBtn.disabled = true;
+              document.getElementById('offerFormWrap').classList.add('d-none');
+              document.getElementById('offerMessage').classList.add('d-none');
+              document.getElementById('offerThinking').classList.remove('d-none');
+              document.getElementById('offerModalFooter').classList.add('d-none');
+              setTimeout(function() {
+                document.getElementById('offerThinking').classList.add('d-none');
+                document.getElementById('offerSuccessWrap').classList.remove('d-none');
+                document.getElementById('offerSuccessMessage').textContent = message;
+                document.getElementById('offerSuccessFooter').classList.remove('d-none');
+                savePendingOffer(token, expiresAt, currentProduct.id);
+                offerSubmitBtn.disabled = false;
+                offerSubmitBtn.textContent = 'Submit offer';
+                var countEl = document.getElementById('offerModalCountdown');
+                function tickModalCountdown() {
+                  var exp = new Date(expiresAt);
+                  var now = new Date();
+                  var sec = Math.max(0, Math.ceil((exp - now) / 1000));
+                  if (countEl) countEl.textContent = formatCountdown(sec);
+                  if (sec <= 0) {
+                    clearPendingOffer();
+                    if (currentProduct) updateOfferBanner(currentProduct.id);
+                    if (offerCountdownInterval) {
+                      clearInterval(offerCountdownInterval);
+                      offerCountdownInterval = null;
+                    }
+                  }
+                }
+                tickModalCountdown();
+                if (offerCountdownInterval) clearInterval(offerCountdownInterval);
+                offerCountdownInterval = setInterval(function() {
+                  tickModalCountdown();
+                  if (currentProduct) updateOfferBanner(currentProduct.id);
+                }, 1000);
+                updateOfferBanner(currentProduct.id);
+              }, 2500);
+              document.getElementById('offerProceedToCheckoutBtn').href = 'checkout.html?offer=' + encodeURIComponent(token);
+              return;
+            }
+            if (status === 'pending') {
+              savePendingReview(currentProduct.id, message, email);
+              updateOfferBanner(currentProduct.id);
+              startOfferStatusPolling();
+              offerMessage.textContent = message;
+              offerMessage.classList.remove('d-none', 'alert-success', 'alert-danger');
+              offerMessage.classList.add('alert-info');
+            } else {
+              offerMessage.textContent = message;
+              offerMessage.classList.remove('d-none', 'alert-success', 'alert-danger');
+              offerMessage.classList.add('alert-danger');
+            }
+          }).catch(function(err) {
+            offerSubmitBtn.disabled = false;
+            offerSubmitBtn.textContent = 'Submit offer';
+            var msg = err && err.message ? err.message : 'Something went wrong.';
+            if (err && err.message && (err.message.indexOf('404') !== -1 || err.message.indexOf('Not Found') !== -1)) {
+              msg = 'Make an Offer is not set up yet. Run the SQL in supabase/offers-table-and-rls.sql in your Supabase SQL Editor.';
+            }
+            offerMessage.textContent = msg;
+            offerMessage.classList.remove('d-none', 'alert-success');
+            offerMessage.classList.add('alert-danger');
+          });
+        });
       }
 
       if (!id && !slug) {
@@ -223,6 +679,21 @@
             catLi.innerHTML = '<a href="shop.html?category=' + encodeURIComponent(cat.slug) + '">' + cat.name + '</a>';
             bc.insertBefore(catLi, last);
           }
+        }
+        if (r.data && offerToken && window.supabase) {
+          window.supabase.rpc('validate_offer_checkout', { p_token: offerToken }).then(function(vr) {
+            if (vr.data && vr.data.length && vr.data[0].product_id === r.data.id) {
+              var twoDays = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString();
+              savePendingOffer(offerToken, twoDays, r.data.id);
+              clearPendingReview();
+              updateOfferBanner(r.data.id);
+              if (window.history && window.history.replaceState) {
+                var u = new URL(window.location.href);
+                u.searchParams.delete('offer');
+                window.history.replaceState({}, '', u.pathname + u.search);
+              }
+            }
+          });
         }
       }).catch(function() {
         showProduct(null);

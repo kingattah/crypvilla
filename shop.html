@@ -115,6 +115,10 @@
           ? '<span class="price-current">₦' + Number(p.price).toLocaleString() + '</span> <span class="price-compare">₦' + Number(p.compare_at_price).toLocaleString() + '</span>'
           : '<span class="price-current">₦' + Number(p.price).toLocaleString() + '</span>';
         var saleBadge = p.compare_at_price ? '<span class="badge-sale">Sale</span>' : '';
+        var catSlug = p.categories ? (Array.isArray(p.categories) ? (p.categories[0] && p.categories[0].slug) || '' : (p.categories.slug || '')) : '';
+        var laptopSlugs = (window.CRYPVILLA_CONFIG && window.CRYPVILLA_CONFIG.LAPTOP_CATEGORY_SLUGS) || ['grade-a-uk-used-laptops', 'brand-new-laptops'];
+        var isLaptop = laptopSlugs.indexOf(catSlug) >= 0;
+        var laptopBagBadge = isLaptop ? '<span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 small mt-1">Includes laptop bag</span>' : '';
         var imgUrl = p.image_url || 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&q=80';
         var name = (p.name || '').substring(0, 60) + ((p.name && p.name.length > 60) ? '…' : '');
         var card = document.createElement('div');
@@ -127,6 +131,7 @@
             '<div class="card-body">' +
               '<h5 class="card-title"><a href="product.html?id=' + encodeURIComponent(p.id) + '" class="text-dark text-decoration-none">' + name + '</a></h5>' +
               '<p class="text-muted small mb-1">' + priceHtml + '</p>' +
+              (laptopBagBadge ? '<div class="mb-1">' + laptopBagBadge + '</div>' : '') +
               (pills.length ? '<div class="spec-pills">' + pills.map(function(s) { return '<span class="spec-pill">' + s + '</span>'; }).join('') + '</div>' : '') +
               '<div class="mt-2 d-flex gap-1">' +
                 '<a href="product.html?id=' + encodeURIComponent(p.id) + '" class="btn btn-sm btn-outline-secondary flex-grow-1">View</a>' +

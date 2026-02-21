@@ -87,3 +87,60 @@ textarea.form-control { min-height: 80px; resize: vertical; }
 .admin-login-card h1 { font-size: 1.5rem; font-weight: 700; }
 .admin-login-card code { font-size: 0.8em; background: var(--admin-bg); padding: 0.1rem 0.3rem; border-radius: 4px; }
 .w-100 { width: 100%; }
+
+/* Order view – printable with Crypvilla logo */
+.order-print-wrap { }
+.order-print-header {
+  text-align: center;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--admin-border);
+}
+.order-print-logo {
+  max-width: 120px;
+  height: auto;
+  display: block;
+  margin: 0 auto 0.5rem;
+}
+.order-print-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+  color: #0f172a;
+}
+.order-print-subtitle {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0;
+}
+.order-print-content { font-size: 0.95rem; }
+.order-print-table { margin-top: 0.5rem; }
+
+@media print {
+  body * { visibility: hidden; }
+  .modal-backdrop.show,
+  .modal-backdrop.show * { visibility: visible; }
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: #fff;
+    padding: 0;
+    display: block;
+  }
+  .modal-backdrop.show .modal-dialog {
+    max-width: none;
+    width: 100%;
+    max-height: none;
+    box-shadow: none;
+    border: none;
+  }
+  .modal-backdrop.show .modal-header,
+  .modal-backdrop.show .modal-footer { display: none !important; }
+  .modal-backdrop.show .modal-body {
+    padding: 0;
+    border: none;
+  }
+  .order-print-logo { max-width: 140px; }
+  .order-print-title { font-size: 1.25rem; }
+  .admin-table th, .admin-table td { padding: 0.5rem 0.75rem; }
+}

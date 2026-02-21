@@ -36,6 +36,7 @@
         <a href="#" class="nav-link active" data-page="dashboard">Dashboard</a>
         <a href="#" class="nav-link" data-page="products">Products</a>
         <a href="#" class="nav-link" data-page="orders">Orders</a>
+        <a href="#" class="nav-link" data-page="offers">Offers</a>
         <a href="#" class="nav-link" data-page="customers">Customers</a>
       </nav>
       <div style="padding: 0 1.25rem;">
@@ -79,8 +80,12 @@
         </div>
 
         <div id="pageProducts" class="admin-page">
-          <div class="d-flex gap-2" style="margin-bottom: 1rem;">
+          <div class="d-flex flex-wrap gap-2 align-items-center" style="margin-bottom: 1rem;">
             <button type="button" class="btn-admin" id="btnAddProduct">Add product</button>
+            <input type="text" class="form-control" id="productSearch" placeholder="Search products…" style="max-width: 240px;">
+            <select class="form-control" id="productCategoryFilter" style="width: auto; max-width: 200px;">
+              <option value="">All categories</option>
+            </select>
           </div>
           <div class="admin-card">
             <table class="admin-table">
@@ -116,6 +121,41 @@
               </thead>
               <tbody id="ordersTableBody">
                 <tr><td colspan="6" class="text-muted">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="pageOffers" class="admin-page">
+          <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+            <select class="form-control" id="offerStatusFilter" style="width: auto; max-width: 180px;">
+              <option value="">All statuses</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="countered">Countered</option>
+              <option value="rejected">Rejected</option>
+              <option value="completed">Completed</option>
+              <option value="expired">Expired</option>
+            </select>
+          </div>
+          <div class="admin-card">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Product</th>
+                  <th>Qty</th>
+                  <th>Email</th>
+                  <th>Original</th>
+                  <th>Offered</th>
+                  <th>Reason</th>
+                  <th>Counter</th>
+                  <th>Status</th>
+                  <th style="width: 180px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="offersTableBody">
+                <tr><td colspan="10" class="text-muted">Loading…</td></tr>
               </tbody>
             </table>
           </div>
@@ -216,6 +256,7 @@
         <p class="text-muted">Loading…</p>
       </div>
       <div class="modal-footer">
+        <button type="button" class="btn-admin-outline btn-sm" id="orderModalPrint">Print order</button>
         <label class="d-flex align-items-center gap-2 mb-0">
           <span class="text-muted">Status:</span>
           <select class="form-control" id="orderStatusSelect" style="width: auto;">
@@ -227,6 +268,31 @@
           </select>
         </label>
         <button type="button" class="btn-admin" id="orderModalSaveStatus">Update status</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reject offer modal: optional message and best price for customer -->
+  <div id="rejectOfferModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <span>Reject offer</span>
+        <button type="button" class="btn-admin-outline btn-sm" id="rejectOfferModalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted small mb-2">The customer will see this when they use &quot;Check status&quot; on the product page.</p>
+        <div class="form-group mb-3">
+          <label>Message to customer (optional)</label>
+          <textarea class="form-control" id="rejectOfferMessage" rows="2" placeholder="e.g. Our best price for this item is ₦50,000"></textarea>
+        </div>
+        <div class="form-group mb-3">
+          <label>Best price (₦) (optional)</label>
+          <input type="number" class="form-control" id="rejectOfferBestPrice" min="0" step="0.01" placeholder="e.g. 50000">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-admin-outline" id="rejectOfferCancel">Cancel</button>
+        <button type="button" class="btn-admin-danger" id="rejectOfferConfirm">Reject offer</button>
       </div>
     </div>
   </div>

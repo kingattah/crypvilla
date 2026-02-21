@@ -121,6 +121,7 @@
     dashboard: 'Dashboard',
     products: 'Products',
     orders: 'Orders',
+    offers: 'Offers',
     customers: 'Customers'
   };
   document.querySelectorAll('.admin-sidebar .nav-link').forEach(function(link) {
@@ -135,6 +136,7 @@
       document.getElementById('adminPageTitle').textContent = pageTitles[page] || page;
       if (page === 'products') loadProducts();
       if (page === 'orders') loadOrders();
+      if (page === 'offers') loadOffers();
       if (page === 'customers') loadCustomers();
       if (page === 'dashboard') loadDashboard();
     });
@@ -172,48 +174,102 @@
     });
   }
 
-  // ——— Products ———
+  // ——— Products (with search and category filter) ———
+  var allProductsList = [];
+
+  function getProductFilter() {
+    var searchEl = document.getElementById('productSearch');
+    var categoryEl = document.getElementById('productCategoryFilter');
+    return {
+      search: (searchEl && searchEl.value) ? searchEl.value.trim().toLowerCase() : '',
+      categoryId: (categoryEl && categoryEl.value) ? categoryEl.value : ''
+    };
+  }
+
+  function filterProducts(list) {
+    var filter = getProductFilter();
+    return (list || []).filter(function(p) {
+      if (filter.categoryId && p.category_id !== filter.categoryId) return false;
+      if (!filter.search) return true;
+      var name = (p.name || '').toLowerCase();
+      var desc = (p.description || '').toLowerCase();
+      return name.indexOf(filter.search) >= 0 || desc.indexOf(filter.search) >= 0;
+    });
+  }
+
+  function renderProductsTable(list) {
+    var tbody = document.getElementById('productsTableBody');
+    if (!tbody) return;
+    var catMap = {};
+    categories.forEach(function(c) { catMap[c.id] = c.name; });
+    if (!list || list.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="text-muted">No products match. Try a different search or category.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = list.map(function(p) {
+      var img = p.image_url
+        ? '<img src="' + p.image_url + '" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:6px;">'
+        : '<span class="text-muted">—</span>';
+      var catName = catMap[p.category_id] || '—';
+      return '<tr>' +
+        '<td>' + img + '</td>' +
+        '<td>' + (p.name || '') + '</td>' +
+        '<td>' + catName + '</td>' +
+        '<td>' + formatNaira(p.price) + '</td>' +
+        '<td>' + (p.stock ?? '—') + '</td>' +
+        '<td><button type="button" class="btn-admin-outline btn-sm edit-product" data-id="' + p.id + '">Edit</button> ' +
+        '<button type="button" class="btn-admin-danger btn-sm delete-product" data-id="' + p.id + '">Delete</button></td>' +
+        '</tr>';
+    }).join('');
+    bindProductButtons();
+  }
+
   function loadProducts() {
     var tbody = document.getElementById('productsTableBody');
     if (!supabase) {
-      tbody.innerHTML = '<tr><td colspan="6">Configure admin/config.js</td></tr>';
+      if (tbody) tbody.innerHTML = '<tr><td colspan="6">Configure admin/config.js</td></tr>';
       return;
     }
     loadCategories().then(function() {
-      return supabase.from('products').select('id, name, slug, price, stock, image_url, category_id').order('created_at', { ascending: false });
+      var catFilter = document.getElementById('productCategoryFilter');
+      if (catFilter && categories.length) {
+        catFilter.innerHTML = '<option value="">All categories</option>' + categories.map(function(c) {
+          return '<option value="' + c.id + '">' + (c.name || c.slug) + '</option>';
+        }).join('');
+      }
+      return supabase.from('products').select('id, name, slug, price, stock, image_url, category_id, description').order('created_at', { ascending: false });
     }).then(function(r) {
       if (r.error) {
         tbody.innerHTML = '<tr><td colspan="6">Error: ' + (r.error.message || 'Failed to load') + '</td></tr>';
         return;
       }
-      var list = r.data || [];
-      var catMap = {};
-      categories.forEach(function(c) { catMap[c.id] = c.name; });
-      if (list.length === 0) {
+      allProductsList = r.data || [];
+      var filtered = filterProducts(allProductsList);
+      if (allProductsList.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6">No products. Click Add product.</td></tr>';
         return;
       }
-      tbody.innerHTML = list.map(function(p) {
-        var img = p.image_url
-          ? '<img src="' + p.image_url + '" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:6px;">'
-          : '<span class="text-muted">—</span>';
-        var catName = catMap[p.category_id] || '—';
-        return '<tr>' +
-          '<td>' + img + '</td>' +
-          '<td>' + (p.name || '') + '</td>' +
-          '<td>' + catName + '</td>' +
-          '<td>' + formatNaira(p.price) + '</td>' +
-          '<td>' + (p.stock ?? '—') + '</td>' +
-          '<td><button type="button" class="btn-admin-outline btn-sm edit-product" data-id="' + p.id + '">Edit</button> ' +
-          '<button type="button" class="btn-admin-danger btn-sm delete-product" data-id="' + p.id + '">Delete</button></td>' +
-          '</tr>';
-      }).join('');
-      bindProductButtons();
+      renderProductsTable(filtered);
     }).catch(function(err) {
       tbody.innerHTML = '<tr><td colspan="6">Error loading products</td></tr>';
       console.error(err);
     });
   }
+
+  (function bindProductSearchAndFilter() {
+    var searchEl = document.getElementById('productSearch');
+    var categoryEl = document.getElementById('productCategoryFilter');
+    if (searchEl) {
+      searchEl.addEventListener('input', function() {
+        renderProductsTable(filterProducts(allProductsList));
+      });
+    }
+    if (categoryEl) {
+      categoryEl.addEventListener('change', function() {
+        renderProductsTable(filterProducts(allProductsList));
+      });
+    }
+  })();
 
   function bindProductButtons() {
     document.querySelectorAll('.edit-product').forEach(function(btn) {
@@ -481,17 +537,21 @@
       var o = orderRes.data;
       return supabase.from('order_items').select('*').eq('order_id', id).then(function(itemsRes) {
         var items = (itemsRes.data || []);
-        var html = '<p><strong>Order #</strong> ' + (o.order_number || o.id) + '</p>' +
+        var logoUrl = '../images/crypvilla-removebg-preview.png';
+        var content = '<p><strong>Order #</strong> ' + (o.order_number || o.id) + '</p>' +
           '<p><strong>Customer:</strong> ' + (o.customer_name || '') + '<br><strong>Email:</strong> ' + (o.customer_email || '') + '<br><strong>Phone:</strong> ' + (o.customer_phone || '') + '</p>' +
           '<p><strong>Delivery address:</strong><br>' + (o.delivery_address || '') + '</p>' +
           '<p><strong>Subtotal:</strong> ' + formatNaira(o.subtotal) + ' &nbsp; <strong>Shipping:</strong> ' + formatNaira(o.shipping) + ' &nbsp; <strong>Total:</strong> ' + formatNaira(o.total) + '</p>' +
           '<p><strong>Paystack ref:</strong> ' + (o.paystack_reference || o.payaza_reference || '—') + ' &nbsp; <strong>Status:</strong> ' + (o.paystack_status || o.payaza_status || '—') + '</p>' +
-          '<table class="admin-table mt-2"><thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead><tbody>';
+          '<table class="admin-table order-print-table mt-2"><thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead><tbody>';
         items.forEach(function(i) {
           var snap = i.product_snapshot || {};
-          html += '<tr><td>' + (snap.name || 'Product') + '</td><td>' + i.quantity + '</td><td>' + formatNaira(i.price) + '</td></tr>';
+          content += '<tr><td>' + (snap.name || 'Product') + '</td><td>' + i.quantity + '</td><td>' + formatNaira(i.price) + '</td></tr>';
         });
-        html += '</tbody></table>';
+        content += '</tbody></table>';
+        var html = '<div class="order-print-wrap">' +
+          '<div class="order-print-header"><img src="' + logoUrl + '" alt="Crypvilla" class="order-print-logo"><h2 class="order-print-title">Crypvilla</h2><p class="order-print-subtitle">Order details</p></div>' +
+          '<div class="order-print-content">' + content + '</div></div>';
         document.getElementById('orderModalBody').innerHTML = html;
         document.getElementById('orderStatusSelect').value = o.status || 'pending';
       });
@@ -504,6 +564,9 @@
   document.getElementById('orderModal').addEventListener('click', function(e) {
     if (e.target === document.getElementById('orderModal')) document.getElementById('orderModal').classList.remove('show');
   });
+  document.getElementById('orderModalPrint').addEventListener('click', function() {
+    window.print();
+  });
   document.getElementById('orderModalSaveStatus').addEventListener('click', function() {
     if (!currentOrderId || !supabase) return;
     var status = document.getElementById('orderStatusSelect').value;
@@ -512,6 +575,200 @@
       else { loadOrders(); document.getElementById('orderModal').classList.remove('show'); }
     });
   });
+
+  // ——— Offers ———
+  var allOffersList = [];
+
+  function offerStatusBadge(status) {
+    var s = (status || '').toLowerCase();
+    var cls = 'badge-status badge-pending';
+    if (s === 'approved') cls = 'badge-status badge-paid';
+    else if (s === 'countered') cls = 'badge-status badge-shipped';
+    else if (s === 'rejected' || s === 'expired') cls = 'badge-status badge-cancelled';
+    else if (s === 'completed') cls = 'badge-status badge-delivered';
+    return '<span class="' + cls + '">' + (status || 'pending') + '</span>';
+  }
+
+  function generateCheckoutToken() {
+    var arr = new Uint8Array(32);
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+      crypto.getRandomValues(arr);
+    } else {
+      for (var i = 0; i < 32; i++) arr[i] = Math.floor(Math.random() * 256);
+    }
+    return Array.from(arr).map(function(b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+  }
+
+  function loadOffers() {
+    var tbody = document.getElementById('offersTableBody');
+    var statusFilter = document.getElementById('offerStatusFilter');
+    if (!supabase) {
+      if (tbody) tbody.innerHTML = '<tr><td colspan="10">Configure admin/config.js</td></tr>';
+      return;
+    }
+    supabase.from('offers').select('*, products(name, slug)').order('created_at', { ascending: false })
+      .then(function(r) {
+        if (r.error) {
+          tbody.innerHTML = '<tr><td colspan="10">Error: ' + (r.error.message || 'Failed to load') + '</td></tr>';
+          return;
+        }
+        allOffersList = r.data || [];
+        var filterStatus = (statusFilter && statusFilter.value) ? statusFilter.value : '';
+        var list = filterStatus ? allOffersList.filter(function(o) { return o.status === filterStatus; }) : allOffersList;
+        if (list.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="10" class="text-muted">No offers' + (filterStatus ? ' with this status.' : ' yet.') + '</td></tr>';
+          return;
+        }
+        tbody.innerHTML = list.map(function(o) {
+          var product = o.products;
+          var productName = (product && product.name) ? product.name : (o.product_id || '—');
+          var date = o.created_at ? new Date(o.created_at).toLocaleString() : '—';
+          var qty = o.quantity != null ? o.quantity : 1;
+          var reason = (o.reason || '').trim();
+          var reasonCell = reason ? ('<span title="' + reason.replace(/"/g, '&quot;') + '">' + (reason.length > 40 ? reason.substring(0, 40) + '…' : reason) + '</span>') : '—';
+          var canAct = (o.status === 'pending' || o.status === 'countered');
+          var actions = canAct
+            ? '<button type="button" class="btn-admin-outline btn-sm approve-offer" data-id="' + o.id + '">Approve</button> ' +
+              '<button type="button" class="btn-admin-danger btn-sm reject-offer" data-id="' + o.id + '">Reject</button>'
+            : '—';
+          return '<tr>' +
+            '<td>' + date + '</td>' +
+            '<td>' + productName + '</td>' +
+            '<td>' + qty + '</td>' +
+            '<td>' + (o.email || '—') + '</td>' +
+            '<td>' + formatNaira(o.original_price) + '</td>' +
+            '<td>' + formatNaira(o.offered_price) + '</td>' +
+            '<td style="max-width: 160px;" class="text-muted small">' + reasonCell + '</td>' +
+            '<td>' + (o.counter_price != null ? formatNaira(o.counter_price) : '—') + '</td>' +
+            '<td>' + offerStatusBadge(o.status) + '</td>' +
+            '<td>' + actions + '</td>' +
+            '</tr>';
+        }).join('');
+        document.querySelectorAll('.approve-offer').forEach(function(btn) {
+          btn.addEventListener('click', function() { adminApproveOffer(btn.getAttribute('data-id')); });
+        });
+        document.querySelectorAll('.reject-offer').forEach(function(btn) {
+          btn.addEventListener('click', function() { adminRejectOffer(btn.getAttribute('data-id')); });
+        });
+      }).catch(function(err) {
+        tbody.innerHTML = '<tr><td colspan="10">Error loading offers</td></tr>';
+        console.error(err);
+      });
+  }
+
+  function adminApproveOffer(offerId) {
+    if (!supabase) return;
+    var token = generateCheckoutToken();
+    var twoDaysMs = 2 * 24 * 60 * 60 * 1000;
+    var expiresAt = new Date(Date.now() + twoDaysMs).toISOString();
+    supabase.from('offers').update({
+      status: 'approved',
+      counter_price: null,
+      checkout_token: token,
+      checkout_token_expires_at: expiresAt
+    }).eq('id', offerId).then(function(r) {
+      if (r.error) alert('Approve failed: ' + r.error.message);
+      else loadOffers();
+    });
+  }
+
+  var rejectOfferModalOfferId = null;
+
+  function adminRejectOffer(offerId) {
+    rejectOfferModalOfferId = offerId;
+    var modal = document.getElementById('rejectOfferModal');
+    var msgEl = document.getElementById('rejectOfferMessage');
+    var priceEl = document.getElementById('rejectOfferBestPrice');
+    if (msgEl) msgEl.value = '';
+    if (priceEl) priceEl.value = '';
+    if (modal) modal.style.display = 'flex';
+  }
+
+  function closeRejectOfferModal() {
+    rejectOfferModalOfferId = null;
+    var modal = document.getElementById('rejectOfferModal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  function confirmRejectOffer() {
+    if (!supabase || !rejectOfferModalOfferId) return;
+    var msgEl = document.getElementById('rejectOfferMessage');
+    var priceEl = document.getElementById('rejectOfferBestPrice');
+    var rejection_message = (msgEl && msgEl.value) ? msgEl.value.trim() : null;
+    var counter_price = null;
+    if (priceEl && priceEl.value !== '' && !isNaN(parseFloat(priceEl.value))) {
+      var n = parseFloat(priceEl.value);
+      if (n >= 0) counter_price = n;
+    }
+    var payload = {
+      status: 'rejected',
+      checkout_token: null,
+      checkout_token_expires_at: null,
+      rejection_message: rejection_message || null,
+      counter_price: counter_price
+    };
+    supabase.from('offers').update(payload).eq('id', rejectOfferModalOfferId).then(function(r) {
+      if (r.error) alert('Reject failed: ' + r.error.message);
+      else loadOffers();
+      closeRejectOfferModal();
+    });
+  }
+
+  (function setupRejectOfferModal() {
+    var modal = document.getElementById('rejectOfferModal');
+    var closeBtn = document.getElementById('rejectOfferModalClose');
+    var cancelBtn = document.getElementById('rejectOfferCancel');
+    var confirmBtn = document.getElementById('rejectOfferConfirm');
+    if (closeBtn) closeBtn.addEventListener('click', closeRejectOfferModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeRejectOfferModal);
+    if (confirmBtn) confirmBtn.addEventListener('click', confirmRejectOffer);
+    if (modal) modal.addEventListener('click', function(e) { if (e.target === modal) closeRejectOfferModal(); });
+  })();
+
+  var offerStatusFilterEl = document.getElementById('offerStatusFilter');
+  if (offerStatusFilterEl) {
+    offerStatusFilterEl.addEventListener('change', function() {
+      var tbody = document.getElementById('offersTableBody');
+      if (!tbody || !allOffersList.length) return;
+      var filterStatus = this.value;
+      var list = filterStatus ? allOffersList.filter(function(o) { return o.status === filterStatus; }) : allOffersList;
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" class="text-muted">No offers with this status.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map(function(o) {
+        var product = o.products;
+        var productName = (product && product.name) ? product.name : (o.product_id || '—');
+        var date = o.created_at ? new Date(o.created_at).toLocaleString() : '—';
+        var qty = o.quantity != null ? o.quantity : 1;
+        var reason = (o.reason || '').trim();
+        var reasonCell = reason ? ('<span title="' + reason.replace(/"/g, '&quot;') + '">' + (reason.length > 40 ? reason.substring(0, 40) + '…' : reason) + '</span>') : '—';
+        var canAct = (o.status === 'pending' || o.status === 'countered');
+        var actions = canAct
+          ? '<button type="button" class="btn-admin-outline btn-sm approve-offer" data-id="' + o.id + '">Approve</button> ' +
+            '<button type="button" class="btn-admin-danger btn-sm reject-offer" data-id="' + o.id + '">Reject</button>'
+          : '—';
+        return '<tr>' +
+          '<td>' + date + '</td>' +
+          '<td>' + productName + '</td>' +
+          '<td>' + qty + '</td>' +
+          '<td>' + (o.email || '—') + '</td>' +
+          '<td>' + formatNaira(o.original_price) + '</td>' +
+          '<td>' + formatNaira(o.offered_price) + '</td>' +
+          '<td style="max-width: 160px;" class="text-muted small">' + reasonCell + '</td>' +
+          '<td>' + (o.counter_price != null ? formatNaira(o.counter_price) : '—') + '</td>' +
+          '<td>' + offerStatusBadge(o.status) + '</td>' +
+          '<td>' + actions + '</td>' +
+          '</tr>';
+      }).join('');
+      document.querySelectorAll('.approve-offer').forEach(function(btn) {
+        btn.addEventListener('click', function() { adminApproveOffer(btn.getAttribute('data-id')); });
+      });
+      document.querySelectorAll('.reject-offer').forEach(function(btn) {
+        btn.addEventListener('click', function() { adminRejectOffer(btn.getAttribute('data-id')); });
+      });
+    });
+  }
 
   // ——— Customers (from orders) ———
   function loadCustomers() {

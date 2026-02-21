@@ -45,6 +45,11 @@
         <a href="shop.html" class="btn btn-shop">Continue shopping</a>
       </div>
 
+      <div id="checkoutOfferInvalid" class="empty-state d-none">
+        <p class="mb-2">This offer is invalid or has expired.</p>
+        <a href="shop.html" class="btn btn-shop">Continue shopping</a>
+      </div>
+
       <div id="checkoutFormWrap" class="row d-none">
         <div class="col-lg-7 mb-4">
           <form id="checkoutForm" class="card border rounded-3 p-4">
@@ -117,6 +122,11 @@
   <script>
     (function() {
       var params = new URLSearchParams(window.location.search);
+      var offerToken = params.get('offer') ? params.get('offer').trim() : null;
+      var offerData = null;
+      var offerMode = false;
+      var offerTotal = 0;
+
       if (params.get('success') === '1' && params.get('order')) {
         document.getElementById('checkoutView').classList.add('d-none');
         document.getElementById('successView').classList.remove('d-none');
@@ -133,14 +143,47 @@
         return sel ? sel.value === 'lagos' : true;
       }
 
+      function renderOfferSummary() {
+        if (!offerData) return;
+        var finalAmount = Number(offerData.final_amount);
+        var qty = Math.max(1, parseInt(offerData.quantity, 10) || 1);
+        var isLagos = getIsLagos();
+        var pricePerUnit = finalAmount / qty;
+        var fakeCart = [{ quantity: qty, price: pricePerUnit, category_slug: offerData.category_slug || '' }];
+        var shippingResult = window.CrypvillaCart && window.CrypvillaCart.getShipping
+          ? window.CrypvillaCart.getShipping(fakeCart, isLagos)
+          : { fee: 0, hint: '' };
+        var shipping = (shippingResult && shippingResult.fee != null) ? shippingResult.fee : 0;
+        offerTotal = Math.round(finalAmount + shipping);
+
+        var list = document.getElementById('checkoutItems');
+        list.innerHTML = '';
+        var line = document.createElement('li');
+        line.className = 'list-group-item px-0 d-flex justify-content-between';
+        var snap = offerData.product_snapshot || {};
+        line.innerHTML = '<span>' + (snap.name || 'Product').substring(0, 40) + ' × ' + qty + '</span><span>' + formatNaira(finalAmount) + '</span>';
+        list.appendChild(line);
+
+        document.getElementById('checkoutSubtotal').textContent = formatNaira(finalAmount);
+        document.getElementById('checkoutShipping').textContent = shipping === 0 ? 'Free' : formatNaira(shipping);
+        document.getElementById('checkoutTotal').textContent = formatNaira(offerTotal);
+        var hint = document.getElementById('checkoutFreeShippingHint');
+        if (hint) {
+          hint.textContent = (shippingResult && shippingResult.hint) ? shippingResult.hint : '';
+          hint.classList.toggle('d-none', !(shippingResult && shippingResult.hint));
+        }
+      }
+
       function renderSummary() {
         var cart = window.CrypvillaCart ? window.CrypvillaCart.get() : [];
         if (!cart.length) {
           document.getElementById('checkoutEmpty').classList.remove('d-none');
           document.getElementById('checkoutFormWrap').classList.add('d-none');
+          document.getElementById('checkoutOfferInvalid').classList.add('d-none');
           return;
         }
         document.getElementById('checkoutEmpty').classList.add('d-none');
+        document.getElementById('checkoutOfferInvalid').classList.add('d-none');
         document.getElementById('checkoutFormWrap').classList.remove('d-none');
 
         var subtotal = window.CrypvillaCart.getSubtotal();
@@ -168,9 +211,45 @@
         }
       }
 
-      renderSummary();
+      if (offerToken) {
+        document.getElementById('checkoutEmpty').classList.add('d-none');
+        document.getElementById('checkoutFormWrap').classList.add('d-none');
+        if (window.supabase) {
+          window.supabase.rpc('validate_offer_checkout', { p_token: offerToken }).then(function(r) {
+            if (r.error || !r.data || !r.data.length) {
+              document.getElementById('checkoutOfferInvalid').classList.remove('d-none');
+              return;
+            }
+            offerData = r.data[0];
+            offerMode = true;
+            document.getElementById('checkoutEmpty').classList.add('d-none');
+            document.getElementById('checkoutOfferInvalid').classList.add('d-none');
+            document.getElementById('checkoutFormWrap').classList.remove('d-none');
+            var emailInput = document.querySelector('#checkoutForm input[name="customer_email"]');
+            if (emailInput) {
+              emailInput.value = offerData.email || '';
+              emailInput.readOnly = true;
+            }
+            renderOfferSummary();
+          }).catch(function() {
+            try { sessionStorage.removeItem('crypvilla_pending_offer'); } catch (e) {}
+            document.getElementById('checkoutOfferInvalid').classList.remove('d-none');
+          });
+        } else {
+          try { sessionStorage.removeItem('crypvilla_pending_offer'); } catch (e) {}
+          document.getElementById('checkoutOfferInvalid').classList.remove('d-none');
+        }
+      } else {
+        renderSummary();
+      }
+
       var deliveryEl = document.getElementById('deliveryLocation');
-      if (deliveryEl) deliveryEl.addEventListener('change', renderSummary);
+      if (deliveryEl) {
+        deliveryEl.addEventListener('change', function() {
+          if (offerMode) renderOfferSummary();
+          else renderSummary();
+        });
+      }
 
       document.getElementById('payBtn').addEventListener('click', function() {
         var form = document.getElementById('checkoutForm');
@@ -178,6 +257,55 @@
           form.reportValidity();
           return;
         }
+
+        if (offerMode && offerData && offerToken) {
+          var name = form.customer_name.value.trim();
+          var email = form.customer_email.value.trim();
+          var phone = form.customer_phone.value.trim();
+          var address = form.delivery_address.value.trim();
+          var location = document.getElementById('deliveryLocation').value || 'lagos';
+          var btn = document.getElementById('payBtn');
+          btn.disabled = true;
+          btn.textContent = 'Opening…';
+          window.CrypvillaPaystack.pay(
+            { amount: offerTotal, email: email },
+            function success(result) {
+              window.supabase.rpc('complete_offer_payment', {
+                p_token: offerToken,
+                p_paystack_reference: result.reference,
+                p_customer_name: name,
+                p_customer_phone: phone,
+                p_delivery_address: address,
+                p_delivery_location: location
+              }).then(function(r) {
+                if (r.error) {
+                  btn.disabled = false;
+                  btn.textContent = 'Pay with Paystack';
+                  alert(r.error.message || 'Order could not be completed.');
+                  return;
+                }
+                var data = r.data;
+                if (typeof data === 'string') try { data = JSON.parse(data); } catch (e) { data = null; }
+                var orderNum = (data && data.order_number) ? data.order_number : result.reference;
+                window.location.href = 'checkout.html?success=1&order=' + encodeURIComponent(orderNum);
+              }).catch(function(err) {
+                btn.disabled = false;
+                btn.textContent = 'Pay with Paystack';
+                alert(err && err.message ? err.message : 'Order could not be saved.');
+              });
+            },
+            function failure() {
+              btn.disabled = false;
+              btn.textContent = 'Pay with Paystack';
+            },
+            function onClose() {
+              btn.disabled = false;
+              btn.textContent = 'Pay with Paystack';
+            }
+          );
+          return;
+        }
+
         var cart = window.CrypvillaCart ? window.CrypvillaCart.get() : [];
         if (!cart.length) {
           alert('Your cart is empty.');
