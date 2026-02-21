@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="images/crypvilla-removebg-preview.png" type="image/png">
+  <title>Checkout — Crypvilla</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="css/shop.css" rel="stylesheet">
+</head>
+<body class="d-flex flex-column min-vh-100">
+  <div class="top-bar">Free delivery in Lagos on orders over ₦500,000</div>
+  <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">
+        <img src="images/crypvilla-removebg-preview.png" alt="Crypvilla">
+      </a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="shop.html">Shop</a></li>
+          <li class="nav-item"><a class="nav-link" href="cart.html">Cart</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container flex-grow-1 py-4">
+    <div id="successView" class="d-none text-center py-5">
+      <h1 class="section-title mb-3">Thank you</h1>
+      <p class="text-muted mb-2">Your order <strong id="successOrderNumber"></strong> has been placed.</p>
+      <p class="text-muted small">We'll send confirmation to your email.</p>
+      <a href="shop.html" class="btn btn-shop">Continue shopping</a>
+    </div>
+
+    <div id="checkoutView">
+      <h1 class="section-title mb-4">Checkout</h1>
+
+      <div id="checkoutEmpty" class="empty-state d-none">
+        <p class="mb-2">Your cart is empty.</p>
+        <a href="shop.html" class="btn btn-shop">Continue shopping</a>
+      </div>
+
+      <div id="checkoutFormWrap" class="row d-none">
+        <div class="col-lg-7 mb-4">
+          <form id="checkoutForm" class="card border rounded-3 p-4">
+            <h5 class="mb-3">Delivery details</h5>
+            <div class="mb-3">
+              <label class="form-label">Full name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="customer_name" required placeholder="John Doe">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email <span class="text-danger">*</span></label>
+              <input type="email" class="form-control" name="customer_email" required placeholder="you@example.com">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Phone <span class="text-danger">*</span></label>
+              <input type="tel" class="form-control" name="customer_phone" required placeholder="+234 800 000 0000">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Delivery address <span class="text-danger">*</span></label>
+              <textarea class="form-control" name="delivery_address" required rows="3" placeholder="Street, city, state, postal code"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="col-lg-5">
+          <div class="card border rounded-3 p-4">
+            <h5 class="mb-3">Order summary</h5>
+            <ul class="list-group list-group-flush mb-3" id="checkoutItems"></ul>
+            <p class="d-flex justify-content-between mb-1">
+              <span class="text-muted">Subtotal</span>
+              <span id="checkoutSubtotal">₦0</span>
+            </p>
+            <p class="d-flex justify-content-between mb-1 small text-muted">
+              <span>Shipping</span>
+              <span id="checkoutShipping">—</span>
+            </p>
+            <p class="small text-muted mb-0" id="checkoutFreeShippingHint"></p>
+            <hr>
+            <p class="d-flex justify-content-between fw-bold mb-4">
+              <span>Total</span>
+              <span id="checkoutTotal">₦0</span>
+            </p>
+            <button type="button" class="btn btn-shop w-100 btn-lg" id="payBtn">Pay with Paystack</button>
+            <p class="small text-muted mt-2 mb-0">You will complete payment securely via Paystack.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p class="mb-1 text-center">No 13 Balogun Street, Anifowoshe, Lagos State, Nigeria.</p>
+      <p class="mb-0 text-center">&copy; Crypvilla. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/paystack.js"></script>
+  <script>
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+      if (params.get('success') === '1' && params.get('order')) {
+        document.getElementById('checkoutView').classList.add('d-none');
+        document.getElementById('successView').classList.remove('d-none');
+        document.getElementById('successOrderNumber').textContent = params.get('order');
+        return;
+      }
+
+      function formatNaira(n) {
+        return '₦' + (Number(n) || 0).toLocaleString();
+      }
+
+      function renderSummary() {
+        var cart = window.CrypvillaCart ? window.CrypvillaCart.get() : [];
+        if (!cart.length) {
+          document.getElementById('checkoutEmpty').classList.remove('d-none');
+          document.getElementById('checkoutFormWrap').classList.add('d-none');
+          return;
+        }
+        document.getElementById('checkoutEmpty').classList.add('d-none');
+        document.getElementById('checkoutFormWrap').classList.remove('d-none');
+
+        var config = window.CRYPVILLA_CONFIG || {};
+        var threshold = config.FREE_SHIPPING_THRESHOLD || 200000;
+        var shippingFee = config.SHIPPING_FEE || 5000;
+        var subtotal = window.CrypvillaCart.getSubtotal();
+        var shipping = subtotal >= threshold ? 0 : shippingFee;
+        var total = subtotal + shipping;
+
+        var list = document.getElementById('checkoutItems');
+        list.innerHTML = '';
+        cart.forEach(function(item) {
+          var line = document.createElement('li');
+          line.className = 'list-group-item px-0 d-flex justify-content-between';
+          line.innerHTML = '<span>' + (item.name || 'Product').substring(0, 40) + ' × ' + (item.quantity || 1) + '</span><span>' + formatNaira(item.price * (item.quantity || 1)) + '</span>';
+          list.appendChild(line);
+        });
+
+        document.getElementById('checkoutSubtotal').textContent = formatNaira(subtotal);
+        document.getElementById('checkoutShipping').textContent = shipping === 0 ? 'Free' : formatNaira(shipping);
+        document.getElementById('checkoutTotal').textContent = formatNaira(total);
+        var hint = document.getElementById('checkoutFreeShippingHint');
+        if (shipping > 0 && threshold > subtotal && hint) {
+          hint.textContent = 'Spend ' + formatNaira(threshold - subtotal) + ' more for free delivery in Lagos.';
+          hint.classList.remove('d-none');
+        } else if (hint) {
+          hint.textContent = '';
+          hint.classList.add('d-none');
+        }
+      }
+
+      renderSummary();
+
+      document.getElementById('payBtn').addEventListener('click', function() {
+        var form = document.getElementById('checkoutForm');
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+        var cart = window.CrypvillaCart ? window.CrypvillaCart.get() : [];
+        if (!cart.length) {
+          alert('Your cart is empty.');
+          return;
+        }
+        var config = window.CRYPVILLA_CONFIG || {};
+        var threshold = config.FREE_SHIPPING_THRESHOLD || 200000;
+        var shippingFee = config.SHIPPING_FEE || 5000;
+        var subtotal = window.CrypvillaCart.getSubtotal();
+        var shipping = subtotal >= threshold ? 0 : shippingFee;
+        var total = Math.round(subtotal + shipping);
+
+        var name = form.customer_name.value.trim();
+        var email = form.customer_email.value.trim();
+        var phone = form.customer_phone.value.trim();
+        var address = form.delivery_address.value.trim();
+
+        var btn = document.getElementById('payBtn');
+        btn.disabled = true;
+        btn.textContent = 'Opening…';
+
+        window.CrypvillaPaystack.pay(
+          {
+            amount: total,
+            email: email
+          },
+          function success(result) {
+            var orderNumber = result.reference;
+            if (!window.supabase) {
+              window.CrypvillaCart.clear();
+              window.location.href = 'checkout.html?success=1&order=' + encodeURIComponent(orderNumber);
+              return;
+            }
+            var config = window.CRYPVILLA_CONFIG || {};
+            var shippingFee = config.SHIPPING_FEE || 5000;
+            var threshold = config.FREE_SHIPPING_THRESHOLD || 200000;
+            var st = window.CrypvillaCart.getSubtotal();
+            var sh = st >= threshold ? 0 : shippingFee;
+            var tot = st + sh;
+            var orderNum = 'CRV-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+            var orderRow = {
+              order_number: orderNum,
+              customer_email: email,
+              customer_name: name,
+              customer_phone: phone,
+              delivery_address: address,
+              subtotal: st,
+              shipping: sh,
+              total: tot,
+              status: 'paid',
+              paystack_reference: result.reference,
+              paystack_status: 'success'
+            };
+            window.supabase.from('orders').insert(orderRow).select('id').single().then(function(ord) {
+              if (ord.error || !ord.data || !ord.data.id) {
+                throw new Error(ord.error ? ord.error.message : 'Order insert failed');
+              }
+              var items = cart.map(function(item) {
+                return {
+                  order_id: ord.data.id,
+                  product_id: item.id,
+                  product_snapshot: { name: item.name, price: item.price, image_url: item.image_url },
+                  quantity: item.quantity || 1,
+                  price: item.price
+                };
+              });
+              return window.supabase.from('order_items').insert(items);
+            }).then(function(r) {
+              if (r && r.error) throw new Error(r.error.message);
+              window.CrypvillaCart.clear();
+              window.location.href = 'checkout.html?success=1&order=' + encodeURIComponent(orderNum);
+            }).catch(function(err) {
+              btn.disabled = false;
+              btn.textContent = 'Pay with Paystack';
+              console.error(err);
+              alert('Order could not be saved. Please try again or contact support.');
+            });
+          },
+          function failure() {
+            btn.disabled = false;
+            btn.textContent = 'Pay with Paystack';
+          },
+          function onClose() {
+            btn.disabled = false;
+            btn.textContent = 'Pay with Paystack';
+          }
+        );
+      });
+    })();
+  </script>
+</body>
+</html>

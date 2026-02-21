@@ -1,0 +1,134 @@
+/* Shared shop styles - Crypvilla */
+:root {
+  --crypvilla-primary: #0077ff;
+  --crypvilla-primary-dark: #0056b3;
+  --crypvilla-text: #0f172a;
+  --crypvilla-text-muted: #475569;
+  --crypvilla-bg: #ffffff;
+  --crypvilla-bg-soft: #f8fafc;
+  --crypvilla-border: #e2e8f0;
+  --crypvilla-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --crypvilla-shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+}
+
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--crypvilla-bg); color: var(--crypvilla-text); }
+
+.top-bar {
+  background: linear-gradient(90deg, var(--crypvilla-primary), var(--crypvilla-primary-dark));
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+  padding: 0.5rem 1rem;
+}
+
+.navbar {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 1px 0 var(--crypvilla-border);
+  padding: 0.75rem 0;
+}
+.navbar-brand { font-weight: 700; color: var(--crypvilla-text) !important; display: flex; align-items: center; }
+.navbar-brand img { height: 100px; width: auto; }
+.nav-link {
+  color: var(--crypvilla-text-muted) !important;
+  font-weight: 500;
+  padding: 0.5rem 0.75rem !important;
+  border-radius: 8px;
+}
+.nav-link:hover { color: var(--crypvilla-primary) !important; }
+.btn-shop {
+  background: linear-gradient(135deg, var(--crypvilla-primary), var(--crypvilla-primary-dark));
+  color: #fff !important;
+  font-weight: 600;
+  padding: 0.5rem 1.25rem;
+  border-radius: 10px;
+  border: none;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.btn-shop:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(0, 119, 255, 0.3); color: #fff !important; }
+
+.card-product {
+  background: var(--crypvilla-bg);
+  border: 1px solid var(--crypvilla-border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--crypvilla-shadow);
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+}
+.card-product:hover {
+  transform: translateY(-8px);
+  border-color: rgba(0, 119, 255, 0.25);
+  box-shadow: var(--crypvilla-shadow-lg);
+}
+.card-product .img-wrap {
+  aspect-ratio: 16/10;
+  overflow: hidden;
+  background: var(--crypvilla-bg-soft);
+  position: relative;
+}
+.card-product .img-wrap img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+.card-product:hover .img-wrap img { transform: scale(1.06); }
+.card-product .card-body { padding: 1.25rem; }
+.card-product .card-title { font-weight: 600; font-size: 1rem; margin-bottom: 0.25rem; color: var(--crypvilla-text); }
+.card-product .text-muted { color: var(--crypvilla-text-muted) !important; font-size: 0.9rem; }
+
+.badge-sale {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  background: #dc3545;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  z-index: 1;
+}
+
+.spec-pills { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.5rem; }
+.spec-pill {
+  font-size: 0.75rem;
+  color: var(--crypvilla-text-muted);
+  background: var(--crypvilla-bg-soft);
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+}
+
+.price-current { font-weight: 700; color: var(--crypvilla-text); }
+.price-compare { font-size: 0.875rem; color: var(--crypvilla-text-muted); text-decoration: line-through; margin-left: 0.5rem; }
+
+.footer {
+  border-top: 1px solid var(--crypvilla-border);
+  padding: 3rem 0 2rem;
+  background: var(--crypvilla-bg);
+  color: var(--crypvilla-text-muted);
+  font-size: 0.9rem;
+  margin-top: auto;
+}
+.footer a { color: var(--crypvilla-text-muted); text-decoration: none; }
+.footer a:hover { color: var(--crypvilla-primary); }
+.footer strong.text-dark { color: var(--crypvilla-text) !important; }
+
+.cart-count-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--crypvilla-primary);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-spinner { color: var(--crypvilla-primary); }
+.empty-state { padding: 3rem 1rem; text-align: center; color: var(--crypvilla-text-muted); }

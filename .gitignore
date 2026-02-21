@@ -1,0 +1,24 @@
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+
+# Editor and IDE
+.cursor/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and temp
+*.log
+*.tmp
+.cache/

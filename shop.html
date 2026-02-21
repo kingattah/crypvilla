@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="images/crypvilla-removebg-preview.png" type="image/png">
+  <title>Shop — Crypvilla</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="css/shop.css" rel="stylesheet">
+</head>
+<body class="d-flex flex-column min-vh-100">
+  <div class="top-bar">Free delivery in Lagos on orders over ₦500,000</div>
+  <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">
+        <img src="images/crypvilla-removebg-preview.png" alt="Crypvilla">
+      </a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="shop.html">Shop</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#contact">Contact</a></li>
+        </ul>
+        <ul class="navbar-nav">
+          <li class="nav-item position-relative">
+            <a class="nav-link btn btn-shop" href="cart.html">Cart <span id="navCartCount" class="cart-count-badge d-none">0</span></a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container flex-grow-1 py-4">
+    <h1 class="section-title mb-3">Shop</h1>
+    <div class="mb-4">
+      <div class="d-flex flex-wrap gap-2 align-items-center">
+        <span class="text-muted small">Categories:</span>
+        <a href="shop.html" class="btn btn-sm btn-outline-secondary category-link" data-slug="">All</a>
+        <span id="categoryLinks"><span class="text-muted">Loading…</span></span>
+      </div>
+    </div>
+
+    <div id="productGrid" class="row g-4">
+      <div class="col-12 text-center py-5">
+        <div class="spinner-border loading-spinner" role="status"><span class="visually-hidden">Loading</span></div>
+        <p class="text-muted mt-2">Loading products…</p>
+      </div>
+    </div>
+
+    <div id="emptyState" class="empty-state d-none">
+      <p class="mb-2">No products in this category yet.</p>
+      <a href="shop.html" class="btn btn-shop">View all</a>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <strong class="text-dark d-block mb-2">Crypvilla</strong>
+          <p class="mb-0">Grade A laptops, desktops & MacBooks. Brand new and refurbished, delivered with care.</p>
+          <p class="mb-0 mt-2 small">No 13 Balogun Street, Anifowoshe, Lagos State, Nigeria.</p>
+        </div>
+        <div class="col-md-2">
+          <strong class="text-dark d-block mb-2">Shop</strong>
+          <ul class="list-unstyled mb-0">
+            <li><a href="shop.html?category=grade-a-uk-used-laptops">Grade A Laptops</a></li>
+            <li><a href="shop.html?category=brand-new-laptops">Brand New Laptops</a></li>
+            <li><a href="shop.html?category=laptop-accessories">Accessories</a></li>
+            <li><a href="shop.html?category=uk-used-desktops">UK Used Desktops</a></li>
+            <li><a href="shop.html?category=brand-new-desktops">Brand New Desktops</a></li>
+            <li><a href="shop.html?category=all-in-ones">All-in-Ones</a></li>
+          </ul>
+        </div>
+        <div class="col-md-2">
+          <strong class="text-dark d-block mb-2">Company</strong>
+          <ul class="list-unstyled mb-0">
+            <li><a href="index.html#contact">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+      <hr class="my-4 border-secondary">
+      <p class="mb-0 text-center">&copy; Crypvilla. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/cart.js"></script>
+  <script>
+    (function() {
+      function updateCartCount() {
+        var el = document.getElementById('navCartCount');
+        if (!el) return;
+        var n = window.CrypvillaCart ? window.CrypvillaCart.getCount() : 0;
+        el.textContent = n;
+        el.classList.toggle('d-none', n === 0);
+      }
+      updateCartCount();
+      if (window.CrypvillaCart) window.CrypvillaCart.onUpdate(updateCartCount);
+
+      var params = new URLSearchParams(window.location.search);
+      var categorySlug = params.get('category') || '';
+
+      function renderProduct(p) {
+        var specs = p.specs || {};
+        var pills = [specs.processor, specs.ram, specs.storage].filter(Boolean).slice(0, 3);
+        var priceHtml = p.compare_at_price
+          ? '<span class="price-current">₦' + Number(p.price).toLocaleString() + '</span> <span class="price-compare">₦' + Number(p.compare_at_price).toLocaleString() + '</span>'
+          : '<span class="price-current">₦' + Number(p.price).toLocaleString() + '</span>';
+        var saleBadge = p.compare_at_price ? '<span class="badge-sale">Sale</span>' : '';
+        var imgUrl = p.image_url || 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&q=80';
+        var name = (p.name || '').substring(0, 60) + ((p.name && p.name.length > 60) ? '…' : '');
+        var card = document.createElement('div');
+        card.className = 'col-6 col-md-4 col-lg-3';
+        card.innerHTML =
+          '<div class="card card-product h-100">' +
+            '<div class="img-wrap position-relative">' + saleBadge +
+              '<a href="product.html?id=' + encodeURIComponent(p.id) + '"><img src="' + imgUrl + '" alt="" class="w-100" loading="lazy"></a>' +
+            '</div>' +
+            '<div class="card-body">' +
+              '<h5 class="card-title"><a href="product.html?id=' + encodeURIComponent(p.id) + '" class="text-dark text-decoration-none">' + name + '</a></h5>' +
+              '<p class="text-muted small mb-1">' + priceHtml + '</p>' +
+              (pills.length ? '<div class="spec-pills">' + pills.map(function(s) { return '<span class="spec-pill">' + s + '</span>'; }).join('') + '</div>' : '') +
+              '<div class="mt-2 d-flex gap-1">' +
+                '<a href="product.html?id=' + encodeURIComponent(p.id) + '" class="btn btn-sm btn-outline-secondary flex-grow-1">View</a>' +
+                '<button type="button" class="btn btn-sm btn-shop add-to-cart" data-id="' + p.id + '" data-name="' + (p.name || '').replace(/"/g, '&quot;') + '" data-price="' + p.price + '" data-image="' + (p.image_url || '').replace(/"/g, '&quot;') + '">Add to cart</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        return card;
+      }
+
+      function loadCategories() {
+        var el = document.getElementById('categoryLinks');
+        if (!window.supabase) { el.innerHTML = ''; return Promise.resolve([]); }
+        return window.supabase.from('categories').select('slug, name').order('sort_order').then(function(r) {
+          if (r.data && r.data.length) {
+            el.innerHTML = r.data.map(function(c) {
+              var active = c.slug === categorySlug ? ' active' : '';
+              return '<a href="shop.html?category=' + encodeURIComponent(c.slug) + '" class="btn btn-sm btn-outline-secondary category-link' + active + '" data-slug="' + c.slug + '">' + c.name + '</a>';
+            }).join('');
+          }
+          el.innerHTML = '';
+          return r.data || [];
+        });
+      }
+
+      function loadProducts() {
+        var grid = document.getElementById('productGrid');
+        var empty = document.getElementById('emptyState');
+
+        function render(r) {
+          grid.innerHTML = '';
+          if (r.data && r.data.length) {
+            r.data.forEach(function(p) { grid.appendChild(renderProduct(p)); });
+            empty.classList.add('d-none');
+          } else {
+            empty.classList.remove('d-none');
+          }
+        }
+
+        if (!window.supabase) {
+          grid.innerHTML = '<div class="col-12 empty-state"><p>Configure Supabase in config.js to load products.</p></div>';
+          empty.classList.add('d-none');
+          return;
+        }
+
+        if (categorySlug) {
+          window.supabase.from('categories').select('id').eq('slug', categorySlug).single().then(function(cat) {
+            if (cat.data && cat.data.id) {
+              return window.supabase.from('products').select('id, name, slug, price, compare_at_price, image_url, specs').eq('category_id', cat.data.id).then(render);
+            }
+            render({ data: [] });
+          });
+        } else {
+          window.supabase.from('products').select('id, name, slug, price, compare_at_price, image_url, specs').then(render);
+        }
+      }
+
+      loadCategories().then(function() { loadProducts(); });
+
+      document.getElementById('productGrid').addEventListener('click', function(e) {
+        var btn = e.target.closest('.add-to-cart');
+        if (!btn) return;
+        var id = btn.getAttribute('data-id');
+        var name = btn.getAttribute('data-name');
+        var price = btn.getAttribute('data-price');
+        var image = btn.getAttribute('data-image');
+        if (id && window.CrypvillaCart) {
+          window.CrypvillaCart.add(id, 1, { name: name, price: price, image_url: image });
+          updateCartCount();
+          var t = btn.textContent;
+          btn.textContent = 'Added';
+          btn.disabled = true;
+          setTimeout(function() { btn.textContent = t; btn.disabled = false; }, 1500);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

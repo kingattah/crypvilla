@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="images/crypvilla-removebg-preview.png" type="image/png">
+  <title>Cart — Crypvilla</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="css/shop.css" rel="stylesheet">
+</head>
+<body class="d-flex flex-column min-vh-100">
+  <div class="top-bar">Free delivery in Lagos on orders over ₦500,000</div>
+  <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">
+        <img src="images/crypvilla-removebg-preview.png" alt="Crypvilla">
+      </a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="shop.html">Shop</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#contact">Contact</a></li>
+        </ul>
+        <ul class="navbar-nav">
+          <li class="nav-item position-relative">
+            <a class="nav-link btn btn-shop" href="cart.html">Cart <span id="navCartCount" class="cart-count-badge">0</span></a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container flex-grow-1 py-4">
+    <h1 class="section-title mb-4">Your cart</h1>
+
+    <div id="cartEmpty" class="empty-state d-none">
+      <p class="mb-2">Your cart is empty.</p>
+      <a href="shop.html" class="btn btn-shop">Continue shopping</a>
+    </div>
+
+    <div id="cartContent" class="d-none">
+      <div class="row">
+        <div class="col-lg-8">
+          <ul class="list-group list-group-flush" id="cartItems"></ul>
+        </div>
+        <div class="col-lg-4">
+          <div class="card border rounded-3 p-3">
+            <h5 class="mb-3">Summary</h5>
+            <p class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Subtotal</span>
+              <span id="cartSubtotal">₦0</span>
+            </p>
+            <p class="d-flex justify-content-between small text-muted mb-2" id="shippingLine">
+              <span>Shipping</span>
+              <span id="shippingAmount">Calculated at checkout</span>
+            </p>
+            <p class="small mb-0" id="freeShippingHint"></p>
+            <hr>
+            <p class="d-flex justify-content-between fw-bold mb-3">
+              <span>Total</span>
+              <span id="cartTotal">₦0</span>
+            </p>
+            <a href="checkout.html" class="btn btn-shop w-100">Proceed to checkout</a>
+            <a href="shop.html" class="btn btn-outline-secondary w-100 mt-2">Continue shopping</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <strong class="text-dark d-block mb-2">Crypvilla</strong>
+          <p class="mb-0">Grade A laptops, desktops & MacBooks. Brand new and refurbished, delivered with care.</p>
+          <p class="mb-0 mt-2 small">No 13 Balogun Street, Anifowoshe, Lagos State, Nigeria.</p>
+        </div>
+        <div class="col-md-2">
+          <strong class="text-dark d-block mb-2">Shop</strong>
+          <ul class="list-unstyled mb-0">
+            <li><a href="shop.html">All products</a></li>
+          </ul>
+        </div>
+      </div>
+      <hr class="my-4 border-secondary">
+      <p class="mb-0 text-center">&copy; Crypvilla. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="config.js"></script>
+  <script src="js/cart.js"></script>
+  <script>
+    (function() {
+      function formatNaira(n) {
+        return '₦' + (Number(n) || 0).toLocaleString();
+      }
+
+      function render() {
+        var cart = window.CrypvillaCart ? window.CrypvillaCart.get() : [];
+        var countEl = document.getElementById('navCartCount');
+        if (countEl) {
+          var n = window.CrypvillaCart ? window.CrypvillaCart.getCount() : 0;
+          countEl.textContent = n;
+          countEl.classList.toggle('d-none', n === 0);
+        }
+
+        var empty = document.getElementById('cartEmpty');
+        var content = document.getElementById('cartContent');
+        if (!cart.length) {
+          empty.classList.remove('d-none');
+          content.classList.add('d-none');
+          return;
+        }
+        empty.classList.add('d-none');
+        content.classList.remove('d-none');
+
+        var list = document.getElementById('cartItems');
+        list.innerHTML = '';
+        cart.forEach(function(item) {
+          var row = document.createElement('li');
+          row.className = 'list-group-item d-flex align-items-center gap-3 py-3';
+          var imgUrl = item.image_url || 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=120&q=80';
+          var lineTotal = (item.price * (item.quantity || 0));
+          row.innerHTML =
+            '<img src="' + imgUrl + '" alt="" width="80" height="60" class="rounded object-fit-cover" style="object-fit: cover;">' +
+            '<div class="flex-grow-1">' +
+              '<a href="product.html?id=' + encodeURIComponent(item.id) + '" class="fw-semibold text-dark text-decoration-none">' + (item.name || 'Product').substring(0, 50) + '</a>' +
+              '<p class="text-muted small mb-0">' + formatNaira(item.price) + ' each</p>' +
+            '</div>' +
+            '<div class="d-flex align-items-center gap-2">' +
+              '<input type="number" class="form-control form-control-sm cart-qty" data-id="' + item.id + '" value="' + (item.quantity || 1) + '" min="1" style="width: 60px;">' +
+              '<span class="fw-semibold" style="min-width: 80px;">' + formatNaira(lineTotal) + '</span>' +
+              '<button type="button" class="btn btn-outline-danger btn-sm cart-remove" data-id="' + item.id + '" aria-label="Remove">×</button>' +
+            '</div>';
+          list.appendChild(row);
+        });
+
+        var subtotal = window.CrypvillaCart ? window.CrypvillaCart.getSubtotal() : 0;
+        var config = window.CRYPVILLA_CONFIG || {};
+        var threshold = config.FREE_SHIPPING_THRESHOLD || 200000;
+        var shippingFee = config.SHIPPING_FEE || 5000;
+        var shipping = subtotal >= threshold ? 0 : shippingFee;
+        var total = subtotal + shipping;
+
+        document.getElementById('cartSubtotal').textContent = formatNaira(subtotal);
+        document.getElementById('shippingAmount').textContent = shipping === 0 ? 'Free' : formatNaira(shipping);
+        document.getElementById('cartTotal').textContent = formatNaira(total);
+        var hint = document.getElementById('freeShippingHint');
+        if (shipping > 0 && threshold > subtotal) {
+          hint.textContent = 'Spend ' + formatNaira(threshold - subtotal) + ' more for free delivery in Lagos.';
+          hint.classList.remove('d-none');
+        } else {
+          hint.textContent = '';
+          hint.classList.add('d-none');
+        }
+      }
+
+      document.getElementById('cartItems').addEventListener('change', function(e) {
+        var input = e.target.closest('.cart-qty');
+        if (!input || !window.CrypvillaCart) return;
+        var id = input.getAttribute('data-id');
+        var qty = parseInt(input.value, 10) || 1;
+        window.CrypvillaCart.update(id, qty);
+        render();
+      });
+
+      document.getElementById('cartItems').addEventListener('click', function(e) {
+        var btn = e.target.closest('.cart-remove');
+        if (!btn || !window.CrypvillaCart) return;
+        window.CrypvillaCart.remove(btn.getAttribute('data-id'));
+        render();
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

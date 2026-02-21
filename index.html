@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="images/crypvilla-removebg-preview.png" type="image/png">
+  <title>Crypvilla — Grade A Laptops, Desktops & MacBooks</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --crypvilla-primary: #0077ff;
+      --crypvilla-primary-dark: #0056b3;
+      --crypvilla-text: #0f172a;
+      --crypvilla-text-muted: #475569;
+      --crypvilla-muted: #64748b;
+      --crypvilla-bg: #ffffff;
+      --crypvilla-bg-soft: #f8fafc;
+      --crypvilla-border: #e2e8f0;
+      --crypvilla-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+      --crypvilla-shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+    }
+    * { scroll-behavior: smooth; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--crypvilla-bg);
+      color: var(--crypvilla-text);
+      overflow-x: hidden;
+    }
+    /* Scroll-triggered animations */
+    .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .animate-on-scroll.animated {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .animate-on-scroll.delay-1 { transition-delay: 0.1s; }
+    .animate-on-scroll.delay-2 { transition-delay: 0.2s; }
+    .animate-on-scroll.delay-3 { transition-delay: 0.3s; }
+    .animate-on-scroll.delay-4 { transition-delay: 0.4s; }
+    /* Hero load animations */
+    .hero .hero-animate {
+      opacity: 0;
+      transform: translateY(24px);
+      animation: heroReveal 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .hero .hero-animate.hero-1 { animation-delay: 0.15s; }
+    .hero .hero-animate.hero-2 { animation-delay: 0.3s; }
+    .hero .hero-animate.hero-3 { animation-delay: 0.45s; }
+    .hero .hero-animate.hero-4 { animation-delay: 0.6s; }
+    .hero .hero-animate.hero-5 { animation-delay: 0.75s; }
+    .hero .hero-animate.hero-6 { animation-delay: 0.9s; }
+    .hero .hero-animate.hero-img { animation-delay: 0.5s; animation-name: heroRevealScale; }
+    @keyframes heroReveal {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes heroRevealScale {
+      from { opacity: 0; transform: translateY(20px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .navbar {
+      background: rgba(255, 255, 255, 0.95) !important;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 1px 0 var(--crypvilla-border);
+      padding: 0.75rem 0;
+      transition: box-shadow 0.3s ease;
+    }
+    .navbar.scrolled { box-shadow: var(--crypvilla-shadow); }
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: var(--crypvilla-text) !important;
+      letter-spacing: -0.02em;
+      transition: opacity 0.2s;
+      display: flex;
+      align-items: center;
+    }
+    .navbar-brand:hover { opacity: 0.85; }
+    .navbar-brand img {
+      height: 100px;
+      width: auto;
+      display: block;
+    }
+    .nav-link {
+      color: var(--crypvilla-text-muted) !important;
+      font-weight: 500;
+      padding: 0.5rem 1rem !important;
+      border-radius: 8px;
+      transition: color 0.2s, background 0.2s;
+    }
+    .nav-link:hover { color: var(--crypvilla-primary) !important; }
+    .btn-shop {
+      background: linear-gradient(135deg, var(--crypvilla-primary), var(--crypvilla-primary-dark));
+      color: #fff !important;
+      font-weight: 600;
+      padding: 0.5rem 1.25rem;
+      border-radius: 10px;
+      border: none;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+    }
+    .btn-shop:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(0, 119, 255, 0.3);
+      color: #fff !important;
+    }
+    .btn-outline-primary-custom {
+      color: var(--crypvilla-primary);
+      border: 2px solid var(--crypvilla-primary);
+      background: transparent;
+      font-weight: 600;
+      padding: 0.5rem 1.25rem;
+      border-radius: 10px;
+      transition: all 0.25s ease;
+    }
+    .btn-outline-primary-custom:hover {
+      background: var(--crypvilla-primary);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+    /* Parallax sections */
+    .parallax-wrap {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+    .parallax-bg {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      transform: translateZ(0);
+      will-change: transform;
+    }
+    .parallax-bg::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.94) 0%, rgba(248, 250, 252, 0.88) 100%);
+      pointer-events: none;
+    }
+    .parallax-content { position: relative; z-index: 1; }
+    .parallax-band {
+      min-height: 55vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .parallax-band .parallax-bg::after {
+      background: linear-gradient(180deg, rgba(0, 119, 255, 0.88) 0%, rgba(0, 86, 179, 0.92) 100%);
+      pointer-events: none;
+    }
+    /* First band: "Powerful devices. Trusted quality." – statement block */
+    .band-statement {
+      min-height: 60vh;
+      padding: 5rem 0;
+    }
+    .band-statement .parallax-bg::after {
+      background: linear-gradient(160deg, rgba(15, 23, 42, 0.82) 0%, rgba(0, 119, 255, 0.78) 50%, rgba(0, 86, 179, 0.88) 100%);
+    }
+    .band-statement .statement-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .band-statement .statement-line {
+      font-size: clamp(1.75rem, 4vw, 2.75rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      color: #fff;
+      text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+      margin: 0;
+    }
+    .band-statement .statement-divider {
+      width: 48px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 2px;
+      margin: 1rem auto 1.25rem;
+    }
+    .band-statement .statement-sub {
+      font-size: 1.05rem;
+      color: rgba(255, 255, 255, 0.88);
+      font-weight: 500;
+      margin-bottom: 2rem;
+      letter-spacing: 0.01em;
+    }
+    .band-statement .statement-pills {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.75rem 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .band-statement .statement-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.12);
+      padding: 0.4rem 0.9rem;
+      border-radius: 100px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .band-statement .statement-pill:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+    .band-statement .btn-band {
+      background: #fff;
+      color: var(--crypvilla-primary-dark);
+      font-weight: 600;
+      padding: 0.6rem 1.5rem;
+      border-radius: 10px;
+      border: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .band-statement .btn-band:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+      color: var(--crypvilla-primary-dark);
+    }
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      padding: 6rem 0 4rem;
+    }
+    .hero .parallax-bg { background-attachment: fixed; }
+    .hero h1 {
+      font-weight: 700;
+      font-size: clamp(2.25rem, 5vw, 3.5rem);
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      color: var(--crypvilla-text);
+    }
+    .hero .lead {
+      color: var(--crypvilla-text-muted);
+      font-size: 1.15rem;
+      max-width: 480px;
+    }
+    .hero-img-wrap {
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--crypvilla-shadow-lg);
+      border: 1px solid var(--crypvilla-border);
+      position: relative;
+      transform: translateZ(0);
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+    .hero-img-wrap:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12);
+    }
+    .hero-img-wrap img { width: 100%; height: auto; display: block; transition: transform 0.5s ease; }
+    .hero-img-wrap:hover img { transform: scale(1.03); }
+    .parallax-caption {
+      font-size: clamp(1.5rem, 3vw, 2.25rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #fff;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+    }
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(0, 119, 255, 0.1);
+      color: var(--crypvilla-primary-dark);
+      padding: 0.35rem 0.85rem;
+      border-radius: 100px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .section-title {
+      font-weight: 700;
+      font-size: clamp(1.75rem, 3vw, 2.25rem);
+      letter-spacing: -0.02em;
+      color: var(--crypvilla-text);
+    }
+    .card-product {
+      background: var(--crypvilla-bg);
+      border: 1px solid var(--crypvilla-border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--crypvilla-shadow);
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+    }
+    .card-product:hover {
+      transform: translateY(-8px);
+      border-color: rgba(0, 119, 255, 0.25);
+      box-shadow: var(--crypvilla-shadow-lg), 0 0 0 1px rgba(0, 119, 255, 0.08);
+    }
+    .card-product .img-wrap {
+      aspect-ratio: 16/10;
+      overflow: hidden;
+      background: var(--crypvilla-bg-soft);
+    }
+    .card-product .img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .card-product:hover .img-wrap img { transform: scale(1.06); }
+    .card-product .card-body { padding: 1.25rem; }
+    .card-product .card-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+      color: var(--crypvilla-text);
+    }
+    .card-product .text-muted {
+      color: var(--crypvilla-text-muted) !important;
+      font-size: 0.9rem;
+    }
+    .feature-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: rgba(0, 119, 255, 0.1);
+      color: var(--crypvilla-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+    .feature-icon:hover {
+      transform: scale(1.08);
+      background: rgba(0, 119, 255, 0.15);
+    }
+    .cta-section {
+      background: linear-gradient(135deg, rgba(0, 119, 255, 0.06), rgba(0, 86, 179, 0.04));
+      border: 1px solid var(--crypvilla-border);
+      border-radius: 24px;
+      padding: 4rem 2rem;
+      transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .cta-section:hover {
+      border-color: rgba(0, 119, 255, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 119, 255, 0.08);
+    }
+    .section-bg {
+      background: var(--crypvilla-bg-soft);
+    }
+    .footer {
+      border-top: 1px solid var(--crypvilla-border);
+      padding: 3rem 0 2rem;
+      background: var(--crypvilla-bg);
+      color: var(--crypvilla-text-muted);
+      font-size: 0.9rem;
+    }
+    .footer a { color: var(--crypvilla-text-muted); text-decoration: none; transition: color 0.2s; }
+    .footer a:hover { color: var(--crypvilla-primary); }
+    .footer strong.text-dark { color: var(--crypvilla-text) !important; }
+    .top-bar { background: linear-gradient(90deg, var(--crypvilla-primary), var(--crypvilla-primary-dark)); color: #fff; font-size: 0.875rem; font-weight: 500; text-align: center; padding: 0.5rem 1rem; }
+    .cart-count-badge { position: absolute; top: -4px; right: -4px; background: #fff; color: var(--crypvilla-primary-dark); font-size: 0.7rem; font-weight: 600; min-width: 1.25rem; height: 1.25rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
+    .badge-sale { position: absolute; top: 0.5rem; left: 0.5rem; background: #dc3545; color: #fff; font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.5rem; border-radius: 6px; z-index: 1; }
+    .price-current { font-weight: 700; color: var(--crypvilla-text); }
+    .price-compare { font-size: 0.875rem; color: var(--crypvilla-text-muted); text-decoration: line-through; margin-left: 0.5rem; }
+    .spec-pill { font-size: 0.75rem; color: var(--crypvilla-text-muted); background: var(--crypvilla-bg-soft); padding: 0.2rem 0.5rem; border-radius: 6px; }
+    @media (max-width: 991px) {
+      .parallax-bg { background-attachment: scroll; }
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">Free delivery in Lagos on orders over ₦500,000</div>
+  <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">
+        <img src="images/crypvilla-removebg-preview.png" alt="Crypvilla">
+      </a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="shop.html">Shop</a></li>
+          <li class="nav-item"><a class="nav-link" href="#why-us">Why Us</a></li>
+          <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+          <li class="nav-item ms-lg-2 position-relative">
+            <a class="nav-link btn btn-shop" href="cart.html">Cart <span id="navCartCount" class="cart-count-badge d-none">0</span></a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero parallax-wrap" id="hero">
+    <div class="parallax-bg" style="background-image: url('https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=1920&q=80');"></div>
+    <div class="container position-relative parallax-content">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-6">
+          <p class="badge-pill mb-3 hero-animate hero-1">Grade A · Brand New · Trusted</p>
+          <h1 class="hero-animate hero-2">Premium laptops, desktops & MacBooks for work and play.</h1>
+          <p class="lead mt-3 hero-animate hero-3">Crypvilla delivers top-tier devices—grade A refurbished and brand new—so you get performance and value without compromise.</p>
+          <div class="mt-4 hero-animate hero-4">
+            <a href="shop.html" class="btn btn-shop btn-lg me-2">Shop Now</a>
+            <a href="#why-us" class="btn btn-outline-primary-custom btn-lg">Why Crypvilla</a>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="hero-img-wrap hero-animate hero-img">
+            <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&q=80" alt="Premium MacBook from Crypvilla">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5 section-bg" id="why-us">
+    <div class="container py-5">
+      <h2 class="section-title text-center mb-5 animate-on-scroll">Why choose Crypvilla?</h2>
+      <div class="row g-4 justify-content-center">
+        <div class="col-md-6 col-lg-4 animate-on-scroll delay-1">
+          <div class="feature-icon mb-3">✓</div>
+          <h5 class="fw-semibold">Grade A Quality</h5>
+          <p class="text-muted mb-0">Carefully inspected, cosmetically excellent devices that perform like new.</p>
+        </div>
+        <div class="col-md-6 col-lg-4 animate-on-scroll delay-2">
+          <div class="feature-icon mb-3">◆</div>
+          <h5 class="fw-semibold">Brand New Options</h5>
+          <p class="text-muted mb-0">Full range of brand new laptops, desktops, and MacBooks in stock.</p>
+        </div>
+        <div class="col-md-6 col-lg-4 animate-on-scroll delay-3">
+          <div class="feature-icon mb-3">★</div>
+          <h5 class="fw-semibold">Trusted Seller</h5>
+          <p class="text-muted mb-0">Transparent grading, warranty options, and reliable support when you need it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="parallax-band band-statement" aria-hidden="true">
+    <div class="parallax-bg" style="background-image: url('https://images.unsplash.com/photo-1587616211892-f7f3a2b2b8e4?w=1920&q=80');"></div>
+    <div class="container parallax-content">
+      <div class="statement-inner">
+        <p class="statement-line">Powerful devices.</p>
+        <div class="statement-divider" aria-hidden="true"></div>
+        <p class="statement-line">Trusted quality.</p>
+        <p class="statement-sub">Grade A laptops, desktops & MacBooks—backed by our promise.</p>
+        <div class="statement-pills">
+          <span class="statement-pill">Grade A verified</span>
+          <span class="statement-pill">Warranty included</span>
+          <span class="statement-pill">Expert support</span>
+        </div>
+        <a href="shop.html" class="btn btn-band">Shop the collection</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5" id="products">
+    <div class="container py-5">
+      <h2 class="section-title text-center mb-2 animate-on-scroll">Shop by category</h2>
+      <p class="text-center text-muted mb-5 animate-on-scroll delay-1">Grade A UK used · Brand new · Accessories · Desktops · All-in-ones</p>
+      <div class="row g-4" id="categoryCards">
+        <div class="col-md-6 col-lg-4 animate-on-scroll delay-1">
+          <a href="shop.html?category=grade-a-uk-used-laptops" class="text-decoration-none text-dark">
+            <div class="card card-product h-100">
+              <div class="img-wrap">
+                <img src="https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=600&q=85" alt="Grade A UK Used Laptops">
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">Grade A UK Used Laptops</h5>
+                <p class="text-muted mb-0">Quality refurbished laptops from the UK.</p>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="col-md-6 col-lg-4 animate-on-scroll delay-2">
+          <a href="shop.html?category=brand-new-laptops" class="text-decoration-none text-dark">
+            <div class="card card-product h-100">
+              <div class="img-wrap">
+                <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&q=80" alt="Brand New Laptops">
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">Brand New Laptops</h5>
+                <p class="text-muted mb-0">Brand new laptops with warranty.</p>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="col-md-6 col-lg-4 animate-on-scroll delay-3">
+          <a href="shop.html?category=laptop-accessories" class="text-decoration-none text-dark">
+            <div class="card card-product h-100">
+              <div class="img-wrap">
+                <img src="https://images.unsplash.com/photo-1625842268584-8f3296236761?w=600&q=85" alt="Laptop Accessories">
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">Laptop Accessories</h5>
+                <p class="text-muted mb-0">Bags, stands, adapters and more.</p>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="col-md-6 col-lg-4 animate-on-scroll delay-1">
+          <a href="shop.html?category=uk-used-desktops" class="text-decoration-none text-dark">
+            <div class="card card-product h-100">
+              <div class="img-wrap">
+                <img src="https://i.dell.com/is/image/DellContent/content/dam/ss2/product-images/dell-client-products/desktops/inspiron-desktops/inspiron-3030-small-desktop-3.png?fmt=png-alpha&pscan=auto&scl=1&hei=402&wid=601&qlt=100,1&resMode=sharp2&size=601,402&chrss=full" alt="UK Used Desktops">
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">UK Used Desktops</h5>
+                <p class="text-muted mb-0">Refurbished desktop PCs from the UK.</p>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="col-md-6 col-lg-4 animate-on-scroll delay-2">
+          <a href="shop.html?category=brand-new-desktops" class="text-decoration-none text-dark">
+            <div class="card card-product h-100">
+              <div class="img-wrap">
+                <img src="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=600&q=85" alt="Brand New Desktops">
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">Brand New Desktops</h5>
+                <p class="text-muted mb-0">Brand new desktops and components.</p>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="col-md-6 col-lg-4 animate-on-scroll delay-3">
+          <a href="shop.html?category=all-in-ones" class="text-decoration-none text-dark">
+            <div class="card card-product h-100">
+              <div class="img-wrap">
+                <img src="https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=600&q=80" alt="All-in-Ones">
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">All-in-Ones</h5>
+                <p class="text-muted mb-0">All-in-one PCs and monitors.</p>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div class="text-center mt-5 animate-on-scroll">
+        <a href="shop.html" class="btn btn-shop btn-lg">View all products</a>
+      </div>
+      <div class="row g-4 mt-4" id="featuredProducts">
+        <!-- Filled by JS from Supabase -->
+      </div>
+    </div>
+  </section>
+
+  <section class="parallax-band" aria-hidden="true">
+    <div class="parallax-bg" style="background-image: url('https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=1920&q=80');"></div>
+    <div class="container parallax-content text-center py-5">
+      <p class="parallax-caption mb-0">Built for creators and professionals.</p>
+    </div>
+  </section>
+
+  <section class="py-5 section-bg">
+    <div class="container">
+      <div class="cta-section text-center animate-on-scroll">
+        <h2 class="section-title mb-3">Ready to upgrade?</h2>
+        <p class="text-muted mb-4 mx-auto" style="max-width: 480px;">Browse our full catalog of grade A and brand new laptops, desktops, and MacBooks. Quality you can trust.</p>
+        <a href="shop.html" class="btn btn-shop btn-lg">Shop</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer" id="contact">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <strong class="text-dark d-block mb-2">Crypvilla</strong>
+          <p class="mb-0">Grade A laptops, desktops & MacBooks. Brand new and refurbished, delivered with care.</p>
+          <p class="mb-0 mt-2 small">No 13 Balogun Street, Anifowoshe, Lagos State, Nigeria.</p>
+        </div>
+        <div class="col-md-2">
+          <strong class="text-dark d-block mb-2">Shop</strong>
+          <ul class="list-unstyled mb-0">
+            <li><a href="shop.html?category=grade-a-uk-used-laptops">Grade A Laptops</a></li>
+            <li><a href="shop.html?category=brand-new-laptops">Brand New Laptops</a></li>
+            <li><a href="shop.html?category=laptop-accessories">Accessories</a></li>
+            <li><a href="shop.html?category=uk-used-desktops">UK Used Desktops</a></li>
+            <li><a href="shop.html?category=brand-new-desktops">Brand New Desktops</a></li>
+            <li><a href="shop.html?category=all-in-ones">All-in-Ones</a></li>
+          </ul>
+        </div>
+        <div class="col-md-2">
+          <strong class="text-dark d-block mb-2">Company</strong>
+          <ul class="list-unstyled mb-0">
+            <li><a href="#">About</a></li>
+            <li><a href="#">Contact</a></li>
+            <li><a href="#">Warranty</a></li>
+          </ul>
+        </div>
+      </div>
+      <hr class="my-4 border-secondary">
+      <p class="mb-0 text-center">&copy; Crypvilla. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/cart.js"></script>
+  <script>
+    (function() {
+      function updateCartCount() {
+        var el = document.getElementById('navCartCount');
+        if (!el) return;
+        var n = window.CrypvillaCart ? window.CrypvillaCart.getCount() : 0;
+        el.textContent = n;
+        el.classList.toggle('d-none', n === 0);
+      }
+      updateCartCount();
+      if (window.CrypvillaCart) window.CrypvillaCart.onUpdate(updateCartCount);
+
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) entry.target.classList.add('animated');
+        });
+      }, { rootMargin: '0px 0px -60px 0px', threshold: 0.1 });
+      document.querySelectorAll('.animate-on-scroll').forEach(function(el) { observer.observe(el); });
+
+      var nav = document.getElementById('mainNav');
+      if (nav) window.addEventListener('scroll', function() { nav.classList.toggle('scrolled', window.scrollY > 20); });
+
+      // Featured products from Supabase
+      var featuredEl = document.getElementById('featuredProducts');
+      if (featuredEl && window.supabase) {
+        window.supabase.from('products').select('id, name, slug, price, compare_at_price, image_url, specs').limit(8).then(function(r) {
+          if (r.data && r.data.length) {
+            var title = document.createElement('h2');
+            title.className = 'section-title text-center mb-4 mt-5';
+            title.textContent = 'Featured products';
+            featuredEl.parentNode.insertBefore(title, featuredEl);
+            r.data.forEach(function(p) {
+              var spec = (p.specs && (p.specs.processor || p.specs.ram || p.specs.storage)) ? [p.specs.processor, p.specs.ram, p.specs.storage].filter(Boolean).slice(0, 2).join(' · ') : '';
+              var priceHtml = p.compare_at_price ? '<span class="price-current">₦' + Number(p.price).toLocaleString() + '</span> <span class="price-compare">₦' + Number(p.compare_at_price).toLocaleString() + '</span>' : '<span class="price-current">₦' + Number(p.price).toLocaleString() + '</span>';
+              var saleBadge = p.compare_at_price ? '<span class="badge-sale">Sale</span>' : '';
+              var card = document.createElement('div');
+              card.className = 'col-6 col-md-4 col-lg-3';
+              card.innerHTML = '<a href="product.html?id=' + encodeURIComponent(p.id) + '" class="text-decoration-none text-dark"><div class="card card-product h-100"><div class="img-wrap position-relative">' + saleBadge + '<img src="' + (p.image_url || 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&q=80') + '" alt="" loading="lazy"></div><div class="card-body"><h5 class="card-title">' + (p.name || '').substring(0, 50) + (p.name && p.name.length > 50 ? '…' : '') + '</h5><p class="text-muted small mb-1">' + priceHtml + '</p>' + (spec ? '<p class="spec-pills"><span class="spec-pill">' + spec + '</span></p>' : '') + '</div></div></a>';
+              featuredEl.appendChild(card);
+            });
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

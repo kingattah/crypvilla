@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="images/crypvilla-removebg-preview.png" type="image/png">
+  <title>Product — Crypvilla</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="css/shop.css" rel="stylesheet">
+  <style>
+    .product-gallery { border-radius: 16px; overflow: hidden; background: var(--crypvilla-bg-soft); }
+    .product-gallery img { width: 100%; height: auto; display: block; }
+    .breadcrumb { background: none; padding: 0; }
+    .breadcrumb-item + .breadcrumb-item::before { content: "›"; }
+  </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+  <div class="top-bar">Free delivery in Lagos on orders over ₦500,000</div>
+  <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">
+        <img src="images/crypvilla-removebg-preview.png" alt="Crypvilla">
+      </a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="shop.html">Shop</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#contact">Contact</a></li>
+        </ul>
+        <ul class="navbar-nav">
+          <li class="nav-item position-relative">
+            <a class="nav-link btn btn-shop" href="cart.html">Cart <span id="navCartCount" class="cart-count-badge d-none">0</span></a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container flex-grow-1 py-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+      <ol class="breadcrumb" id="breadcrumb">
+        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+        <li class="breadcrumb-item"><a href="shop.html">Shop</a></li>
+        <li class="breadcrumb-item active" aria-current="page" id="breadcrumbProduct">Product</li>
+      </ol>
+    </nav>
+
+    <div id="loading" class="text-center py-5">
+      <div class="spinner-border loading-spinner" role="status"></div>
+      <p class="text-muted mt-2">Loading…</p>
+    </div>
+
+    <div id="productDetail" class="d-none">
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="product-gallery position-relative">
+            <span id="productSaleBadge" class="badge-sale d-none">Sale</span>
+            <img id="productImage" src="" alt="" class="img-fluid">
+            <div id="productImageThumbs" class="d-flex gap-2 mt-2 flex-wrap d-none"></div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <h1 class="section-title mb-2" id="productName"></h1>
+          <p class="mb-2" id="productPrice"></p>
+          <p class="text-muted small" id="productDesc"></p>
+          <div class="spec-pills mb-3" id="productSpecs"></div>
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <label class="text-muted small mb-0">Quantity:</label>
+            <input type="number" id="productQty" class="form-control form-control-sm" style="width: 80px;" min="1" value="1">
+          </div>
+          <button type="button" class="btn btn-shop btn-lg" id="addToCartBtn">Add to cart</button>
+          <a href="shop.html" class="btn btn-outline-secondary btn-lg ms-2">Continue shopping</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="notFound" class="empty-state d-none">
+      <p>Product not found.</p>
+      <a href="shop.html" class="btn btn-shop">Back to shop</a>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <strong class="text-dark d-block mb-2">Crypvilla</strong>
+          <p class="mb-0">Grade A laptops, desktops & MacBooks. Brand new and refurbished, delivered with care.</p>
+        </div>
+        <div class="col-md-2">
+          <strong class="text-dark d-block mb-2">Shop</strong>
+          <ul class="list-unstyled mb-0">
+            <li><a href="shop.html">All products</a></li>
+          </ul>
+        </div>
+      </div>
+      <hr class="my-4 border-secondary">
+      <p class="mb-0 text-center">&copy; Crypvilla. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/cart.js"></script>
+  <script>
+    (function() {
+      function updateCartCount() {
+        var el = document.getElementById('navCartCount');
+        if (!el) return;
+        var n = window.CrypvillaCart ? window.CrypvillaCart.getCount() : 0;
+        el.textContent = n;
+        el.classList.toggle('d-none', n === 0);
+      }
+      updateCartCount();
+      if (window.CrypvillaCart) window.CrypvillaCart.onUpdate(updateCartCount);
+
+      var params = new URLSearchParams(window.location.search);
+      var id = params.get('id');
+      var slug = params.get('slug');
+
+      var loading = document.getElementById('loading');
+      var detail = document.getElementById('productDetail');
+      var notFound = document.getElementById('notFound');
+
+      function showProduct(p) {
+        if (!p) {
+          loading.classList.add('d-none');
+          notFound.classList.remove('d-none');
+          return;
+        }
+        document.getElementById('productName').textContent = p.name || '';
+        var priceHtml = p.compare_at_price
+          ? '<span class="price-current">₦' + Number(p.price).toLocaleString() + '</span> <span class="price-compare">₦' + Number(p.compare_at_price).toLocaleString() + '</span>'
+          : '<span class="price-current">₦' + Number(p.price).toLocaleString() + '</span>';
+        document.getElementById('productPrice').innerHTML = priceHtml;
+        document.getElementById('productSaleBadge').classList.toggle('d-none', !p.compare_at_price);
+        document.getElementById('productDesc').textContent = p.description || '';
+        var imgList = Array.isArray(p.images) && p.images.length ? p.images : (p.image_url ? [p.image_url] : []);
+        var mainSrc = imgList[0] || p.image_url || 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80';
+        document.getElementById('productImage').src = mainSrc;
+        document.getElementById('productImage').alt = p.name || 'Product';
+        var thumbsEl = document.getElementById('productImageThumbs');
+        thumbsEl.classList.add('d-none');
+        thumbsEl.innerHTML = '';
+        if (imgList.length > 1) {
+          thumbsEl.classList.remove('d-none');
+          imgList.forEach(function(url, i) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'product-thumb-btn border rounded overflow-hidden p-0' + (i === 0 ? ' border-primary' : '');
+            btn.style.cssText = 'width:56px;height:56px;flex-shrink:0;';
+            var img = document.createElement('img');
+            img.src = url;
+            img.alt = '';
+            img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+            btn.appendChild(img);
+            btn.addEventListener('click', function() {
+              document.getElementById('productImage').src = url;
+              thumbsEl.querySelectorAll('.product-thumb-btn').forEach(function(b) { b.classList.remove('border-primary'); });
+              btn.classList.add('border-primary');
+            });
+            thumbsEl.appendChild(btn);
+          });
+        }
+
+        var specs = p.specs || {};
+        var specEl = document.getElementById('productSpecs');
+        specEl.innerHTML = Object.keys(specs).map(function(k) {
+          return '<span class="spec-pill">' + k + ': ' + specs[k] + '</span>';
+        }).join('');
+
+        document.title = (p.name || 'Product') + ' — Crypvilla';
+        document.getElementById('breadcrumbProduct').textContent = (p.name || 'Product').substring(0, 40);
+
+        loading.classList.add('d-none');
+        notFound.classList.add('d-none');
+        detail.classList.remove('d-none');
+
+        document.getElementById('addToCartBtn').onclick = function() {
+          var qty = parseInt(document.getElementById('productQty').value, 10) || 1;
+          if (window.CrypvillaCart) {
+            window.CrypvillaCart.add(p.id, qty, { name: p.name, price: p.price, image_url: p.image_url });
+            updateCartCount();
+            var btn = document.getElementById('addToCartBtn');
+            btn.textContent = 'Added to cart';
+            btn.disabled = true;
+            setTimeout(function() { btn.textContent = 'Add to cart'; btn.disabled = false; }, 2000);
+          }
+        };
+      }
+
+      if (!id && !slug) {
+        showProduct(null);
+        return;
+      }
+
+      if (!window.supabase) {
+        showProduct(null);
+        return;
+      }
+
+      var q = id
+        ? window.supabase.from('products').select('*, categories(slug, name)').eq('id', id).single()
+        : window.supabase.from('products').select('*, categories(slug, name)').eq('slug', slug).single();
+
+      q.then(function(r) {
+        showProduct(r.data);
+        if (r.data && r.data.categories) {
+          var cat = Array.isArray(r.data.categories) ? r.data.categories[0] : r.data.categories;
+          var bc = document.getElementById('breadcrumb');
+          var last = bc.querySelector('.breadcrumb-item.active');
+          if (last && cat && cat.name) {
+            var catLi = document.createElement('li');
+            catLi.className = 'breadcrumb-item';
+            catLi.innerHTML = '<a href="shop.html?category=' + encodeURIComponent(cat.slug) + '">' + cat.name + '</a>';
+            bc.insertBefore(catLi, last);
+          }
+        }
+      }).catch(function() {
+        showProduct(null);
+      });
+    })();
+  </script>
+</body>
+</html>

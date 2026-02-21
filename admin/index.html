@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="../images/crypvilla-removebg-preview.png" type="image/png">
+  <title>Admin — Crypvilla</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="css/admin.css" rel="stylesheet">
+</head>
+<body>
+  <div id="loginView" class="admin-login-wrap d-none">
+    <div class="admin-login-card">
+      <h1 class="mb-3">Crypvilla Admin</h1>
+      <p class="text-muted small mb-3">Sign in with your admin account.</p>
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" class="form-control" id="loginEmail" required placeholder="admin@example.com">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" class="form-control" id="loginPassword" required placeholder="••••••••">
+        </div>
+        <p id="loginError" class="text-danger small mb-2 d-none"></p>
+        <button type="submit" class="btn-admin w-100">Sign in</button>
+      </form>
+      <p class="text-muted small mt-3 mb-0">Administrator use only.</p>
+    </div>
+  </div>
+
+  <div id="adminApp" class="admin-wrap">
+    <aside class="admin-sidebar">
+      <div class="brand">Crypvilla Admin</div>
+      <nav>
+        <a href="#" class="nav-link active" data-page="dashboard">Dashboard</a>
+        <a href="#" class="nav-link" data-page="products">Products</a>
+        <a href="#" class="nav-link" data-page="orders">Orders</a>
+        <a href="#" class="nav-link" data-page="customers">Customers</a>
+      </nav>
+      <div style="padding: 0 1.25rem;">
+        <button type="button" class="back-to-store btn-link border-0 bg-transparent p-0 text-start" id="btnLogout">Log out</button>
+        <a href="../index.html" class="back-to-store d-block mt-1">← Back to store</a>
+      </div>
+    </aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <span id="adminPageTitle">Dashboard</span>
+      </header>
+      <div class="admin-content">
+        <div id="alertConfig" class="alert-config d-none">
+          Set <strong>admin/config.js</strong>: SUPABASE_URL and SUPABASE_ANON_KEY (same as main site).
+          <a href="config.js" target="_blank">Edit config</a>
+          <button type="button" class="btn-admin btn-sm mt-2" id="btnTestSupabaseAlert">Test connection</button>
+        </div>
+        <div id="testSupabaseResult" class="mb-2 small d-none"></div>
+
+        <div id="pageDashboard" class="admin-page active">
+          <div class="d-flex gap-2 align-items-center flex-wrap mb-3">
+            <button type="button" class="btn-admin-outline btn-sm" id="btnTestSupabase">Test Supabase connection</button>
+            <button type="button" class="btn-admin-outline btn-sm" id="btnCheckAdminList">Check admin list</button>
+          </div>
+          <div id="checkAdminListResult" class="mb-2 small d-none"></div>
+          <div class="d-flex gap-3" style="flex-wrap: wrap; margin-bottom: 1.5rem;">
+            <div class="stat-card" style="min-width: 140px;">
+              <div class="stat-value" id="statProducts">—</div>
+              <div class="stat-label">Products</div>
+            </div>
+            <div class="stat-card" style="min-width: 140px;">
+              <div class="stat-value" id="statOrders">—</div>
+              <div class="stat-label">Orders</div>
+            </div>
+            <div class="stat-card" style="min-width: 140px;">
+              <div class="stat-value" id="statCustomers">—</div>
+              <div class="stat-label">Customers</div>
+            </div>
+          </div>
+          <p class="text-muted mb-0">Use the sidebar to manage products, view orders, and see customers.</p>
+        </div>
+
+        <div id="pageProducts" class="admin-page">
+          <div class="d-flex gap-2" style="margin-bottom: 1rem;">
+            <button type="button" class="btn-admin" id="btnAddProduct">Add product</button>
+          </div>
+          <div class="admin-card">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Name</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                  <th style="width: 140px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="productsTableBody">
+                <tr><td colspan="6" class="text-muted">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="pageOrders" class="admin-page">
+          <div class="admin-card">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Customer</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th style="width: 120px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody">
+                <tr><td colspan="6" class="text-muted">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="pageCustomers" class="admin-page">
+          <div class="admin-card">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Orders</th>
+                  <th>Last order</th>
+                </tr>
+              </thead>
+              <tbody id="customersTableBody">
+                <tr><td colspan="5" class="text-muted">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Product add/edit modal -->
+  <div id="productModal" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <span id="productModalTitle">Add product</span>
+        <button type="button" class="btn-admin-outline btn-sm" id="productModalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="productForm">
+          <input type="hidden" id="productId" name="id">
+          <input type="hidden" id="productSlug" name="slug">
+          <div class="form-group">
+            <label>Category *</label>
+            <select class="form-control" id="productCategory" name="category_id" required></select>
+          </div>
+          <div class="form-group">
+            <label>Name *</label>
+            <input type="text" class="form-control" id="productName" name="name" required placeholder="Product name">
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea class="form-control" id="productDescription" name="description" placeholder="Short description"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Price (₦) *</label>
+            <input type="number" class="form-control" id="productPrice" name="price" required min="0" step="0.01" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label>Compare at price (₦)</label>
+            <input type="number" class="form-control" id="productCompareAt" name="compare_at_price" min="0" step="0.01" placeholder="Optional">
+          </div>
+          <div class="form-group">
+            <label>Stock *</label>
+            <input type="number" class="form-control" id="productStock" name="stock" required min="0" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label>Images</label>
+            <input type="file" class="form-control" id="productImageFiles" accept="image/*" multiple>
+            <p class="text-muted small mt-1 mb-1">First image is used as the main product image. You can reorder by removing and re-adding.</p>
+            <div id="productImagesList" class="d-flex flex-wrap gap-2 mt-2"></div>
+          </div>
+          <div class="form-group">
+            <label>Processor</label>
+            <input type="text" class="form-control" id="productSpecProcessor" placeholder="e.g. Intel Core i5">
+          </div>
+          <div class="form-group">
+            <label>RAM</label>
+            <input type="text" class="form-control" id="productSpecRam" placeholder="e.g. 8GB">
+          </div>
+          <div class="form-group">
+            <label>Storage</label>
+            <input type="text" class="form-control" id="productSpecStorage" placeholder="e.g. 256GB SSD">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-admin-outline" id="productModalCancel">Cancel</button>
+        <button type="button" class="btn-admin" id="productModalSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order detail modal -->
+  <div id="orderModal" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 640px;">
+      <div class="modal-header">
+        <span id="orderModalTitle">Order</span>
+        <button type="button" class="btn-admin-outline btn-sm" id="orderModalClose">&times;</button>
+      </div>
+      <div class="modal-body" id="orderModalBody">
+        <p class="text-muted">Loading…</p>
+      </div>
+      <div class="modal-footer">
+        <label class="d-flex align-items-center gap-2 mb-0">
+          <span class="text-muted">Status:</span>
+          <select class="form-control" id="orderStatusSelect" style="width: auto;">
+            <option value="pending">Pending</option>
+            <option value="paid">Paid</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </label>
+        <button type="button" class="btn-admin" id="orderModalSaveStatus">Update status</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
