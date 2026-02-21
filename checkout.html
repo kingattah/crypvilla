@@ -235,14 +235,15 @@
               });
               return window.supabase.from('order_items').insert(items);
             }).then(function(r) {
-              if (r && r.error) throw new Error(r.error.message);
+              if (r && r.error) throw new Error(r.error.message || 'Order items failed');
               window.CrypvillaCart.clear();
               window.location.href = 'checkout.html?success=1&order=' + encodeURIComponent(orderNum);
             }).catch(function(err) {
               btn.disabled = false;
               btn.textContent = 'Pay with Paystack';
-              console.error(err);
-              alert('Order could not be saved. Please try again or contact support.');
+              var msg = err && err.message ? err.message : String(err);
+              console.error('Checkout save failed:', err);
+              alert('Order could not be saved. Please try again or contact support.\n\n(' + msg + ')');
             });
           },
           function failure() {

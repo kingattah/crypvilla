@@ -80,6 +80,9 @@ CREATE POLICY "products_select" ON products FOR SELECT USING (true);
 -- Anyone can insert orders and order_items (guest checkout)
 DROP POLICY IF EXISTS "orders_insert" ON orders;
 CREATE POLICY "orders_insert" ON orders FOR INSERT WITH CHECK (true);
+-- Anon must be able to SELECT orders so insert().select('id') returns the new row for order_items
+DROP POLICY IF EXISTS "orders_select_anon" ON orders;
+CREATE POLICY "orders_select_anon" ON orders FOR SELECT USING (true);
 DROP POLICY IF EXISTS "order_items_insert" ON order_items;
 CREATE POLICY "order_items_insert" ON order_items FOR INSERT WITH CHECK (true);
 
@@ -108,7 +111,6 @@ CREATE TRIGGER trigger_decrement_stock_on_order_item
 
 -- Optional: allow users to read their own orders by email (for future "view my orders")
 -- CREATE POLICY "orders_select_own" ON orders FOR SELECT USING (auth.jwt() ->> 'email' = customer_email);
--- For now we do not expose SELECT on orders to anon; use service role or add auth later.
 
 -- Seed categories
 INSERT INTO categories (slug, name, description, sort_order) VALUES
