@@ -376,9 +376,35 @@
     @media (max-width: 991px) {
       .parallax-bg { background-attachment: scroll; }
     }
+    /* Cartoon decorations – same as animations.css for index (no shop.css) */
+    .cartoon-deco { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .cartoon-deco img { position: absolute; object-fit: contain; mix-blend-mode: multiply; opacity: 0.45; transition: opacity 0.3s ease; }
+    .cartoon-deco .deco-sm { width: 80px; height: auto; max-height: 80px; }
+    .cartoon-deco .deco-md { width: 120px; height: auto; max-height: 140px; }
+    .cartoon-deco .deco-lg { width: 160px; height: auto; max-height: 180px; }
+    .section-cartoon-deco { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .section-cartoon-deco img { position: absolute; object-fit: contain; mix-blend-mode: multiply; opacity: 0.4; }
+    .section-cartoon-deco .deco-sm { width: 70px; max-height: 70px; }
+    .section-cartoon-deco .deco-md { width: 100px; max-height: 120px; }
+    body { position: relative; z-index: 1; }
+    @media (max-width: 768px) {
+      .cartoon-deco .deco-sm { width: 50px; max-height: 50px; }
+      .cartoon-deco .deco-md { width: 80px; max-height: 90px; }
+      .cartoon-deco .deco-lg { width: 100px; max-height: 110px; }
+    }
   </style>
 </head>
 <body>
+  <div class="cartoon-deco" aria-hidden="true">
+    <img class="deco-md" src="animations/WhatsApp Image 2026-02-26 at 12.04.43 AM.jpeg" alt="" style="top: 12%; left: 2%;">
+    <img class="deco-sm" src="animations/WhatsApp Image 2026-02-26 at 12.04.44 AM.jpeg" alt="" style="top: 8%; right: 4%;">
+    <img class="deco-lg" src="animations/WhatsApp Image 2026-02-26 at 12.04.45 AM.jpeg" alt="" style="bottom: 18%; left: 1%;">
+    <img class="deco-md" src="animations/WhatsApp Image 2026-02-26 at 12.04.46 AM.jpeg" alt="" style="bottom: 25%; right: 3%;">
+    <img class="deco-sm" src="animations/WhatsApp Image 2026-02-26 at 12.04.48 AM.jpeg" alt="" style="top: 45%; left: 3%;">
+    <img class="deco-md" src="animations/WhatsApp Image 2026-02-26 at 12.04.48 AM (1).jpeg" alt="" style="top: 40%; right: 2%;">
+    <img class="deco-sm" src="animations/WhatsApp Image 2026-02-26 at 12.04.49 AM.jpeg" alt="" style="bottom: 8%; left: 15%;">
+    <img class="deco-md" src="animations/WhatsApp Image 2026-02-26 at 12.08.34 AM.jpeg" alt="" style="bottom: 10%; right: 8%;">
+  </div>
   <div class="top-bar">Free delivery in Lagos on orders over ₦500,000</div>
   <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
     <div class="container">
@@ -402,8 +428,14 @@
     </div>
   </nav>
 
-  <section class="hero parallax-wrap" id="hero">
+  <section class="hero parallax-wrap position-relative" id="hero">
     <div class="parallax-bg" style="background-image: url('https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=1920&q=80');"></div>
+    <div class="section-cartoon-deco" style="z-index: 1;">
+      <img class="deco-md" src="animations/WhatsApp Image 2026-02-26 at 12.04.43 AM.jpeg" alt="" style="top: 8%; left: 40%;">
+      <img class="deco-lg" src="animations/WhatsApp Image 2026-02-26 at 12.04.44 AM.jpeg" alt="" style="top: 5%; right: 70%;">
+      <img class="deco-sm" src="animations/WhatsApp Image 2026-02-26 at 12.04.45 AM (1).jpeg" alt="" style="bottom: 15%; left: 4%;">
+      <img class="deco-md" src="animations/WhatsApp Image 2026-02-26 at 12.04.46 AM (1).jpeg" alt="" style="bottom: 12%; right: 3%;">
+    </div>
     <div class="container position-relative parallax-content">
       <div class="row align-items-center g-5">
         <div class="col-lg-6">
@@ -424,8 +456,12 @@
     </div>
   </section>
 
-  <section class="py-5 section-bg" id="why-us">
-    <div class="container py-5">
+  <section class="py-5 section-bg position-relative" id="why-us">
+    <div class="section-cartoon-deco">
+      <img class="deco-md" src="animations/WhatsApp Image 2026-02-26 at 12.04.49 AM (1).jpeg" alt="" style="top: 10%; right: 5%;">
+      <img class="deco-sm" src="animations/WhatsApp Image 2026-02-26 at 12.04.49 AM (2).jpeg" alt="" style="bottom: 15%; left: 4%;">
+    </div>
+    <div class="container py-5 position-relative">
       <h2 class="section-title text-center mb-5 animate-on-scroll">Why choose Crypvilla?</h2>
       <div class="row g-4 justify-content-center">
         <div class="col-md-6 col-lg-4 animate-on-scroll delay-1">
@@ -447,8 +483,12 @@
     </div>
   </section>
 
-  <section class="parallax-band band-statement" aria-hidden="true">
+  <section class="parallax-band band-statement position-relative" aria-hidden="true">
     <div class="parallax-bg" style="background-image: url('https://images.unsplash.com/photo-1587616211892-f7f3a2b2b8e4?w=1920&q=80');"></div>
+    <div class="section-cartoon-deco" style="z-index: 1;">
+      <img class="deco-md" src="animations/WhatsApp Image 2026-02-26 at 12.04.43 AM (1).jpeg" alt="" style="top: 15%; left: 8%; opacity: 0.25; mix-blend-mode: lighten;">
+      <img class="deco-sm" src="animations/WhatsApp Image 2026-02-26 at 12.04.48 AM (2).jpeg" alt="" style="bottom: 20%; right: 10%; opacity: 0.22; mix-blend-mode: lighten;">
+    </div>
     <div class="container parallax-content">
       <div class="statement-inner">
         <p class="statement-line">Powerful devices.</p>
@@ -559,15 +599,23 @@
     </div>
   </section>
 
-  <section class="parallax-band" aria-hidden="true">
+  <section class="parallax-band position-relative" aria-hidden="true">
     <div class="parallax-bg" style="background-image: url('https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=1920&q=80');"></div>
+    <div class="section-cartoon-deco" style="z-index: 1;">
+      <img class="deco-sm" src="animations/WhatsApp Image 2026-02-26 at 12.04.48 AM (3).jpeg" alt="" style="top: 25%; left: 6%; opacity: 0.2; mix-blend-mode: lighten;">
+      <img class="deco-md" src="animations/WhatsApp Image 2026-02-26 at 12.04.49 AM (1).jpeg" alt="" style="bottom: 30%; right: 7%; opacity: 0.2; mix-blend-mode: lighten;">
+    </div>
     <div class="container parallax-content text-center py-5">
       <p class="parallax-caption mb-0">Built for creators and professionals.</p>
     </div>
   </section>
 
-  <section class="py-5 section-bg">
-    <div class="container">
+  <section class="py-5 section-bg position-relative">
+    <div class="section-cartoon-deco">
+      <img class="deco-lg" src="animations/WhatsApp Image 2026-02-26 at 12.04.49 AM (3).jpeg" alt="" style="top: 20%; left: 2%;">
+      <img class="deco-md" src="animations/WhatsApp Image 2026-02-26 at 12.04.49 AM (4).jpeg" alt="" style="bottom: 10%; right: 5%;">
+    </div>
+    <div class="container position-relative">
       <div class="cta-section text-center animate-on-scroll">
         <h2 class="section-title mb-3">Ready to upgrade?</h2>
         <p class="text-muted mb-4 mx-auto" style="max-width: 480px;">Browse our full catalog of grade A and brand new laptops, desktops, and MacBooks. Quality you can trust.</p>

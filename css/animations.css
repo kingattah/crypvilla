@@ -1,0 +1,63 @@
+/* Cartoon decoration layer – white-background images blend via multiply */
+.cartoon-deco {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.cartoon-deco img {
+  position: absolute;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  opacity: 0.45;
+  transition: opacity 0.3s ease;
+}
+.cartoon-deco img:hover {
+  opacity: 0.6;
+}
+/* On dark sections, use lighten so cartoons show; parent adds .cartoon-deco-dark */
+.cartoon-deco-dark img {
+  mix-blend-mode: lighten;
+  opacity: 0.35;
+}
+/* Size variants */
+.cartoon-deco .deco-sm { width: 80px; height: auto; max-height: 80px; }
+.cartoon-deco .deco-md { width: 120px; height: auto; max-height: 140px; }
+.cartoon-deco .deco-lg { width: 160px; height: auto; max-height: 180px; }
+.cartoon-deco .deco-xl { width: 200px; height: auto; max-height: 220px; }
+@media (max-width: 768px) {
+  .cartoon-deco .deco-sm { width: 50px; max-height: 50px; }
+  .cartoon-deco .deco-md { width: 80px; max-height: 90px; }
+  .cartoon-deco .deco-lg { width: 100px; max-height: 110px; }
+  .cartoon-deco .deco-xl { width: 130px; max-height: 140px; }
+}
+
+/* In-page section decorations (relative to section) */
+.section-cartoon-deco {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.section-cartoon-deco img {
+  position: absolute;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  opacity: 0.4;
+}
+.section-cartoon-deco .deco-sm { width: 70px; max-height: 70px; }
+.section-cartoon-deco .deco-md { width: 100px; max-height: 120px; }
+.section-cartoon-deco .deco-lg { width: 140px; max-height: 160px; }
+
+/* Ensure main content stays above deco */
+body { position: relative; z-index: 1; }
+main.container { position: relative; z-index: 1; }
+.parallax-content { position: relative; z-index: 1; }

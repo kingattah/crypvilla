@@ -8,14 +8,24 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="css/shop.css" rel="stylesheet">
+  <link href="css/animations.css" rel="stylesheet">
   <style>
     .product-gallery { border-radius: 16px; overflow: hidden; background: var(--crypvilla-bg-soft); }
     .product-gallery img { width: 100%; height: auto; display: block; }
     .breadcrumb { background: none; padding: 0; }
     .breadcrumb-item + .breadcrumb-item::before { content: "›"; }
+    /* Ensure Make an Offer modal and backdrop sit above cartoon deco and all content */
+    #offerModal { z-index: 1060 !important; }
+    body .modal-backdrop { z-index: 1055 !important; }
   </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
+  <div class="cartoon-deco" aria-hidden="true">
+    <img class="deco-sm" src="animations/WhatsApp Image 2026-02-26 at 12.04.44 AM.jpeg" alt="" style="top: 18%; left: 4%;">
+    <img class="deco-md" src="animations/WhatsApp Image 2026-02-26 at 12.04.46 AM.jpeg" alt="" style="top: 25%; right: 3%;">
+    <img class="deco-md" src="animations/WhatsApp Image 2026-02-26 at 12.04.48 AM (1).jpeg" alt="" style="bottom: 22%; left: 2%;">
+    <img class="deco-sm" src="animations/WhatsApp Image 2026-02-26 at 12.04.49 AM.jpeg" alt="" style="bottom: 12%; right: 6%;">
+  </div>
   <div class="top-bar">Free delivery in Lagos on orders over ₦500,000</div>
   <nav class="navbar navbar-expand-lg navbar-light sticky-top">
     <div class="container">
@@ -100,64 +110,64 @@
       </div>
     </div>
 
-    <!-- Make an Offer modal -->
-    <div class="modal fade" id="offerModal" tabindex="-1" aria-labelledby="offerModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="offerModalLabel">Make an Offer</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div id="offerFormWrap">
-              <p class="mb-1"><strong id="offerProductName"></strong></p>
-              <p class="text-muted small mb-3">Original price: <span id="offerOriginalPrice"></span> <span class="text-muted">(per unit)</span></p>
-              <div class="mb-3">
-                <label class="form-label">Number of devices <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" id="offerQuantityInput" min="1" value="1" placeholder="1">
-                <p class="small text-muted mb-0 mt-1">Offers for more than 3 devices require admin approval.</p>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Your offer (₦ total) <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" id="offerPriceInput" min="0" step="0.01" placeholder="Total amount for all devices" required>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Email <span class="text-danger">*</span></label>
-                <input type="email" class="form-control" id="offerEmailInput" placeholder="you@example.com" required>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Reason for offer (optional)</label>
-                <textarea class="form-control" id="offerReasonInput" rows="2" placeholder="e.g. Budget constraint, bulk buyer..."></textarea>
-              </div>
-              <div id="offerMessage" class="alert d-none" role="alert"></div>
-            </div>
-            <div id="offerThinking" class="text-center py-5 d-none">
-              <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
-              <p class="mt-3 mb-0 text-muted">Considering your offer...</p>
-            </div>
-            <div id="offerSuccessWrap" class="d-none">
-              <div id="offerSuccessMessage" class="alert alert-success"></div>
-              <p class="mb-2"><strong>Time to complete payment:</strong> <span id="offerModalCountdown">20:00</span></p>
-              <p class="text-muted small mb-0">Click &quot;Proceed to pay&quot; below to complete your purchase at the agreed price.</p>
-            </div>
-          </div>
-          <div class="modal-footer" id="offerModalFooter">
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-shop" id="offerSubmitBtn">Submit offer</button>
-          </div>
-          <div class="modal-footer d-none" id="offerSuccessFooter">
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-            <a href="#" class="btn btn-shop" id="offerProceedToCheckoutBtn">Proceed to pay</a>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div id="notFound" class="empty-state d-none">
       <p>Product not found.</p>
       <a href="shop.html" class="btn btn-shop">Back to shop</a>
     </div>
   </main>
+
+  <!-- Make an Offer modal (outside main so it stacks above cartoon deco and is fully interactive) -->
+  <div class="modal fade" id="offerModal" tabindex="-1" aria-labelledby="offerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="offerModalLabel">Make an Offer</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="offerFormWrap">
+            <p class="mb-1"><strong id="offerProductName"></strong></p>
+            <p class="text-muted small mb-3">Original price: <span id="offerOriginalPrice"></span> <span class="text-muted">(per unit)</span></p>
+            <div class="mb-3">
+              <label class="form-label">Number of devices <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="offerQuantityInput" min="1" value="1" placeholder="1">
+              <p class="small text-muted mb-0 mt-1">Offers for more than 3 devices require admin approval.</p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Your offer (₦ total) <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="offerPriceInput" min="0" step="0.01" placeholder="Total amount for all devices" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email <span class="text-danger">*</span></label>
+              <input type="email" class="form-control" id="offerEmailInput" placeholder="you@example.com" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Reason for offer (optional)</label>
+              <textarea class="form-control" id="offerReasonInput" rows="2" placeholder="e.g. Budget constraint, bulk buyer..."></textarea>
+            </div>
+            <div id="offerMessage" class="alert d-none" role="alert"></div>
+          </div>
+          <div id="offerThinking" class="text-center py-5 d-none">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+            <p class="mt-3 mb-0 text-muted">Considering your offer...</p>
+          </div>
+          <div id="offerSuccessWrap" class="d-none">
+            <div id="offerSuccessMessage" class="alert alert-success"></div>
+            <p class="mb-2"><strong>Time to complete payment:</strong> <span id="offerModalCountdown">20:00</span></p>
+            <p class="text-muted small mb-0">Click &quot;Proceed to pay&quot; below to complete your purchase at the agreed price.</p>
+          </div>
+        </div>
+        <div class="modal-footer" id="offerModalFooter">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-shop" id="offerSubmitBtn">Submit offer</button>
+        </div>
+        <div class="modal-footer d-none" id="offerSuccessFooter">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+          <a href="#" class="btn btn-shop" id="offerProceedToCheckoutBtn">Proceed to pay</a>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <footer class="footer">
     <div class="container">
