@@ -22,6 +22,7 @@
       <a class="navbar-brand" href="index.html">
         <img src="images/crypvilla-removebg-preview.png" alt="Crypvilla">
       </a>
+      <a href="cart.html" class="nav-cart-mobile nav-link btn btn-shop btn-cart-mobile" aria-label="Cart">Cart</a>
       <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -121,6 +122,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="config.js"></script>
+  <script src="js/escape.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase.js"></script>
   <script src="js/cart.js"></script>
@@ -167,7 +169,8 @@
         var line = document.createElement('li');
         line.className = 'list-group-item px-0 d-flex justify-content-between';
         var snap = offerData.product_snapshot || {};
-        line.innerHTML = '<span>' + (snap.name || 'Product').substring(0, 40) + ' × ' + qty + '</span><span>' + formatNaira(finalAmount) + '</span>';
+        var esc = window.CrypvillaEscape && window.CrypvillaEscape.html ? window.CrypvillaEscape.html : function(s) { return String(s == null ? '' : s); };
+        line.innerHTML = '<span>' + esc((snap.name || 'Product').substring(0, 40)) + ' × ' + qty + '</span><span>' + formatNaira(finalAmount) + '</span>';
         list.appendChild(line);
 
         document.getElementById('checkoutSubtotal').textContent = formatNaira(finalAmount);
@@ -203,7 +206,8 @@
         cart.forEach(function(item) {
           var line = document.createElement('li');
           line.className = 'list-group-item px-0 d-flex justify-content-between';
-          line.innerHTML = '<span>' + (item.name || 'Product').substring(0, 40) + ' × ' + (item.quantity || 1) + '</span><span>' + formatNaira(item.price * (item.quantity || 1)) + '</span>';
+          var esc = window.CrypvillaEscape && window.CrypvillaEscape.html ? window.CrypvillaEscape.html : function(s) { return String(s == null ? '' : s); };
+          line.innerHTML = '<span>' + esc((item.name || 'Product').substring(0, 40)) + ' × ' + (item.quantity || 1) + '</span><span>' + formatNaira(item.price * (item.quantity || 1)) + '</span>';
           list.appendChild(line);
         });
 
@@ -276,18 +280,23 @@
           window.CrypvillaPaystack.pay(
             { amount: offerTotal, email: email },
             function success(result) {
-              window.supabase.rpc('complete_offer_payment', {
-                p_token: offerToken,
-                p_paystack_reference: result.reference,
-                p_customer_name: name,
-                p_customer_phone: phone,
-                p_delivery_address: address,
-                p_delivery_location: location
+              var expectedKobo = Math.round(offerTotal * 100);
+              window.supabase.functions.invoke('verify-and-complete-offer', {
+                body: {
+                  reference: result.reference,
+                  expected_amount_kobo: expectedKobo,
+                  token: offerToken,
+                  customer_name: name,
+                  customer_phone: phone,
+                  delivery_address: address,
+                  delivery_location: location
+                }
               }).then(function(r) {
                 if (r.error) {
                   btn.disabled = false;
                   btn.textContent = 'Pay with Paystack';
-                  alert(r.error.message || 'Order could not be completed.');
+                  var msg = (r.data && r.data.error) || r.error.message || 'Order could not be completed.';
+                  alert(msg);
                   return;
                 }
                 var data = r.data;
@@ -340,7 +349,7 @@
           },
           function success(result) {
             var orderNumber = result.reference;
-            if (!window.supabase) {
+            if (!window.supabase || !window.supabase.functions) {
               window.CrypvillaCart.clear();
               window.location.href = 'checkout.html?success=1&order=' + encodeURIComponent(orderNumber);
               return;
@@ -351,36 +360,32 @@
             var shResult = window.CrypvillaCart.getShipping(cartSaved, isLagosSaved);
             var sh = (shResult && shResult.fee != null) ? shResult.fee : 0;
             var tot = st + sh;
-            var orderNum = 'CRV-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
-            var orderRow = {
-              order_number: orderNum,
-              customer_email: email,
-              customer_name: name,
-              customer_phone: phone,
-              delivery_address: address,
-              subtotal: st,
-              shipping: sh,
-              total: tot,
-              status: 'paid',
-              paystack_reference: result.reference,
-              paystack_status: 'success'
-            };
-            window.supabase.from('orders').insert(orderRow).select('id').single().then(function(ord) {
-              if (ord.error || !ord.data || !ord.data.id) {
-                throw new Error(ord.error ? ord.error.message : 'Order insert failed');
+            window.supabase.functions.invoke('verify-and-create-order', {
+              body: {
+                reference: result.reference,
+                customer_name: name,
+                customer_email: email,
+                customer_phone: phone,
+                delivery_address: address,
+                delivery_location: document.getElementById('deliveryLocation').value || 'lagos',
+                subtotal: st,
+                shipping: sh,
+                total: tot,
+                cart: cartSaved.map(function(item) {
+                  return {
+                    id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity || 1,
+                    image_url: item.image_url
+                  };
+                })
               }
-              var items = cartSaved.map(function(item) {
-                return {
-                  order_id: ord.data.id,
-                  product_id: item.id,
-                  product_snapshot: { name: item.name, price: item.price, image_url: item.image_url },
-                  quantity: item.quantity || 1,
-                  price: item.price
-                };
-              });
-              return window.supabase.from('order_items').insert(items);
             }).then(function(r) {
-              if (r && r.error) throw new Error(r.error.message || 'Order items failed');
+              if (r.error) throw new Error((r.data && r.data.error) || r.error.message || r.error || 'Order could not be saved');
+              var data = r.data;
+              if (typeof data === 'string') try { data = JSON.parse(data); } catch (e) { data = null; }
+              var orderNum = (data && data.order_number) ? data.order_number : orderNumber;
               window.CrypvillaCart.clear();
               window.location.href = 'checkout.html?success=1&order=' + encodeURIComponent(orderNum);
             }).catch(function(err) {

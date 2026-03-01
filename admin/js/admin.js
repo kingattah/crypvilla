@@ -7,6 +7,11 @@
   var productPendingFiles = [];
   var productPendingPreviews = [];
 
+  function esc(s) {
+    var e = window.CrypvillaEscape && window.CrypvillaEscape.html;
+    return e ? e(s == null ? '' : s) : String(s == null ? '' : s);
+  }
+
   function initSupabase() {
     if (!config || !config.SUPABASE_URL || !config.SUPABASE_ANON_KEY) {
       document.getElementById('alertConfig').classList.remove('d-none');
@@ -207,14 +212,15 @@
       return;
     }
     tbody.innerHTML = list.map(function(p) {
+      var imgUrl = (p.image_url || '').replace(/"/g, '&quot;');
       var img = p.image_url
-        ? '<img src="' + p.image_url + '" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:6px;">'
+        ? '<img src="' + imgUrl + '" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:6px;">'
         : '<span class="text-muted">—</span>';
       var catName = catMap[p.category_id] || '—';
       return '<tr>' +
         '<td>' + img + '</td>' +
-        '<td>' + (p.name || '') + '</td>' +
-        '<td>' + catName + '</td>' +
+        '<td>' + esc(p.name || '') + '</td>' +
+        '<td>' + esc(catName) + '</td>' +
         '<td>' + formatNaira(p.price) + '</td>' +
         '<td>' + (p.stock ?? '—') + '</td>' +
         '<td><button type="button" class="btn-admin-outline btn-sm edit-product" data-id="' + p.id + '">Edit</button> ' +
@@ -234,13 +240,13 @@
       var catFilter = document.getElementById('productCategoryFilter');
       if (catFilter && categories.length) {
         catFilter.innerHTML = '<option value="">All categories</option>' + categories.map(function(c) {
-          return '<option value="' + c.id + '">' + (c.name || c.slug) + '</option>';
+          return '<option value="' + c.id + '">' + esc(c.name || c.slug) + '</option>';
         }).join('');
       }
       return supabase.from('products').select('id, name, slug, price, stock, image_url, category_id, description').order('created_at', { ascending: false });
     }).then(function(r) {
       if (r.error) {
-        tbody.innerHTML = '<tr><td colspan="6">Error: ' + (r.error.message || 'Failed to load') + '</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6">Error: ' + esc(r.error.message || 'Failed to load') + '</td></tr>';
         return;
       }
       allProductsList = r.data || [];
@@ -305,7 +311,7 @@
 
     var catSelect = document.getElementById('productCategory');
     catSelect.innerHTML = '<option value="">Select category</option>' + categories.map(function(c) {
-      return '<option value="' + c.id + '">' + (c.name || c.slug) + '</option>';
+      return '<option value="' + c.id + '">' + esc(c.name || c.slug) + '</option>';
     }).join('');
 
     if (id) {
@@ -495,7 +501,7 @@
       .order('created_at', { ascending: false })
       .then(function(r) {
         if (r.error) {
-          tbody.innerHTML = '<tr><td colspan="6">Error: ' + (r.error.message || 'Failed to load') + '</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6">Error: ' + esc(r.error.message || 'Failed to load') + '</td></tr>';
           return;
         }
         var list = r.data || [];
@@ -506,8 +512,8 @@
         tbody.innerHTML = list.map(function(o) {
           var date = o.created_at ? new Date(o.created_at).toLocaleDateString() : '—';
           return '<tr>' +
-            '<td>' + (o.order_number || o.id) + '</td>' +
-            '<td>' + (o.customer_name || '') + ' <small class="text-muted">' + (o.customer_email || '') + '</small></td>' +
+            '<td>' + esc(o.order_number || o.id) + '</td>' +
+            '<td>' + esc(o.customer_name || '') + ' <small class="text-muted">' + esc(o.customer_email || '') + '</small></td>' +
             '<td>' + formatNaira(o.total) + '</td>' +
             '<td>' + statusBadge(o.status) + '</td>' +
             '<td>' + date + '</td>' +
@@ -538,15 +544,16 @@
       return supabase.from('order_items').select('*').eq('order_id', id).then(function(itemsRes) {
         var items = (itemsRes.data || []);
         var logoUrl = '../images/crypvilla-removebg-preview.png';
-        var content = '<p><strong>Order #</strong> ' + (o.order_number || o.id) + '</p>' +
-          '<p><strong>Customer:</strong> ' + (o.customer_name || '') + '<br><strong>Email:</strong> ' + (o.customer_email || '') + '<br><strong>Phone:</strong> ' + (o.customer_phone || '') + '</p>' +
-          '<p><strong>Delivery address:</strong><br>' + (o.delivery_address || '') + '</p>' +
+        var esc = window.CrypvillaEscape && window.CrypvillaEscape.html ? window.CrypvillaEscape.html : function(s) { return String(s == null ? '' : s); };
+        var content = '<p><strong>Order #</strong> ' + esc(o.order_number || o.id) + '</p>' +
+          '<p><strong>Customer:</strong> ' + esc(o.customer_name || '') + '<br><strong>Email:</strong> ' + esc(o.customer_email || '') + '<br><strong>Phone:</strong> ' + esc(o.customer_phone || '') + '</p>' +
+          '<p><strong>Delivery address:</strong><br>' + esc(o.delivery_address || '') + '</p>' +
           '<p><strong>Subtotal:</strong> ' + formatNaira(o.subtotal) + ' &nbsp; <strong>Shipping:</strong> ' + formatNaira(o.shipping) + ' &nbsp; <strong>Total:</strong> ' + formatNaira(o.total) + '</p>' +
-          '<p><strong>Paystack ref:</strong> ' + (o.paystack_reference || o.payaza_reference || '—') + ' &nbsp; <strong>Status:</strong> ' + (o.paystack_status || o.payaza_status || '—') + '</p>' +
+          '<p><strong>Paystack ref:</strong> ' + esc(o.paystack_reference || o.payaza_reference || '—') + ' &nbsp; <strong>Status:</strong> ' + esc(o.paystack_status || o.payaza_status || '—') + '</p>' +
           '<table class="admin-table order-print-table mt-2"><thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead><tbody>';
         items.forEach(function(i) {
           var snap = i.product_snapshot || {};
-          content += '<tr><td>' + (snap.name || 'Product') + '</td><td>' + i.quantity + '</td><td>' + formatNaira(i.price) + '</td></tr>';
+          content += '<tr><td>' + esc(snap.name || 'Product') + '</td><td>' + i.quantity + '</td><td>' + formatNaira(i.price) + '</td></tr>';
         });
         content += '</tbody></table>';
         var html = '<div class="order-print-wrap">' +
@@ -609,7 +616,7 @@
     supabase.from('offers').select('*, products(name, slug)').order('created_at', { ascending: false })
       .then(function(r) {
         if (r.error) {
-          tbody.innerHTML = '<tr><td colspan="10">Error: ' + (r.error.message || 'Failed to load') + '</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="10">Error: ' + esc(r.error.message || 'Failed to load') + '</td></tr>';
           return;
         }
         allOffersList = r.data || [];
@@ -625,7 +632,7 @@
           var date = o.created_at ? new Date(o.created_at).toLocaleString() : '—';
           var qty = o.quantity != null ? o.quantity : 1;
           var reason = (o.reason || '').trim();
-          var reasonCell = reason ? ('<span title="' + reason.replace(/"/g, '&quot;') + '">' + (reason.length > 40 ? reason.substring(0, 40) + '…' : reason) + '</span>') : '—';
+          var reasonCell = reason ? ('<span title="' + esc(reason) + '">' + esc(reason.length > 40 ? reason.substring(0, 40) + '…' : reason) + '</span>') : '—';
           var canAct = (o.status === 'pending' || o.status === 'countered');
           var actions = canAct
             ? '<button type="button" class="btn-admin-outline btn-sm approve-offer" data-id="' + o.id + '">Approve</button> ' +
@@ -633,9 +640,9 @@
             : '—';
           return '<tr>' +
             '<td>' + date + '</td>' +
-            '<td>' + productName + '</td>' +
+            '<td>' + esc(productName) + '</td>' +
             '<td>' + qty + '</td>' +
-            '<td>' + (o.email || '—') + '</td>' +
+            '<td>' + esc(o.email || '—') + '</td>' +
             '<td>' + formatNaira(o.original_price) + '</td>' +
             '<td>' + formatNaira(o.offered_price) + '</td>' +
             '<td style="max-width: 160px;" class="text-muted small">' + reasonCell + '</td>' +
@@ -742,7 +749,7 @@
         var date = o.created_at ? new Date(o.created_at).toLocaleString() : '—';
         var qty = o.quantity != null ? o.quantity : 1;
         var reason = (o.reason || '').trim();
-        var reasonCell = reason ? ('<span title="' + reason.replace(/"/g, '&quot;') + '">' + (reason.length > 40 ? reason.substring(0, 40) + '…' : reason) + '</span>') : '—';
+        var reasonCell = reason ? ('<span title="' + esc(reason) + '">' + esc(reason.length > 40 ? reason.substring(0, 40) + '…' : reason) + '</span>') : '—';
         var canAct = (o.status === 'pending' || o.status === 'countered');
         var actions = canAct
           ? '<button type="button" class="btn-admin-outline btn-sm approve-offer" data-id="' + o.id + '">Approve</button> ' +
@@ -750,9 +757,9 @@
           : '—';
         return '<tr>' +
           '<td>' + date + '</td>' +
-          '<td>' + productName + '</td>' +
+          '<td>' + esc(productName) + '</td>' +
           '<td>' + qty + '</td>' +
-          '<td>' + (o.email || '—') + '</td>' +
+          '<td>' + esc(o.email || '—') + '</td>' +
           '<td>' + formatNaira(o.original_price) + '</td>' +
           '<td>' + formatNaira(o.offered_price) + '</td>' +
           '<td style="max-width: 160px;" class="text-muted small">' + reasonCell + '</td>' +
@@ -806,7 +813,7 @@
         }
         tbody.innerHTML = list.map(function(c) {
           var last = c.lastOrder ? new Date(c.lastOrder).toLocaleDateString() : '—';
-          return '<tr><td>' + (c.name || '—') + '</td><td>' + (c.email || '—') + '</td><td>' + (c.phone || '—') + '</td><td>' + c.orders + '</td><td>' + last + '</td></tr>';
+          return '<tr><td>' + esc(c.name || '—') + '</td><td>' + esc(c.email || '—') + '</td><td>' + esc(c.phone || '—') + '</td><td>' + c.orders + '</td><td>' + last + '</td></tr>';
         }).join('');
       }).catch(function(err) {
         tbody.innerHTML = '<tr><td colspan="5">Error loading customers</td></tr>';

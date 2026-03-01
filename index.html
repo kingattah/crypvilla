@@ -392,6 +392,61 @@
       .cartoon-deco .deco-md { width: 80px; max-height: 90px; }
       .cartoon-deco .deco-lg { width: 100px; max-height: 110px; }
     }
+    /* Cart visible on mobile next to hamburger */
+    .nav-cart-mobile { display: none; }
+    @media (max-width: 991px) {
+      .nav-cart-mobile { display: inline-flex; align-items: center; position: relative; margin-right: 0.25rem; padding: 0.35rem 0.65rem; padding-right: 1.5rem; font-size: 0.85rem; white-space: nowrap; }
+      .nav-cart-mobile .cart-count-badge { font-size: 0.65rem; min-width: 1rem; height: 1rem; top: -4px; right: 4px; z-index: 1; }
+      .nav-cart-desktop { display: none !important; }
+    }
+    /* ========== Mobile responsive ========== */
+    @media (max-width: 991px) {
+      .hero { padding: 4rem 0 3rem; min-height: auto; }
+      .hero h1 { font-size: clamp(1.75rem, 4vw, 2.25rem); }
+      .hero .lead { font-size: 1rem; }
+      .band-statement { min-height: auto; padding: 3rem 0; }
+      .band-statement .statement-line { font-size: clamp(1.4rem, 3.5vw, 2rem); }
+      .band-statement .statement-sub { font-size: 0.95rem; }
+      .band-statement .statement-pills { gap: 0.5rem 0.75rem; }
+      .cta-section { padding: 2.5rem 1.25rem; }
+      .section-title { font-size: clamp(1.5rem, 3vw, 1.85rem); }
+      .container { padding-left: 1rem; padding-right: 1rem; }
+      .footer { padding: 2rem 0 1.5rem; }
+    }
+    @media (max-width: 768px) {
+      .navbar-brand img { height: 60px; }
+      .hero { padding: 3rem 0 2rem; }
+      .hero h1 { font-size: 1.6rem; }
+      .hero .lead { font-size: 0.95rem; }
+      .hero .mt-4 { flex-direction: column; align-items: stretch; }
+      .hero .btn { width: 100%; margin: 0.25rem 0 !important; }
+      .hero .me-2 { margin-right: 0 !important; }
+      .band-statement { padding: 2.5rem 0; }
+      .band-statement .statement-line { font-size: 1.35rem; }
+      .band-statement .statement-sub { font-size: 0.9rem; margin-bottom: 1.5rem; }
+      .band-statement .statement-pills { flex-direction: column; align-items: center; margin-bottom: 1.5rem; }
+      .band-statement .statement-pill { font-size: 0.8rem; }
+      .parallax-band { min-height: auto; padding: 2rem 0; }
+      .parallax-caption { font-size: 1.35rem; }
+      .cta-section { padding: 2rem 1rem; border-radius: 16px; }
+      .cta-section .section-title { font-size: 1.4rem; }
+      .cta-section .text-muted { font-size: 0.9rem; }
+      .section-bg .container { padding-top: 2rem; padding-bottom: 2rem; }
+      .section-bg .py-5 { padding-top: 2rem !important; padding-bottom: 2rem !important; }
+      .feature-icon { width: 44px; height: 44px; font-size: 1rem; }
+      .footer .row { text-align: center; }
+      .footer .col-md-2 ul { padding-left: 0; }
+    }
+    @media (max-width: 576px) {
+      .navbar-brand img { height: 48px; }
+      .hero { padding: 2.5rem 0 1.5rem; }
+      .hero h1 { font-size: 1.4rem; }
+      .section-title { font-size: 1.35rem; }
+      .container { padding-left: 0.75rem; padding-right: 0.75rem; }
+      .card-product .card-body { padding: 1rem; }
+      .card-product .card-title { font-size: 1rem; }
+      #categoryCards .col-md-6, #featuredProducts .col-6 { flex: 0 0 100%; max-width: 100%; }
+    }
   </style>
 </head>
 <body>
@@ -411,6 +466,7 @@
       <a class="navbar-brand" href="index.html">
         <img src="images/crypvilla-removebg-preview.png" alt="Crypvilla">
       </a>
+      <a href="cart.html" class="nav-cart-mobile nav-link btn btn-shop btn-cart-mobile" aria-label="Cart">Cart <span id="navCartCountMobile" class="cart-count-badge d-none">0</span></a>
       <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -420,7 +476,7 @@
           <li class="nav-item"><a class="nav-link" href="shop.html">Shop</a></li>
           <li class="nav-item"><a class="nav-link" href="#why-us">Why Us</a></li>
           <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
-          <li class="nav-item ms-lg-2 position-relative">
+          <li class="nav-item ms-lg-2 position-relative nav-cart-desktop">
             <a class="nav-link btn btn-shop" href="cart.html">Cart <span id="navCartCount" class="cart-count-badge d-none">0</span></a>
           </li>
         </ul>
@@ -659,17 +715,18 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="config.js"></script>
+  <script src="js/escape.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase.js"></script>
   <script src="js/cart.js"></script>
   <script>
     (function() {
       function updateCartCount() {
-        var el = document.getElementById('navCartCount');
-        if (!el) return;
         var n = window.CrypvillaCart ? window.CrypvillaCart.getCount() : 0;
-        el.textContent = n;
-        el.classList.toggle('d-none', n === 0);
+        ['navCartCount', 'navCartCountMobile'].forEach(function(id) {
+          var el = document.getElementById(id);
+          if (el) { el.textContent = n; el.classList.toggle('d-none', n === 0); }
+        });
       }
       updateCartCount();
       if (window.CrypvillaCart) window.CrypvillaCart.onUpdate(updateCartCount);
@@ -693,13 +750,18 @@
             title.className = 'section-title text-center mb-4 mt-5';
             title.textContent = 'Featured products';
             featuredEl.parentNode.insertBefore(title, featuredEl);
+            var esc = window.CrypvillaEscape && window.CrypvillaEscape.html ? window.CrypvillaEscape.html : function(s) { return String(s == null ? '' : s); };
+            var safeImgUrl = window.CrypvillaEscape && window.CrypvillaEscape.url ? function(u) { var s = window.CrypvillaEscape.url(u); return s || 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&q=80'; } : function(u) { return u || 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&q=80'; };
             r.data.forEach(function(p) {
               var spec = (p.specs && (p.specs.processor || p.specs.ram || p.specs.storage)) ? [p.specs.processor, p.specs.ram, p.specs.storage].filter(Boolean).slice(0, 2).join(' · ') : '';
               var priceHtml = p.compare_at_price ? '<span class="price-current">₦' + Number(p.price).toLocaleString() + '</span> <span class="price-compare">₦' + Number(p.compare_at_price).toLocaleString() + '</span>' : '<span class="price-current">₦' + Number(p.price).toLocaleString() + '</span>';
               var saleBadge = p.compare_at_price ? '<span class="badge-sale">Sale</span>' : '';
+              var imgUrl = (safeImgUrl(p.image_url) || '').replace(/"/g, '&quot;');
+              var nameSafe = esc((p.name || '').substring(0, 50) + (p.name && p.name.length > 50 ? '…' : ''));
+              var specSafe = spec ? esc(spec) : '';
               var card = document.createElement('div');
               card.className = 'col-6 col-md-4 col-lg-3';
-              card.innerHTML = '<a href="product.html?id=' + encodeURIComponent(p.id) + '" class="text-decoration-none text-dark"><div class="card card-product h-100"><div class="img-wrap position-relative">' + saleBadge + '<img src="' + (p.image_url || 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&q=80') + '" alt="" loading="lazy"></div><div class="card-body"><h5 class="card-title">' + (p.name || '').substring(0, 50) + (p.name && p.name.length > 50 ? '…' : '') + '</h5><p class="text-muted small mb-1">' + priceHtml + '</p>' + (spec ? '<p class="spec-pills"><span class="spec-pill">' + spec + '</span></p>' : '') + '</div></div></a>';
+              card.innerHTML = '<a href="product.html?id=' + encodeURIComponent(p.id) + '" class="text-decoration-none text-dark"><div class="card card-product h-100"><div class="img-wrap position-relative">' + saleBadge + '<img src="' + imgUrl + '" alt="" loading="lazy"></div><div class="card-body"><h5 class="card-title">' + nameSafe + '</h5><p class="text-muted small mb-1">' + priceHtml + '</p>' + (specSafe ? '<p class="spec-pills"><span class="spec-pill">' + specSafe + '</span></p>' : '') + '</div></div></a>';
               featuredEl.appendChild(card);
             });
           }
