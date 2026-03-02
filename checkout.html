@@ -281,6 +281,9 @@
             { amount: offerTotal, email: email },
             function success(result) {
               var expectedKobo = Math.round(offerTotal * 100);
+              var config = window.CRYPVILLA_CONFIG || {};
+              var anonKey = config.SUPABASE_ANON_KEY || '';
+              // complete-offer: Edge Function smart-responder (verify Paystack + complete offer order)
               window.supabase.functions.invoke('smart-responder', {
                 body: {
                   reference: result.reference,
@@ -290,7 +293,8 @@
                   customer_phone: phone,
                   delivery_address: address,
                   delivery_location: location
-                }
+                },
+                headers: anonKey ? { Authorization: 'Bearer ' + anonKey } : {}
               }).then(function(r) {
                 if (r.error) {
                   btn.disabled = false;
@@ -362,7 +366,7 @@
             var tot = st + sh;
             var config = window.CRYPVILLA_CONFIG || {};
             var anonKey = config.SUPABASE_ANON_KEY || '';
-            window.supabase.functions.invoke('verify-and-create-order', {
+            window.supabase.functions.invoke('quick-task', {
               body: {
                 reference: result.reference,
                 customer_name: name,
@@ -395,7 +399,7 @@
               btn.disabled = false;
               btn.textContent = 'Pay with Paystack';
               var msg = err && err.message ? err.message : String(err);
-              if (msg.indexOf('non-2xx') !== -1) msg = msg + ' Check Supabase Dashboard → Edge Functions → verify-and-create-order → Logs for the error.';
+              if (msg.indexOf('non-2xx') !== -1) msg = msg + ' Check Supabase Dashboard → Edge Functions → quick-task → Logs for the error.';
               console.error('Checkout save failed:', err);
               alert('Order could not be saved. Please try again or contact support.\n\n(' + msg + ')');
             });
