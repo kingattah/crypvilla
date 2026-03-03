@@ -43,26 +43,152 @@
     </div>
   </nav>
 
-  <main class="container flex-grow-1 py-4">
-    <h1 class="section-title mb-3">Shop</h1>
-    <div class="mb-4">
-      <div class="d-flex flex-wrap gap-2 align-items-center">
-        <span class="text-muted small">Categories:</span>
-        <a href="shop.html" class="btn btn-sm btn-outline-secondary category-link" data-slug="">All</a>
-        <span id="categoryLinks"><span class="text-muted">Loading…</span></span>
+  <main class="flex-grow-1">
+    <!-- Hero Carousel (only when no category filter) - Shopinverse-style hero -->
+    <section id="shopHero" class="shop-hero mb-4">
+      <div id="shopCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+        <div class="carousel-indicators">
+          <button type="button" data-bs-target="#shopCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+          <button type="button" data-bs-target="#shopCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+          <button type="button" data-bs-target="#shopCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        </div>
+        <div class="carousel-inner">
+          <div class="carousel-item active">
+            <div class="shop-carousel-slide shop-carousel-1">
+              <div class="carousel-overlay"></div>
+              <div class="carousel-caption-shop container">
+                <h2>Brand New Laptops & More</h2>
+                <p>Microsoft Surface, HP, Dell, Lenovo &mdash; latest models in stock.</p>
+                <a href="shop.html?category=brand-new-laptops" class="btn btn-shop btn-lg">Shop now</a>
+              </div>
+            </div>
+          </div>
+          <div class="carousel-item">
+            <div class="shop-carousel-slide shop-carousel-2">
+              <div class="carousel-overlay"></div>
+              <div class="carousel-caption-shop container">
+                <h2>Hot Deals This Week</h2>
+                <p>Save on selected laptops and desktops. Limited time.</p>
+                <a href="#hotDeals" class="btn btn-shop btn-lg">View deals</a>
+              </div>
+            </div>
+          </div>
+          <div class="carousel-item">
+            <div class="shop-carousel-slide shop-carousel-3">
+              <div class="carousel-overlay"></div>
+              <div class="carousel-caption-shop container">
+                <h2>Free Delivery in Lagos</h2>
+                <p>On orders over ₦500,000. We deliver nationwide.</p>
+                <a href="shop.html" class="btn btn-shop btn-lg">Browse all</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="carousel-control-prev shop-carousel-control" type="button" data-bs-target="#shopCarousel" data-bs-slide="prev" aria-label="Previous slide">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        </button>
+        <button class="carousel-control-next shop-carousel-control" type="button" data-bs-target="#shopCarousel" data-bs-slide="next" aria-label="Next slide">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        </button>
       </div>
-    </div>
+    </section>
 
-    <div id="productGrid" class="row g-4">
-      <div class="col-12 text-center py-5">
-        <div class="spinner-border loading-spinner" role="status"><span class="visually-hidden">Loading</span></div>
-        <p class="text-muted mt-2">Loading products…</p>
+    <div class="container py-4">
+      <!-- Breadcrumb -->
+      <nav id="shopBreadcrumb" class="shop-breadcrumb" aria-label="Breadcrumb">
+        <ol class="breadcrumb breadcrumb-shop mb-0">
+          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="shop.html">Shop</a></li>
+          <li id="breadcrumbCategory" class="breadcrumb-item active d-none" aria-current="page"></li>
+        </ol>
+      </nav>
+
+      <!-- Category bar: switch categories -->
+      <div class="shop-category-bar">
+        <span class="shop-category-label d-none d-md-inline">Category</span>
+        <nav class="shop-category-nav d-none d-md-flex" aria-label="Product categories">
+          <a href="shop.html" class="shop-cat-pill" data-slug="">All</a>
+          <span id="categoryLinks"><span class="text-muted">Loading…</span></span>
+        </nav>
+        <select id="shopCategorySelect" class="form-select form-select-sm shop-category-select d-md-none" aria-label="Select category">
+          <option value="">All categories</option>
+        </select>
       </div>
-    </div>
 
-    <div id="emptyState" class="empty-state d-none">
-      <p class="mb-2">No products in this category yet.</p>
-      <a href="shop.html" class="btn btn-shop">View all</a>
+      <!-- Toolbar: results count -->
+      <div class="shop-toolbar">
+        <p id="productCount" class="shop-toolbar-count">Loading…</p>
+      </div>
+
+      <!-- Landing sections (hidden when ?category= is set) -->
+      <div id="shopLanding">
+        <!-- Hot deals -->
+        <section id="hotDeals" class="shop-section mb-5">
+          <h2 class="section-head">Hot deals</h2>
+          <p class="text-muted small mb-3">Limited-time offers on selected items.</p>
+          <div id="hotDealsGrid" class="row g-4 product-strip">
+            <div class="col-12 text-center py-4"><div class="spinner-border loading-spinner" role="status"></div><p class="text-muted mt-2 small">Loading…</p></div>
+          </div>
+          <div id="hotDealsEmpty" class="text-center py-4 d-none">
+            <p class="text-muted mb-0">No hot deals right now. Check back soon!</p>
+          </div>
+        </section>
+
+        <!-- Latest addition -->
+        <section class="shop-section mb-5">
+          <h2 class="section-head">Latest addition</h2>
+          <p class="text-muted small mb-3">Just arrived &mdash; newest products in store.</p>
+          <div id="latestGrid" class="row g-4 product-strip">
+            <div class="col-12 text-center py-4"><div class="spinner-border loading-spinner" role="status"></div><p class="text-muted mt-2 small">Loading…</p></div>
+          </div>
+        </section>
+
+        <!-- Sweet deals -->
+        <section class="shop-section mb-5">
+          <h2 class="section-head">Sweet deals</h2>
+          <p class="text-muted small mb-3">Great value picks under ₦1M.</p>
+          <div id="sweetDealsGrid" class="row g-4 product-strip">
+            <div class="col-12 text-center py-4"><div class="spinner-border loading-spinner" role="status"></div><p class="text-muted mt-2 small">Loading…</p></div>
+          </div>
+          <div id="sweetDealsEmpty" class="text-center py-4 d-none">
+            <p class="text-muted mb-0">No sweet deals in this range at the moment.</p>
+          </div>
+        </section>
+
+        <!-- Browse products (limited on landing, full when View all) -->
+        <section id="allProductsSection" class="shop-section mb-4">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <h2 class="section-head mb-0">Browse products</h2>
+            <a id="viewAllProductsLink" href="shop.html?view=all" class="btn btn-outline-primary btn-sm d-none">View all products</a>
+          </div>
+        </section>
+      </div>
+
+      <!-- Product grid (all or filtered by category; limited to 12 on main landing) -->
+      <div id="productGrid" class="row g-4">
+        <div class="col-12 text-center py-5">
+          <div class="spinner-border loading-spinner" role="status"><span class="visually-hidden">Loading</span></div>
+          <p class="text-muted mt-2">Loading products…</p>
+        </div>
+      </div>
+
+      <div id="emptyState" class="empty-state d-none">
+        <p class="mb-2">No products in this category yet.</p>
+        <a href="shop.html" class="btn btn-shop">View all</a>
+      </div>
+
+      <!-- Pagination -->
+      <nav id="paginationWrap" class="shop-pagination d-none" aria-label="Product list pagination">
+        <ul class="pagination pagination-shop justify-content-center flex-wrap mb-0">
+          <li class="page-item" id="paginationPrev"><a class="page-link" href="#" aria-label="Previous">Previous</a></li>
+          <li class="page-item disabled" id="paginationPages"><span class="page-link page-info" id="paginationInfo">Page 1</span></li>
+          <li class="page-item" id="paginationNext"><a class="page-link" href="#" aria-label="Next">Next</a></li>
+        </ul>
+      </nav>
+
+      <div id="viewAllWrap" class="text-center mt-4 d-none">
+        <a href="shop.html?view=all" class="btn btn-shop">View all products</a>
+      </div>
     </div>
   </main>
 
@@ -120,14 +246,31 @@
 
       var params = new URLSearchParams(window.location.search);
       var categorySlug = params.get('category') || '';
+      var viewAll = params.get('view') === 'all';
+      var currentPage = Math.max(1, parseInt(params.get('page'), 10) || 1);
+      var PAGE_SIZE = 24;
+
+      // When a category is selected or view=all, hide hero; when category selected hide landing sections
+      (function toggleLanding() {
+        var hero = document.getElementById('shopHero');
+        var landing = document.getElementById('shopLanding');
+        if (hero) hero.classList.toggle('d-none', !!categorySlug || viewAll);
+        if (landing) landing.classList.toggle('d-none', !!categorySlug);
+      })();
+
+      var productSelectFields = 'id, name, slug, price, compare_at_price, image_url, specs, stock, categories(slug)';
 
       function renderProduct(p) {
         var specs = p.specs || {};
         var pills = [specs.processor, specs.ram, specs.storage].filter(Boolean).slice(0, 3);
+        var stock = parseInt(p.stock, 10);
+        if (isNaN(stock) || stock < 0) stock = 999;
+        var inStock = stock > 0;
         var priceHtml = p.compare_at_price
           ? '<span class="price-current">₦' + Number(p.price).toLocaleString() + '</span> <span class="price-compare">₦' + Number(p.compare_at_price).toLocaleString() + '</span>'
           : '<span class="price-current">₦' + Number(p.price).toLocaleString() + '</span>';
         var saleBadge = p.compare_at_price ? '<span class="badge-sale">Sale</span>' : '';
+        if (!inStock) saleBadge = '<span class="badge-out-of-stock">Out of stock</span>';
         var catSlug = p.categories ? (Array.isArray(p.categories) ? (p.categories[0] && p.categories[0].slug) || '' : (p.categories.slug || '')) : '';
         var laptopSlugs = (window.CRYPVILLA_CONFIG && window.CRYPVILLA_CONFIG.LAPTOP_CATEGORY_SLUGS) || ['grade-a-uk-used-laptops', 'brand-new-laptops'];
         var isLaptop = laptopSlugs.indexOf(catSlug) >= 0;
@@ -136,92 +279,289 @@
         var name = (p.name || '').substring(0, 60) + ((p.name && p.name.length > 60) ? '…' : '');
         var nameSafe = safeHtml(name);
         var pillsSafe = pills.map(function(s) { return '<span class="spec-pill">' + safeHtml(s) + '</span>'; }).join('');
+        var stockHint = inStock && stock <= 5 ? '<p class="text-warning small mb-1">Only ' + stock + ' left</p>' : '';
+        var nameAttr = (p.name || '').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        var imgAttr = (p.image_url || '').replace(/"/g, '&quot;');
+        var addBtn = inStock
+          ? '<button type="button" class="btn btn-sm btn-shop add-to-cart" data-id="' + p.id + '" data-name="' + nameAttr + '" data-price="' + p.price + '" data-image="' + imgAttr + '" data-category="' + (catSlug || '').replace(/"/g, '&quot;') + '" data-stock="' + stock + '">Add to cart</button>'
+          : '<button type="button" class="btn btn-sm btn-outline-secondary" disabled>Out of stock</button>';
         var card = document.createElement('div');
         card.className = 'col-6 col-md-4 col-lg-3';
         card.innerHTML =
-          '<div class="card card-product h-100">' +
+          '<div class="card card-product h-100' + (inStock ? '' : ' card-out-of-stock') + '">' +
             '<div class="img-wrap position-relative">' + saleBadge +
               '<a href="product.html?id=' + encodeURIComponent(p.id) + '"><img src="' + (safeImgUrl || '').replace(/"/g, '&quot;') + '" alt="" class="w-100" loading="lazy"></a>' +
             '</div>' +
             '<div class="card-body">' +
               '<h5 class="card-title"><a href="product.html?id=' + encodeURIComponent(p.id) + '" class="text-dark text-decoration-none">' + nameSafe + '</a></h5>' +
               '<p class="text-muted small mb-1">' + priceHtml + '</p>' +
+              stockHint +
               (laptopBagBadge ? '<div class="mb-1">' + laptopBagBadge + '</div>' : '') +
               (pills.length ? '<div class="spec-pills">' + pillsSafe + '</div>' : '') +
               '<div class="mt-2 d-flex gap-1">' +
                 '<a href="product.html?id=' + encodeURIComponent(p.id) + '" class="btn btn-sm btn-outline-secondary flex-grow-1">View</a>' +
-                '<button type="button" class="btn btn-sm btn-shop add-to-cart" data-id="' + p.id + '" data-name="' + safeHtml(p.name || '') + '" data-price="' + p.price + '" data-image="' + safeHtml(p.image_url || '') + '" data-category="' + safeHtml(p.categories ? (Array.isArray(p.categories) ? (p.categories[0] && p.categories[0].slug) || '' : (p.categories.slug || '')) : '') + '">Add to cart</button>' +
+                addBtn +
               '</div>' +
             '</div>' +
           '</div>';
         return card;
       }
 
+      function buildShopUrl(opts) {
+        var q = [];
+        if (opts.category != null && opts.category !== '') q.push('category=' + encodeURIComponent(opts.category));
+        if (opts.viewAll) q.push('view=all');
+        if (opts.page > 1) q.push('page=' + opts.page);
+        return 'shop.html' + (q.length ? '?' + q.join('&') : '');
+      }
+
       function loadCategories() {
         var el = document.getElementById('categoryLinks');
-        if (!window.supabase) { el.innerHTML = ''; return Promise.resolve([]); }
-        return window.supabase.from('categories').select('slug, name').order('sort_order').then(function(r) {
-          if (r.data && r.data.length) {
-            el.innerHTML = r.data.map(function(c) {
+        var selectEl = document.getElementById('shopCategorySelect');
+        if (!window.supabase) { if (el) el.innerHTML = ''; return Promise.resolve([]); }
+        return window.supabase.from('categories').select('slug, name, image_url').order('sort_order').then(function(r) {
+          var list = r.data || [];
+          if (el && list.length) {
+            el.innerHTML = list.map(function(c) {
               var active = c.slug === categorySlug ? ' active' : '';
-              return '<a href="shop.html?category=' + encodeURIComponent(c.slug) + '" class="btn btn-sm btn-outline-secondary category-link' + active + '" data-slug="' + safeHtml(c.slug) + '">' + safeHtml(c.name) + '</a>';
+              var href = buildShopUrl({ category: c.slug, page: 1 });
+              return '<a href="' + href + '" class="shop-cat-pill' + active + '" data-slug="' + safeHtml(c.slug) + '">' + safeHtml(c.name) + '</a>';
+            }).join('');
+          } else if (el) el.innerHTML = '';
+          if (selectEl && list.length) {
+            selectEl.innerHTML = '<option value="">All categories</option>' + list.map(function(c) {
+              var sel = c.slug === categorySlug ? ' selected' : '';
+              return '<option value="' + safeHtml(c.slug) + '"' + sel + '>' + safeHtml(c.name) + '</option>';
             }).join('');
           }
-          el.innerHTML = '';
-          return r.data || [];
+          var allLink = document.querySelector('.shop-category-nav .shop-cat-pill[data-slug=""]');
+          if (allLink) {
+            allLink.href = buildShopUrl({ category: '', page: 1 });
+            allLink.classList.toggle('active', !categorySlug);
+          }
+          return list;
         });
+      }
+
+      var catSelect = document.getElementById('shopCategorySelect');
+      if (catSelect) catSelect.addEventListener('change', function() {
+        var slug = this.value || '';
+        window.location.href = buildShopUrl({ category: slug, page: 1 });
+      });
+
+      function renderProductStrip(containerId, list) {
+        var el = document.getElementById(containerId);
+        if (!el) return;
+        el.innerHTML = '';
+        if (!list || !list.length) return;
+        list.forEach(function(p) { el.appendChild(renderProduct(p)); });
+      }
+
+      function filterInStock(list) {
+        return (list || []).filter(function(p) { return (parseInt(p.stock, 10) || 0) > 0; });
+      }
+
+      function loadHotDeals() {
+        var grid = document.getElementById('hotDealsGrid');
+        var empty = document.getElementById('hotDealsEmpty');
+        if (!grid || !window.supabase) return;
+        window.supabase.from('products').select(productSelectFields).not('compare_at_price', 'is', null).gt('stock', 0).limit(8).then(function(r) {
+          var list = filterInStock(r.data || []);
+          if (list.length) {
+            renderProductStrip('hotDealsGrid', list);
+            if (empty) empty.classList.add('d-none');
+          } else {
+            grid.innerHTML = '';
+            if (empty) empty.classList.remove('d-none');
+          }
+        });
+      }
+
+      function loadLatest() {
+        var grid = document.getElementById('latestGrid');
+        if (!grid || !window.supabase) return;
+        window.supabase.from('products').select(productSelectFields).order('created_at', { ascending: false }).limit(12).then(function(r) {
+          var list = filterInStock(r.data || []);
+          grid.innerHTML = '';
+          if (list.length) {
+            list.slice(0, 8).forEach(function(p) { grid.appendChild(renderProduct(p)); });
+          } else {
+            grid.innerHTML = '<div class="col-12 text-muted text-center py-3">No products yet.</div>';
+          }
+        });
+      }
+
+      function loadSweetDeals() {
+        var grid = document.getElementById('sweetDealsGrid');
+        var empty = document.getElementById('sweetDealsEmpty');
+        if (!grid || !window.supabase) return;
+        window.supabase.from('products').select(productSelectFields).lt('price', 1000000).gt('stock', 0).order('price', { ascending: true }).limit(8).then(function(r) {
+          if (r.data && r.data.length) {
+            renderProductStrip('sweetDealsGrid', r.data);
+            if (empty) empty.classList.add('d-none');
+          } else {
+            grid.innerHTML = '';
+            if (empty) empty.classList.remove('d-none');
+          }
+        });
+      }
+
+      var defaultOrder = { column: 'created_at', ascending: false };
+
+      function updateBreadcrumbAndCount(categoryName, count, totalCount) {
+        var catEl = document.getElementById('breadcrumbCategory');
+        var countEl = document.getElementById('productCount');
+        if (catEl) {
+          if (categoryName) {
+            catEl.textContent = categoryName;
+            catEl.classList.remove('d-none');
+          } else {
+            catEl.classList.add('d-none');
+          }
+        }
+        if (countEl) {
+          if (count === 0) countEl.textContent = 'No products found.';
+          else if (totalCount != null && totalCount > count) countEl.textContent = 'Showing ' + count + ' of ' + totalCount + ' products';
+          else if (count === 1) countEl.textContent = '1 product';
+          else countEl.textContent = count + ' products';
+        }
+      }
+
+      function renderPagination(totalCount, page) {
+        var wrap = document.getElementById('paginationWrap');
+        var prevLi = document.getElementById('paginationPrev');
+        var nextLi = document.getElementById('paginationNext');
+        var infoEl = document.getElementById('paginationInfo');
+        if (!wrap || totalCount <= PAGE_SIZE) {
+          if (wrap) wrap.classList.add('d-none');
+          return;
+        }
+        wrap.classList.remove('d-none');
+        var totalPages = Math.ceil(totalCount / PAGE_SIZE);
+        var prevHref = page > 1 ? buildShopUrl({ category: categorySlug, viewAll: viewAll, page: page - 1 }) : '#';
+        var nextHref = page < totalPages ? buildShopUrl({ category: categorySlug, viewAll: viewAll, page: page + 1 }) : '#';
+        prevLi.classList.toggle('disabled', page <= 1);
+        prevLi.querySelector('a').href = prevHref;
+        nextLi.classList.toggle('disabled', page >= totalPages);
+        nextLi.querySelector('a').href = nextHref;
+        var from = (page - 1) * PAGE_SIZE + 1;
+        var to = Math.min(page * PAGE_SIZE, totalCount);
+        infoEl.textContent = 'Page ' + page + ' of ' + totalPages + ' (' + from + '–' + to + ' of ' + totalCount + ')';
       }
 
       function loadProducts() {
         var grid = document.getElementById('productGrid');
         var empty = document.getElementById('emptyState');
+        var limitMain = !categorySlug && !viewAll ? 12 : null;
+        var categoryNameForSlug = '';
+        var orderOpts = defaultOrder;
 
-        function render(r) {
+        function renderList(list, totalCount, showViewAll) {
           grid.innerHTML = '';
-          if (r.data && r.data.length) {
-            r.data.forEach(function(p) { grid.appendChild(renderProduct(p)); });
+          if (list.length) {
+            list.forEach(function(p) { grid.appendChild(renderProduct(p)); });
             empty.classList.add('d-none');
           } else {
             empty.classList.remove('d-none');
+          }
+          if (limitMain != null && showViewAll) {
+            updateBreadcrumbAndCount(categoryNameForSlug, list.length, totalCount);
+            var viewAllLink = document.getElementById('viewAllProductsLink');
+            var viewAllWrap = document.getElementById('viewAllWrap');
+            if (viewAllLink) { viewAllLink.classList.remove('d-none'); }
+            if (viewAllWrap) { viewAllWrap.classList.remove('d-none'); viewAllWrap.querySelector('a').textContent = 'View all ' + totalCount + ' products'; }
+          } else {
+            if (limitMain != null) {
+              updateBreadcrumbAndCount(categoryNameForSlug, list.length);
+              var vl = document.getElementById('viewAllProductsLink');
+              var vw = document.getElementById('viewAllWrap');
+              if (vl) vl.classList.add('d-none');
+              if (vw) vw.classList.add('d-none');
+            } else {
+              updateBreadcrumbAndCount(categoryNameForSlug, list.length, totalCount);
+              renderPagination(totalCount, currentPage);
+            }
           }
         }
 
         if (!window.supabase) {
           grid.innerHTML = '<div class="col-12 empty-state"><p>Configure Supabase in config.js to load products.</p></div>';
           empty.classList.add('d-none');
+          document.getElementById('paginationWrap').classList.add('d-none');
           return;
         }
 
+        var selectOpts = productSelectFields + ', created_at';
+        var orderArgs = [orderOpts.column, { ascending: orderOpts.ascending }];
+
         if (categorySlug) {
-          window.supabase.from('categories').select('id').eq('slug', categorySlug).single().then(function(cat) {
+          window.supabase.from('categories').select('id, name').eq('slug', categorySlug).single().then(function(cat) {
             if (cat.data && cat.data.id) {
-              return window.supabase.from('products').select('id, name, slug, price, compare_at_price, image_url, specs, categories(slug)').eq('category_id', cat.data.id).then(render);
+              categoryNameForSlug = cat.data.name || '';
+              var from = (currentPage - 1) * PAGE_SIZE;
+              window.supabase.from('products').select(selectOpts, { count: 'exact' })
+                .eq('category_id', cat.data.id)
+                .order(orderArgs[0], orderArgs[1])
+                .range(from, from + PAGE_SIZE - 1)
+                .then(function(r) {
+                  var list = r.data || [];
+                  var total = r.count != null ? r.count : list.length;
+                  renderList(list, total, false);
+                });
+            } else {
+              renderList([], 0, false);
             }
-            render({ data: [] });
           });
+        } else if (viewAll) {
+          var from = (currentPage - 1) * PAGE_SIZE;
+          window.supabase.from('products').select(selectOpts, { count: 'exact' })
+            .order(orderArgs[0], orderArgs[1])
+            .range(from, from + PAGE_SIZE - 1)
+            .then(function(r) {
+              var list = r.data || [];
+              var total = r.count != null ? r.count : list.length;
+              renderList(list, total, false);
+            });
         } else {
-          window.supabase.from('products').select('id, name, slug, price, compare_at_price, image_url, specs, categories(slug)').then(render);
+          window.supabase.from('products').select(selectOpts, { count: 'exact' })
+            .order(orderArgs[0], orderArgs[1])
+            .then(function(r) {
+              var list = r.data || [];
+              var total = list.length;
+              var showViewAll = total > limitMain;
+              if (total > limitMain) list = list.slice(0, limitMain);
+              renderList(list, total, showViewAll);
+            });
         }
       }
 
-      loadCategories().then(function() { loadProducts(); });
-
-      document.getElementById('productGrid').addEventListener('click', function(e) {
-        var btn = e.target.closest('.add-to-cart');
-        if (!btn) return;
-        var id = btn.getAttribute('data-id');
-        var name = btn.getAttribute('data-name');
-        var price = btn.getAttribute('data-price');
-        var image = btn.getAttribute('data-image');
-        var category = btn.getAttribute('data-category') || '';
-        if (id && window.CrypvillaCart) {
-          window.CrypvillaCart.add(id, 1, { name: name, price: price, image_url: image, category_slug: category });
-          updateCartCount();
-          var t = btn.textContent;
-          btn.textContent = 'Added';
-          btn.disabled = true;
-          setTimeout(function() { btn.textContent = t; btn.disabled = false; }, 1500);
+      loadCategories().then(function() {
+        loadProducts();
+        if (!categorySlug) {
+          loadHotDeals();
+          loadLatest();
+          loadSweetDeals();
         }
+      });
+
+      document.body.addEventListener('click', function(e) {
+        var btn = e.target.closest('.add-to-cart');
+        if (!btn || btn.disabled) return;
+        e.preventDefault();
+        var id = btn.getAttribute('data-id');
+        var name = btn.getAttribute('data-name') || '';
+        var price = btn.getAttribute('data-price');
+        var image = btn.getAttribute('data-image') || '';
+        var category = btn.getAttribute('data-category') || '';
+        var stock = parseInt(btn.getAttribute('data-stock'), 10) || 999;
+        if (!id || !window.CrypvillaCart) return;
+        if (stock < 1) return;
+        window.CrypvillaCart.add(id, 1, { name: name, price: price, image_url: image, category_slug: category }, stock);
+        updateCartCount();
+        var t = btn.textContent;
+        btn.textContent = 'Added';
+        btn.disabled = true;
+        setTimeout(function() { btn.textContent = t; btn.disabled = false; }, 1500);
       });
     })();
   </script>

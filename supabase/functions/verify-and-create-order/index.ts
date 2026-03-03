@@ -95,6 +95,41 @@ Deno.serve(async (req) => {
       );
     }
 
+    // E-commerce: validate stock before creating order (avoid oversell)
+    const productIds = [...new Set(cart.map((item) => item.id).filter(Boolean))];
+    if (productIds.length > 0) {
+      const { data: products, error: stockErr } = await supabase
+        .from("products")
+        .select("id, name, stock")
+        .in("id", productIds);
+      if (stockErr) {
+        console.error("Stock check error:", stockErr);
+        return new Response(
+          JSON.stringify({ error: "Could not verify product availability. Please try again." }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      const stockById: Record<string, number> = {};
+      (products || []).forEach((row: { id: string; stock: number }) => {
+        stockById[row.id] = Math.max(0, Number(row.stock) || 0);
+      });
+      for (const item of cart) {
+        const id = item.id;
+        if (!id) continue;
+        const available = stockById[id] ?? 0;
+        const requested = Math.max(1, Number(item.quantity) || 1);
+        if (requested > available) {
+          const name = item.name || "Item";
+          return new Response(
+            JSON.stringify({
+              error: `Insufficient stock: "${name}" has only ${available} left. Please update your cart and try again.`,
+            }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      }
+    }
+
     const orderNumber = "CRV-" + new Date().toISOString().slice(0, 10).replace(/-/g, "") + "-" + Array.from(crypto.getRandomValues(new Uint8Array(4))).map((b) => b.toString(16).padStart(2, "0")).join("").toUpperCase().slice(0, 8);
 
     const { data: orderRow, error: orderErr } = await supabase

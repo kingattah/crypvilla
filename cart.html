@@ -108,11 +108,28 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="config.js"></script>
   <script src="js/escape.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
   <script src="js/cart.js"></script>
   <script>
     (function() {
+      var stockMap = {}; // product id -> available stock (set after fetch)
+
       function formatNaira(n) {
         return '₦' + (Number(n) || 0).toLocaleString();
+      }
+
+      function fetchStockForCart(cart, done) {
+        if (!cart.length || !window.supabase) { done({}); return; }
+        var ids = cart.map(function(i) { return i.id; }).filter(Boolean);
+        if (!ids.length) { done({}); return; }
+        window.supabase.from('products').select('id, stock').in('id', ids).then(function(r) {
+          var map = {};
+          (r.data || []).forEach(function(row) {
+            map[row.id] = Math.max(0, parseInt(row.stock, 10) || 0);
+          });
+          done(map);
+        }).catch(function() { done({}); });
       }
 
       function render() {
@@ -133,30 +150,65 @@
         empty.classList.add('d-none');
         content.classList.remove('d-none');
 
-        var list = document.getElementById('cartItems');
-        list.innerHTML = '';
-        var esc = window.CrypvillaEscape;
-        var safeHtml = esc && esc.html ? function(s) { return esc.html(s || ''); } : function(s) { return String(s == null ? '' : s); };
-        var safeImgUrl = esc && esc.url ? function(u) { var s = esc.url(u); return s || 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=120&q=80'; } : function(u) { return u || 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=120&q=80'; };
-        cart.forEach(function(item) {
-          var row = document.createElement('li');
-          row.className = 'list-group-item d-flex align-items-center gap-3 py-3';
-          var imgUrl = safeImgUrl(item.image_url);
-          var lineTotal = (item.price * (item.quantity || 0));
-          var nameSafe = safeHtml((item.name || 'Product').substring(0, 50));
-          row.innerHTML =
-            '<img src="' + imgUrl.replace(/"/g, '&quot;') + '" alt="" width="80" height="60" class="rounded object-fit-cover" style="object-fit: cover;">' +
-            '<div class="flex-grow-1">' +
-              '<a href="product.html?id=' + encodeURIComponent(item.id) + '" class="fw-semibold text-dark text-decoration-none">' + nameSafe + '</a>' +
-              '<p class="text-muted small mb-0">' + formatNaira(item.price) + ' each</p>' +
-            '</div>' +
-            '<div class="d-flex align-items-center gap-2">' +
-              '<input type="number" class="form-control form-control-sm cart-qty" data-id="' + safeHtml(item.id) + '" value="' + (item.quantity || 1) + '" min="1" style="width: 60px;">' +
-              '<span class="fw-semibold" style="min-width: 80px;">' + formatNaira(lineTotal) + '</span>' +
-              '<button type="button" class="btn btn-outline-danger btn-sm cart-remove" data-id="' + safeHtml(item.id) + '" aria-label="Remove">×</button>' +
-            '</div>';
-          list.appendChild(row);
+        fetchStockForCart(cart, function(map) {
+          stockMap = map;
+          var toRemove = [];
+          var toCap = [];
+          cart.forEach(function(item) {
+            var available = map[item.id];
+            if (available === undefined) available = 999;
+            if (available === 0) toRemove.push(item.id);
+            else {
+              var qty = Math.min(item.quantity || 1, available);
+              if (qty !== (item.quantity || 1)) toCap.push({ id: item.id, qty: qty });
+            }
+          });
+          toRemove.forEach(function(id) { if (window.CrypvillaCart) window.CrypvillaCart.update(id, 0); });
+          toCap.forEach(function(o) { if (window.CrypvillaCart) window.CrypvillaCart.update(o.id, o.qty); });
+          cart = window.CrypvillaCart ? window.CrypvillaCart.get() : [];
+          if (!cart.length) {
+            document.getElementById('cartEmpty').classList.remove('d-none');
+            document.getElementById('cartContent').classList.add('d-none');
+            return;
+          }
+
+          var list = document.getElementById('cartItems');
+          list.innerHTML = '';
+          var esc = window.CrypvillaEscape;
+          var safeHtml = esc && esc.html ? function(s) { return esc.html(s || ''); } : function(s) { return String(s == null ? '' : s); };
+          var safeImgUrl = esc && esc.url ? function(u) { var s = esc.url(u); return s || 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=120&q=80'; } : function(u) { return u || 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=120&q=80'; };
+          cart.forEach(function(item) {
+            var available = map[item.id];
+            if (available === undefined) available = 999;
+            var qty = item.quantity || 1;
+            var row = document.createElement('li');
+            row.className = 'list-group-item d-flex align-items-center gap-3 py-3';
+            var imgUrl = safeImgUrl(item.image_url);
+            var lineTotal = (item.price * qty);
+            var nameSafe = safeHtml((item.name || 'Product').substring(0, 50));
+            var stockHint = available <= 5 && available > 0 ? '<p class="text-warning small mb-0">Only ' + available + ' left</p>' : '';
+            if (available === 0) stockHint = '<p class="text-danger small mb-0">Out of stock</p>';
+            var maxAttr = available > 0 ? ' max="' + available + '"' : '';
+            row.innerHTML =
+              '<img src="' + imgUrl.replace(/"/g, '&quot;') + '" alt="" width="80" height="60" class="rounded object-fit-cover" style="object-fit: cover;">' +
+              '<div class="flex-grow-1">' +
+                '<a href="product.html?id=' + encodeURIComponent(item.id) + '" class="fw-semibold text-dark text-decoration-none">' + nameSafe + '</a>' +
+                '<p class="text-muted small mb-0">' + formatNaira(item.price) + ' each</p>' +
+                stockHint +
+              '</div>' +
+              '<div class="d-flex align-items-center gap-2">' +
+                '<input type="number" class="form-control form-control-sm cart-qty" data-id="' + safeHtml(item.id) + '" data-max="' + available + '" value="' + qty + '" min="1"' + maxAttr + ' style="width: 60px;"' + (available === 0 ? ' disabled' : '') + '>' +
+                '<span class="fw-semibold" style="min-width: 80px;">' + formatNaira(lineTotal) + '</span>' +
+                '<button type="button" class="btn btn-outline-danger btn-sm cart-remove" data-id="' + safeHtml(item.id) + '" aria-label="Remove">×</button>' +
+              '</div>';
+            list.appendChild(row);
+          });
+          updateSummary();
         });
+      }
+
+      function updateSummary() {
+        var cart = window.CrypvillaCart ? window.CrypvillaCart.get() : [];
 
         var subtotal = window.CrypvillaCart ? window.CrypvillaCart.getSubtotal() : 0;
         var getSh = window.CrypvillaCart && window.CrypvillaCart.getShipping;
@@ -184,7 +236,11 @@
         var input = e.target.closest('.cart-qty');
         if (!input || !window.CrypvillaCart) return;
         var id = input.getAttribute('data-id');
+        var maxQ = parseInt(input.getAttribute('data-max'), 10);
         var qty = parseInt(input.value, 10) || 1;
+        if (!isNaN(maxQ) && maxQ >= 0 && qty > maxQ) qty = maxQ;
+        if (qty < 1) qty = 1;
+        input.value = qty;
         window.CrypvillaCart.update(id, qty);
         render();
       });

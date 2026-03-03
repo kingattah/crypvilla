@@ -73,13 +73,18 @@
         return sum + (item.price * (item.quantity || 0));
       }, 0);
     },
-    add: function(productId, quantity, product) {
+    add: function(productId, quantity, product, maxQuantity) {
       quantity = Math.max(1, parseInt(quantity, 10) || 1);
+      var cap = maxQuantity != null && maxQuantity !== '' ? Math.max(0, parseInt(maxQuantity, 10)) : null;
+      if (cap !== null && quantity > cap) quantity = cap;
+      if (cap !== null && quantity <= 0) return getCart();
       var cart = getCart();
       var i = cart.findIndex(function(item) { return item.id === productId; });
       var category_slug = (product && product.category_slug) != null ? product.category_slug : '';
       if (i >= 0) {
-        cart[i].quantity += quantity;
+        var newQty = cart[i].quantity + quantity;
+        if (cap !== null) newQty = Math.min(newQty, cap);
+        cart[i].quantity = newQty;
         if (category_slug && !cart[i].category_slug) cart[i].category_slug = category_slug;
       } else {
         cart.push({

@@ -79,6 +79,7 @@
           <p class="mb-2" id="productPrice"></p>
           <p class="text-muted small" id="productDesc"></p>
           <div class="spec-pills mb-3" id="productSpecs"></div>
+          <p id="productStockStatus" class="mb-2 small"></p>
           <p class="mb-3 d-none" id="productLaptopBag"><span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">✓ Includes laptop bag</span></p>
           <div class="d-flex align-items-center gap-2 mb-3">
             <label class="text-muted small mb-0">Quantity:</label>
@@ -412,6 +413,23 @@
         document.getElementById('productPrice').innerHTML = priceHtml;
         document.getElementById('productSaleBadge').classList.toggle('d-none', !p.compare_at_price);
         document.getElementById('productDesc').textContent = p.description || '';
+
+        var stock = Math.max(0, parseInt(p.stock, 10) || 0);
+        var stockEl = document.getElementById('productStockStatus');
+        var qtyEl = document.getElementById('productQty');
+        var addBtn = document.getElementById('addToCartBtn');
+        if (stock === 0) {
+          stockEl.innerHTML = '<span class="text-danger fw-medium">Out of stock</span>';
+          stockEl.classList.remove('d-none');
+          if (qtyEl) { qtyEl.value = 1; qtyEl.disabled = true; qtyEl.removeAttribute('max'); }
+          if (addBtn) { addBtn.disabled = true; addBtn.textContent = 'Out of stock'; addBtn.classList.remove('btn-shop'); addBtn.classList.add('btn-outline-secondary'); }
+        } else {
+          if (stock <= 5) stockEl.innerHTML = '<span class="text-warning">Only ' + stock + ' left in stock</span>';
+          else stockEl.innerHTML = '<span class="text-success">In stock</span>';
+          stockEl.classList.remove('d-none');
+          if (qtyEl) { qtyEl.max = stock; qtyEl.disabled = false; qtyEl.value = Math.min(1, stock); }
+          if (addBtn) { addBtn.disabled = false; addBtn.textContent = 'Add to cart'; addBtn.classList.add('btn-shop'); addBtn.classList.remove('btn-outline-secondary'); }
+        }
         var imgList = Array.isArray(p.images) && p.images.length ? p.images : (p.image_url ? [p.image_url] : []);
         var mainSrc = imgList[0] || p.image_url || 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80';
         document.getElementById('productImage').src = mainSrc;
@@ -470,11 +488,14 @@
         if (review && review.productId === p.id && review.email) startOfferStatusPolling();
 
         document.getElementById('addToCartBtn').onclick = function() {
+          var stock = Math.max(0, parseInt(p.stock, 10) || 0);
+          if (stock <= 0) return;
           var qty = parseInt(document.getElementById('productQty').value, 10) || 1;
+          if (qty > stock) qty = stock;
           if (window.CrypvillaCart) {
             var cat = p.categories ? (Array.isArray(p.categories) ? p.categories[0] : p.categories) : null;
             var catSlug = (cat && cat.slug) ? cat.slug : '';
-            window.CrypvillaCart.add(p.id, qty, { name: p.name, price: p.price, image_url: p.image_url, category_slug: catSlug });
+            window.CrypvillaCart.add(p.id, qty, { name: p.name, price: p.price, image_url: p.image_url, category_slug: catSlug }, stock);
             updateCartCount();
             var btn = document.getElementById('addToCartBtn');
             btn.textContent = 'Added to cart';
