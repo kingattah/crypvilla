@@ -323,6 +323,16 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--crypvilla
 }
 
 /* ========== Toolbar (count + sort) ========== */
+.shop-search-bar .shop-search-input {
+  max-width: 320px;
+  border-radius: 10px;
+  border: 1px solid var(--crypvilla-border);
+}
+.shop-search-bar .shop-search-input:focus {
+  border-color: var(--crypvilla-primary);
+  box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15);
+}
+
 .shop-toolbar {
   display: flex;
   flex-wrap: wrap;

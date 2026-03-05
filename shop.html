@@ -115,6 +115,17 @@
         </select>
       </div>
 
+      <!-- Search bar -->
+      <div class="shop-search-bar mb-3">
+        <form id="shopSearchForm" class="d-flex gap-2 flex-wrap" role="search" aria-label="Search products">
+          <label for="shopSearchInput" class="visually-hidden">Search products</label>
+          <input type="search" id="shopSearchInput" class="form-control shop-search-input" placeholder="Search products…" value="" autocomplete="off" aria-describedby="searchHelp">
+          <button type="submit" class="btn btn-shop">Search</button>
+          <button type="button" id="shopSearchClear" class="btn btn-outline-secondary d-none" aria-label="Clear search">Clear</button>
+        </form>
+        <p id="searchHelp" class="form-text text-muted small mt-1 mb-0 d-none">Search by product name.</p>
+      </div>
+
       <!-- Toolbar: results count -->
       <div class="shop-toolbar">
         <p id="productCount" class="shop-toolbar-count">Loading…</p>
@@ -173,8 +184,8 @@
       </div>
 
       <div id="emptyState" class="empty-state d-none">
-        <p class="mb-2">No products in this category yet.</p>
-        <a href="shop.html" class="btn btn-shop">View all</a>
+        <p id="emptyStateMessage" class="mb-2">No products in this category yet.</p>
+        <a id="emptyStateLink" href="shop.html" class="btn btn-shop">View all</a>
       </div>
 
       <!-- Pagination -->
@@ -247,15 +258,17 @@
       var params = new URLSearchParams(window.location.search);
       var categorySlug = params.get('category') || '';
       var viewAll = params.get('view') === 'all';
+      var searchQuery = (params.get('q') || '').trim();
       var currentPage = Math.max(1, parseInt(params.get('page'), 10) || 1);
       var PAGE_SIZE = 24;
 
-      // When a category is selected or view=all, hide hero; when category selected hide landing sections
+      // When a category is selected, view=all, or search is active, hide hero; when category or search, hide landing
       (function toggleLanding() {
         var hero = document.getElementById('shopHero');
         var landing = document.getElementById('shopLanding');
-        if (hero) hero.classList.toggle('d-none', !!categorySlug || viewAll);
-        if (landing) landing.classList.toggle('d-none', !!categorySlug);
+        var hasFilter = !!categorySlug || viewAll || !!searchQuery;
+        if (hero) hero.classList.toggle('d-none', hasFilter);
+        if (landing) landing.classList.toggle('d-none', !!categorySlug || !!searchQuery);
       })();
 
       var productSelectFields = 'id, name, slug, price, compare_at_price, image_url, specs, stock, categories(slug)';
@@ -308,11 +321,12 @@
       }
 
       function buildShopUrl(opts) {
-        var q = [];
-        if (opts.category != null && opts.category !== '') q.push('category=' + encodeURIComponent(opts.category));
-        if (opts.viewAll) q.push('view=all');
-        if (opts.page > 1) q.push('page=' + opts.page);
-        return 'shop.html' + (q.length ? '?' + q.join('&') : '');
+        var parts = [];
+        if (opts.category != null && opts.category !== '') parts.push('category=' + encodeURIComponent(opts.category));
+        if (opts.viewAll) parts.push('view=all');
+        if (opts.search && opts.search.length) parts.push('q=' + encodeURIComponent(opts.search));
+        if (opts.page > 1) parts.push('page=' + opts.page);
+        return 'shop.html' + (parts.length ? '?' + parts.join('&') : '');
       }
 
       function loadCategories() {
@@ -412,7 +426,10 @@
         var catEl = document.getElementById('breadcrumbCategory');
         var countEl = document.getElementById('productCount');
         if (catEl) {
-          if (categoryName) {
+          if (searchQuery) {
+            catEl.textContent = 'Search: "' + (esc && esc.html ? esc.html(searchQuery) : searchQuery) + '"';
+            catEl.classList.remove('d-none');
+          } else if (categoryName) {
             catEl.textContent = categoryName;
             catEl.classList.remove('d-none');
           } else {
@@ -420,7 +437,7 @@
           }
         }
         if (countEl) {
-          if (count === 0) countEl.textContent = 'No products found.';
+          if (count === 0) countEl.textContent = searchQuery ? 'No products match your search.' : 'No products found.';
           else if (totalCount != null && totalCount > count) countEl.textContent = 'Showing ' + count + ' of ' + totalCount + ' products';
           else if (count === 1) countEl.textContent = '1 product';
           else countEl.textContent = count + ' products';
@@ -438,8 +455,8 @@
         }
         wrap.classList.remove('d-none');
         var totalPages = Math.ceil(totalCount / PAGE_SIZE);
-        var prevHref = page > 1 ? buildShopUrl({ category: categorySlug, viewAll: viewAll, page: page - 1 }) : '#';
-        var nextHref = page < totalPages ? buildShopUrl({ category: categorySlug, viewAll: viewAll, page: page + 1 }) : '#';
+        var prevHref = page > 1 ? buildShopUrl({ category: categorySlug, viewAll: viewAll, search: searchQuery, page: page - 1 }) : '#';
+        var nextHref = page < totalPages ? buildShopUrl({ category: categorySlug, viewAll: viewAll, search: searchQuery, page: page + 1 }) : '#';
         prevLi.classList.toggle('disabled', page <= 1);
         prevLi.querySelector('a').href = prevHref;
         nextLi.classList.toggle('disabled', page >= totalPages);
@@ -452,7 +469,7 @@
       function loadProducts() {
         var grid = document.getElementById('productGrid');
         var empty = document.getElementById('emptyState');
-        var limitMain = !categorySlug && !viewAll ? 12 : null;
+        var limitMain = !categorySlug && !viewAll && !searchQuery ? 12 : null;
         var categoryNameForSlug = '';
         var orderOpts = defaultOrder;
 
@@ -463,6 +480,10 @@
             empty.classList.add('d-none');
           } else {
             empty.classList.remove('d-none');
+            var msg = document.getElementById('emptyStateMessage');
+            var link = document.getElementById('emptyStateLink');
+            if (msg) msg.textContent = searchQuery ? 'No products match your search.' : 'No products in this category yet.';
+            if (link) { link.href = searchQuery ? 'shop.html' : (categorySlug ? buildShopUrl({ category: '', page: 1 }) : 'shop.html'); link.textContent = searchQuery ? 'Clear search' : 'View all'; }
           }
           if (limitMain != null && showViewAll) {
             updateBreadcrumbAndCount(categoryNameForSlug, list.length, totalCount);
@@ -494,50 +515,68 @@
         var selectOpts = productSelectFields + ', created_at';
         var orderArgs = [orderOpts.column, { ascending: orderOpts.ascending }];
 
+        function applySearch(qb) {
+          return searchQuery ? qb.ilike('name', '%' + searchQuery.replace(/%/g, '\\%') + '%') : qb;
+        }
+
         if (categorySlug) {
           window.supabase.from('categories').select('id, name').eq('slug', categorySlug).single().then(function(cat) {
             if (cat.data && cat.data.id) {
               categoryNameForSlug = cat.data.name || '';
               var from = (currentPage - 1) * PAGE_SIZE;
-              window.supabase.from('products').select(selectOpts, { count: 'exact' })
-                .eq('category_id', cat.data.id)
-                .order(orderArgs[0], orderArgs[1])
-                .range(from, from + PAGE_SIZE - 1)
-                .then(function(r) {
-                  var list = r.data || [];
-                  var total = r.count != null ? r.count : list.length;
-                  renderList(list, total, false);
-                });
+              var qb = window.supabase.from('products').select(selectOpts, { count: 'exact' })
+                .eq('category_id', cat.data.id);
+              qb = applySearch(qb);
+              qb.order(orderArgs[0], orderArgs[1]).range(from, from + PAGE_SIZE - 1).then(function(r) {
+                var list = r.data || [];
+                var total = r.count != null ? r.count : list.length;
+                renderList(list, total, false);
+              });
             } else {
               renderList([], 0, false);
             }
           });
-        } else if (viewAll) {
+        } else if (viewAll || searchQuery) {
           var from = (currentPage - 1) * PAGE_SIZE;
-          window.supabase.from('products').select(selectOpts, { count: 'exact' })
-            .order(orderArgs[0], orderArgs[1])
-            .range(from, from + PAGE_SIZE - 1)
-            .then(function(r) {
-              var list = r.data || [];
-              var total = r.count != null ? r.count : list.length;
-              renderList(list, total, false);
-            });
+          var qb = window.supabase.from('products').select(selectOpts, { count: 'exact' });
+          qb = applySearch(qb);
+          qb.order(orderArgs[0], orderArgs[1]).range(from, from + PAGE_SIZE - 1).then(function(r) {
+            var list = r.data || [];
+            var total = r.count != null ? r.count : list.length;
+            renderList(list, total, false);
+          });
         } else {
-          window.supabase.from('products').select(selectOpts, { count: 'exact' })
-            .order(orderArgs[0], orderArgs[1])
-            .then(function(r) {
-              var list = r.data || [];
-              var total = list.length;
-              var showViewAll = total > limitMain;
-              if (total > limitMain) list = list.slice(0, limitMain);
-              renderList(list, total, showViewAll);
-            });
+          var qb = window.supabase.from('products').select(selectOpts, { count: 'exact' });
+          qb = applySearch(qb);
+          qb.order(orderArgs[0], orderArgs[1]).then(function(r) {
+            var list = r.data || [];
+            var total = list.length;
+            var showViewAll = total > limitMain;
+            if (total > limitMain) list = list.slice(0, limitMain);
+            renderList(list, total, showViewAll);
+          });
         }
       }
 
+      // Search: populate input and Clear button
+      var searchInput = document.getElementById('shopSearchInput');
+      var searchClearBtn = document.getElementById('shopSearchClear');
+      if (searchInput) searchInput.value = searchQuery;
+      if (searchClearBtn) searchClearBtn.classList.toggle('d-none', !searchQuery);
+
+      var shopSearchForm = document.getElementById('shopSearchForm');
+      if (shopSearchForm) shopSearchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var q = (searchInput && searchInput.value) ? searchInput.value.trim() : '';
+        window.location.href = buildShopUrl({ category: categorySlug, viewAll: false, search: q, page: 1 });
+      });
+      if (searchClearBtn) searchClearBtn.addEventListener('click', function() {
+        window.location.href = buildShopUrl({ category: categorySlug, viewAll: viewAll, search: '', page: 1 });
+      });
+
       loadCategories().then(function() {
         loadProducts();
-        if (!categorySlug) {
+        if (!categorySlug && !searchQuery) {
           loadHotDeals();
           loadLatest();
           loadSweetDeals();
