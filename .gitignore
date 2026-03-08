@@ -22,3 +22,7 @@ desktop.ini
 *.log
 *.tmp
 .cache/
+
+# Personal / notepad docs
+notepad doc
+notepad doc.txt
