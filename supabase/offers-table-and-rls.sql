@@ -137,7 +137,7 @@ BEGIN
     VALUES (p_product_id, v_original_price * v_quantity, p_offered_price, p_email, p_whatsapp_number, p_reason, 'rejected', v_quantity);
     RETURN jsonb_build_object(
       'status', 'rejected',
-      'message', 'Your offer was below our minimum threshold.'
+      'message', 'Your offer was below our minimum threshold. Please keep shopping for something more affordable, or contact us via WhatsApp for recommendations.'
     );
   END IF;
 
@@ -149,7 +149,7 @@ BEGIN
   -- This applies to all quantities, including 1-3 devices.
   RETURN jsonb_build_object(
     'status', 'pending',
-    'message', 'Your offer is under review. We will get back to you once it has been reviewed (usually within 2 days).'
+    'message', 'Your offer is under review. We will get back to you shortly once it has been reviewed.'
   );
 END;
 $$;
