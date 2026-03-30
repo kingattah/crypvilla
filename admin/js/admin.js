@@ -610,20 +610,20 @@
     var tbody = document.getElementById('offersTableBody');
     var statusFilter = document.getElementById('offerStatusFilter');
     if (!supabase) {
-      if (tbody) tbody.innerHTML = '<tr><td colspan="10">Configure admin/config.js</td></tr>';
+      if (tbody) tbody.innerHTML = '<tr><td colspan="11">Configure admin/config.js</td></tr>';
       return;
     }
     supabase.from('offers').select('*, products(name, slug)').order('created_at', { ascending: false })
       .then(function(r) {
         if (r.error) {
-          tbody.innerHTML = '<tr><td colspan="10">Error: ' + esc(r.error.message || 'Failed to load') + '</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="11">Error: ' + esc(r.error.message || 'Failed to load') + '</td></tr>';
           return;
         }
         allOffersList = r.data || [];
         var filterStatus = (statusFilter && statusFilter.value) ? statusFilter.value : '';
         var list = filterStatus ? allOffersList.filter(function(o) { return o.status === filterStatus; }) : allOffersList;
         if (list.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="10" class="text-muted">No offers' + (filterStatus ? ' with this status.' : ' yet.') + '</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="11" class="text-muted">No offers' + (filterStatus ? ' with this status.' : ' yet.') + '</td></tr>';
           return;
         }
         tbody.innerHTML = list.map(function(o) {
@@ -643,6 +643,7 @@
             '<td>' + esc(productName) + '</td>' +
             '<td>' + qty + '</td>' +
             '<td>' + esc(o.email || '—') + '</td>' +
+            '<td>' + esc(o.whatsapp_number || '—') + '</td>' +
             '<td>' + formatNaira(o.original_price) + '</td>' +
             '<td>' + formatNaira(o.offered_price) + '</td>' +
             '<td style="max-width: 160px;" class="text-muted small">' + reasonCell + '</td>' +
@@ -740,7 +741,7 @@
       var filterStatus = this.value;
       var list = filterStatus ? allOffersList.filter(function(o) { return o.status === filterStatus; }) : allOffersList;
       if (list.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" class="text-muted">No offers with this status.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="11" class="text-muted">No offers with this status.</td></tr>';
         return;
       }
       tbody.innerHTML = list.map(function(o) {
@@ -760,6 +761,7 @@
           '<td>' + esc(productName) + '</td>' +
           '<td>' + qty + '</td>' +
           '<td>' + esc(o.email || '—') + '</td>' +
+          '<td>' + esc(o.whatsapp_number || '—') + '</td>' +
           '<td>' + formatNaira(o.original_price) + '</td>' +
           '<td>' + formatNaira(o.offered_price) + '</td>' +
           '<td style="max-width: 160px;" class="text-muted small">' + reasonCell + '</td>' +

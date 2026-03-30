@@ -40,6 +40,17 @@ BEGIN
   END IF;
 END $$;
 
+-- 2d. Add whatsapp_number so admin can contact offer customers directly
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'offers' AND column_name = 'whatsapp_number'
+  ) THEN
+    ALTER TABLE public.offers ADD COLUMN whatsapp_number TEXT NULL;
+  END IF;
+END $$;
+
 -- 3. Add offer_id to orders (after offers exists)
 DO $$
 BEGIN
@@ -70,11 +81,14 @@ DROP POLICY IF EXISTS "offers_admin_update" ON public.offers;
 CREATE POLICY "offers_admin_update" ON public.offers
   FOR UPDATE USING (EXISTS (SELECT 1 FROM public.admin_users WHERE user_id = auth.uid()));
 
--- 6. submit_offer: rate limit, insert, auto-decision, return JSON
+-- 6. submit_offer: rate limit, insert, manual review workflow, return JSON
+DROP FUNCTION IF EXISTS public.submit_offer(UUID, NUMERIC, TEXT, TEXT, INT);
+DROP FUNCTION IF EXISTS public.submit_offer(UUID, NUMERIC, TEXT, TEXT, TEXT, INT);
 CREATE OR REPLACE FUNCTION public.submit_offer(
   p_product_id UUID,
   p_offered_price NUMERIC,
   p_email TEXT,
+  p_whatsapp_number TEXT DEFAULT NULL,
   p_reason TEXT DEFAULT NULL,
   p_quantity INT DEFAULT 1
 )
@@ -86,16 +100,10 @@ AS $$
 DECLARE
   v_original_price NUMERIC(12, 2);
   v_recent_count INT;
-  v_offer_id UUID;
-  v_token TEXT;
-  v_expires_at TIMESTAMPTZ;
-  v_final_amount NUMERIC(12, 2);
-  v_counter_price NUMERIC(12, 2);
-  v_status TEXT;
-  v_message TEXT;
   v_quantity INT;
 BEGIN
   p_email := LOWER(TRIM(p_email));
+  p_whatsapp_number := NULLIF(TRIM(COALESCE(p_whatsapp_number, '')), '');
   v_quantity := COALESCE(NULLIF(p_quantity, 0), 1);
   IF v_quantity < 1 THEN
     v_quantity := 1;
@@ -125,8 +133,8 @@ BEGIN
 
   -- Reject offers < 80% (of single-unit price; compare total to total)
   IF p_offered_price < 0.80 * (v_original_price * v_quantity) THEN
-    INSERT INTO public.offers (product_id, original_price, offered_price, email, reason, status, quantity)
-    VALUES (p_product_id, v_original_price * v_quantity, p_offered_price, p_email, p_reason, 'rejected', v_quantity);
+    INSERT INTO public.offers (product_id, original_price, offered_price, email, whatsapp_number, reason, status, quantity)
+    VALUES (p_product_id, v_original_price * v_quantity, p_offered_price, p_email, p_whatsapp_number, p_reason, 'rejected', v_quantity);
     RETURN jsonb_build_object(
       'status', 'rejected',
       'message', 'Your offer was below our minimum threshold.'
@@ -134,52 +142,15 @@ BEGIN
   END IF;
 
   -- Insert offer (pending first); original_price stored as total (unit price * quantity)
-  INSERT INTO public.offers (product_id, original_price, offered_price, email, reason, status, quantity)
-  VALUES (p_product_id, v_original_price * v_quantity, p_offered_price, p_email, p_reason, 'pending', v_quantity)
-  RETURNING id INTO v_offer_id;
+  INSERT INTO public.offers (product_id, original_price, offered_price, email, whatsapp_number, reason, status, quantity)
+  VALUES (p_product_id, v_original_price * v_quantity, p_offered_price, p_email, p_whatsapp_number, p_reason, 'pending', v_quantity);
 
-  -- More than 3 devices: admin approval only (no auto-decision)
-  IF v_quantity > 3 THEN
-    RETURN jsonb_build_object(
-      'status', 'pending',
-      'message', 'Offers for more than 3 devices require review. We will get back to you once your offer has been reviewed (usually within 2 days).'
-    );
-  END IF;
-
-  -- Auto-decision (quantity <= 3): compare offered total to original total
-  IF p_offered_price >= 0.95 * (v_original_price * v_quantity) THEN
-    v_status := 'approved';
-    v_counter_price := NULL;
-    v_final_amount := p_offered_price;
-    v_token := md5(random()::text || clock_timestamp()::text) || md5(gen_random_uuid()::text || random()::text);
-    v_expires_at := now() + interval '20 minutes';
-    v_message := 'Offer approved. Proceed to checkout.';
-
-    UPDATE public.offers
-    SET status = v_status, counter_price = v_counter_price,
-        checkout_token = v_token, checkout_token_expires_at = v_expires_at
-    WHERE id = v_offer_id;
-
-    RETURN jsonb_build_object(
-      'status', v_status,
-      'message', v_message,
-      'checkout_token', v_token,
-      'checkout_token_expires_at', v_expires_at,
-      'final_amount', v_final_amount
-    );
-  ELSIF p_offered_price >= 0.90 * (v_original_price * v_quantity) THEN
-    -- 90--94.99%: requires admin approval (no auto-counter)
-    RETURN jsonb_build_object(
-      'status', 'pending',
-      'message', 'Your offer is under review. We will get back to you once it has been reviewed (usually within 2 days).'
-    );
-  ELSE
-    -- 80--89.99%: requires admin approval (no auto-reject)
-    RETURN jsonb_build_object(
-      'status', 'pending',
-      'message', 'Your offer is under review. We will get back to you once it has been reviewed (usually within 2 days).'
-    );
-  END IF;
+  -- No automatic acceptance: all valid offers >= 80% require admin review.
+  -- This applies to all quantities, including 1-3 devices.
+  RETURN jsonb_build_object(
+    'status', 'pending',
+    'message', 'Your offer is under review. We will get back to you once it has been reviewed (usually within 2 days).'
+  );
 END;
 $$;
 
@@ -346,8 +317,8 @@ END;
 $$;
 
 -- Grant execute to anon and authenticated (for RPCs)
-GRANT EXECUTE ON FUNCTION public.submit_offer(UUID, NUMERIC, TEXT, TEXT, INT) TO anon;
-GRANT EXECUTE ON FUNCTION public.submit_offer(UUID, NUMERIC, TEXT, TEXT, INT) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.submit_offer(UUID, NUMERIC, TEXT, TEXT, TEXT, INT) TO anon;
+GRANT EXECUTE ON FUNCTION public.submit_offer(UUID, NUMERIC, TEXT, TEXT, TEXT, INT) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.validate_offer_checkout(TEXT) TO anon;
 GRANT EXECUTE ON FUNCTION public.validate_offer_checkout(TEXT) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.complete_offer_payment(TEXT, TEXT, TEXT, TEXT, TEXT, TEXT) TO anon;
