@@ -6,76 +6,78 @@
   <link rel="icon" href="images/crypvilla-removebg-preview.png" type="image/png">
   <title>Checkout — Crypvilla</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="css/shop.css" rel="stylesheet">
   <link href="css/animations.css" rel="stylesheet">
 </head>
-<body class="d-flex flex-column min-vh-100">
-  <div class="cartoon-deco" aria-hidden="true">
-    <img class="deco-sm" src="animations/WhatsApp Image 2026-02-26 at 12.04.45 AM.jpeg" alt="" style="top: 16%; right: 5%;">
-    <img class="deco-md" src="animations/WhatsApp Image 2026-02-26 at 12.04.49 AM (4).jpeg" alt="" style="bottom: 20%; left: 3%;">
-    <img class="deco-sm" src="animations/WhatsApp Image 2026-02-26 at 12.08.34 AM.jpeg" alt="" style="bottom: 15%; right: 4%;">
-  </div>
+<body class="page-checkout d-flex flex-column min-vh-100">
   <div class="top-bar">Free delivery in Lagos on orders over ₦500,000</div>
-  <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+  <nav class="navbar navbar-expand-lg navbar-light sticky-top" id="mainNav">
     <div class="container">
       <a class="navbar-brand" href="index.html">
         <img src="images/crypvilla-removebg-preview.png" alt="Crypvilla">
       </a>
-      <a href="cart.html" class="nav-cart-mobile nav-link btn btn-shop btn-cart-mobile" aria-label="Cart">Cart</a>
+      <a href="cart.html" class="nav-cart-mobile" aria-label="Bag">
+        <svg class="nav-cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+      </a>
       <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarMain">
-        <ul class="navbar-nav me-auto">
+        <ul class="navbar-nav ms-auto align-items-lg-center">
           <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
           <li class="nav-item"><a class="nav-link" href="shop.html">Shop</a></li>
-          <li class="nav-item"><a class="nav-link" href="solar-calculator.html">Solar Calculator</a></li>
-          <li class="nav-item"><a class="nav-link" href="cart.html">Cart</a></li>
+          <li class="nav-item"><a class="nav-link" href="solar-calculator.html">Solar</a></li>
+          <li class="nav-item"><a class="nav-link" href="cart.html">Bag</a></li>
         </ul>
       </div>
     </div>
   </nav>
 
-  <main class="container flex-grow-1 py-4">
-    <div id="successView" class="d-none text-center py-5">
+  <main class="container flex-grow-1 py-4 py-md-5">
+    <div id="successView" class="success-view d-none">
+      <p class="kicker">Confirmed</p>
       <h1 class="section-title mb-3">Thank you</h1>
       <p class="text-muted mb-2">Your order <strong id="successOrderNumber"></strong> has been placed.</p>
-      <p class="text-muted small">We'll send confirmation to your email.</p>
+      <p class="text-muted mb-4">We’ll send confirmation to your email. If you have questions, WhatsApp us or write to crypvilla@outlook.com.</p>
       <a href="shop.html" class="btn btn-shop">Continue shopping</a>
     </div>
 
     <div id="checkoutView">
+      <p class="kicker">Secure checkout</p>
       <h1 class="section-title mb-4">Checkout</h1>
 
       <div id="checkoutEmpty" class="empty-state d-none">
-        <p class="mb-2">Your cart is empty.</p>
+        <p class="mb-3">Your bag is empty.</p>
         <a href="shop.html" class="btn btn-shop">Continue shopping</a>
       </div>
 
       <div id="checkoutOfferInvalid" class="empty-state d-none">
-        <p class="mb-2">This offer is invalid or has expired.</p>
+        <p class="mb-3">This offer is invalid or has expired.</p>
         <a href="shop.html" class="btn btn-shop">Continue shopping</a>
       </div>
 
-      <div id="checkoutFormWrap" class="row d-none">
-        <div class="col-lg-7 mb-4">
-          <form id="checkoutForm" class="card border rounded-3 p-4">
-            <h5 class="mb-3">Delivery details</h5>
+      <div id="checkoutFormWrap" class="row g-5 d-none">
+        <div class="col-lg-7">
+          <form id="checkoutForm" class="checkout-form" novalidate>
+            <h2 class="section-head mb-4">Delivery details</h2>
             <div class="mb-3">
-              <label class="form-label">Full name <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" name="customer_name" required placeholder="John Doe">
+              <label class="form-label">Full name</label>
+              <input type="text" class="form-control" name="customer_name" required placeholder="Your name" autocomplete="name">
+              <p class="field-error" data-for="customer_name">Please enter your name.</p>
             </div>
             <div class="mb-3">
-              <label class="form-label">Email <span class="text-danger">*</span></label>
-              <input type="email" class="form-control" name="customer_email" required placeholder="you@example.com">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" name="customer_email" required placeholder="you@example.com" autocomplete="email">
+              <p class="field-error" data-for="customer_email">Please enter a valid email.</p>
             </div>
             <div class="mb-3">
-              <label class="form-label">Phone <span class="text-danger">*</span></label>
-              <input type="tel" class="form-control" name="customer_phone" required placeholder="+234 800 000 0000">
+              <label class="form-label">Phone</label>
+              <input type="tel" class="form-control" name="customer_phone" required placeholder="+234 800 000 0000" autocomplete="tel">
+              <p class="field-error" data-for="customer_phone">Please enter your phone number.</p>
             </div>
             <div class="mb-3">
-              <label class="form-label">Delivery location <span class="text-danger">*</span></label>
+              <label class="form-label">Delivery location</label>
               <select class="form-select" name="delivery_location" id="deliveryLocation" required>
                 <option value="lagos">Lagos</option>
                 <option value="outside">Outside Lagos</option>
@@ -83,15 +85,16 @@
               <p class="small text-muted mb-0 mt-1">Rates and free delivery depend on location.</p>
             </div>
             <div class="mb-3">
-              <label class="form-label">Delivery address <span class="text-danger">*</span></label>
-              <textarea class="form-control" name="delivery_address" required rows="3" placeholder="Street, city, state, postal code"></textarea>
+              <label class="form-label">Delivery address</label>
+              <textarea class="form-control" name="delivery_address" required rows="3" placeholder="Street, city, state, postal code" autocomplete="street-address"></textarea>
+              <p class="field-error" data-for="delivery_address">Please enter a delivery address.</p>
             </div>
           </form>
         </div>
         <div class="col-lg-5">
-          <div class="card border rounded-3 p-4">
-            <h5 class="mb-3">Order summary</h5>
-            <ul class="list-group list-group-flush mb-3" id="checkoutItems"></ul>
+          <div class="summary-card">
+            <h2>Order summary</h2>
+            <ul class="list-unstyled mb-3" id="checkoutItems"></ul>
             <p class="d-flex justify-content-between mb-1">
               <span class="text-muted">Subtotal</span>
               <span id="checkoutSubtotal">₦0</span>
@@ -102,7 +105,7 @@
             </p>
             <p class="small text-muted mb-0" id="checkoutFreeShippingHint"></p>
             <hr>
-            <p class="d-flex justify-content-between fw-bold mb-4">
+            <p class="d-flex justify-content-between fw-semibold mb-4">
               <span>Total</span>
               <span id="checkoutTotal">₦0</span>
             </p>
@@ -122,11 +125,13 @@
     </div>
   </footer>
 
+  <script src="js/cartoon-deco.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="config.js"></script>
   <script src="js/escape.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase.js"></script>
+  <script src="js/paths.js"></script>
   <script src="js/cart.js"></script>
   <script src="js/paystack.js"></script>
   <script>
@@ -153,6 +158,47 @@
         return sel ? sel.value === 'lagos' : true;
       }
 
+      function clearFieldErrors(form) {
+        form.querySelectorAll('.is-invalid').forEach(function(el) { el.classList.remove('is-invalid'); });
+        form.querySelectorAll('.field-error').forEach(function(el) { el.classList.remove('is-visible'); });
+      }
+
+      function showFieldError(form, name) {
+        var input = form.elements[name];
+        if (input) input.classList.add('is-invalid');
+        var err = form.querySelector('.field-error[data-for="' + name + '"]');
+        if (err) err.classList.add('is-visible');
+      }
+
+      function validateCheckout(form) {
+        clearFieldErrors(form);
+        var ok = true;
+        var name = form.customer_name.value.trim();
+        var email = form.customer_email.value.trim();
+        var phone = form.customer_phone.value.trim();
+        var address = form.delivery_address.value.trim();
+        if (!name) { showFieldError(form, 'customer_name'); ok = false; }
+        if (!email || email.indexOf('@') < 1) { showFieldError(form, 'customer_email'); ok = false; }
+        if (!phone) { showFieldError(form, 'customer_phone'); ok = false; }
+        if (!address) { showFieldError(form, 'delivery_address'); ok = false; }
+        return ok;
+      }
+
+      var checkoutForm = document.getElementById('checkoutForm');
+      if (checkoutForm) {
+        checkoutForm.addEventListener('input', function(e) {
+          var field = e.target;
+          if (!field || !field.name) return;
+          field.classList.remove('is-invalid');
+          var err = checkoutForm.querySelector('.field-error[data-for="' + field.name + '"]');
+          if (err) err.classList.remove('is-visible');
+        });
+      }
+
+      function toast(msg, type) {
+        if (window.CrypvillaToast) window.CrypvillaToast.show(msg, type);
+      }
+
       function renderOfferSummary() {
         if (!offerData) return;
         var finalAmount = Number(offerData.final_amount);
@@ -169,7 +215,7 @@
         var list = document.getElementById('checkoutItems');
         list.innerHTML = '';
         var line = document.createElement('li');
-        line.className = 'list-group-item px-0 d-flex justify-content-between';
+        line.className = 'checkout-item';
         var snap = offerData.product_snapshot || {};
         var esc = window.CrypvillaEscape && window.CrypvillaEscape.html ? window.CrypvillaEscape.html : function(s) { return String(s == null ? '' : s); };
         line.innerHTML = '<span>' + esc((snap.name || 'Product').substring(0, 40)) + ' × ' + qty + '</span><span>' + formatNaira(finalAmount) + '</span>';
@@ -207,7 +253,7 @@
         list.innerHTML = '';
         cart.forEach(function(item) {
           var line = document.createElement('li');
-          line.className = 'list-group-item px-0 d-flex justify-content-between';
+          line.className = 'checkout-item';
           var esc = window.CrypvillaEscape && window.CrypvillaEscape.html ? window.CrypvillaEscape.html : function(s) { return String(s == null ? '' : s); };
           line.innerHTML = '<span>' + esc((item.name || 'Product').substring(0, 40)) + ' × ' + (item.quantity || 1) + '</span><span>' + formatNaira(item.price * (item.quantity || 1)) + '</span>';
           list.appendChild(line);
@@ -265,8 +311,10 @@
 
       document.getElementById('payBtn').addEventListener('click', function() {
         var form = document.getElementById('checkoutForm');
-        if (!form.checkValidity()) {
-          form.reportValidity();
+        if (!validateCheckout(form)) {
+          toast('Please complete the highlighted fields.', 'error');
+          var firstInvalid = form.querySelector('.is-invalid');
+          if (firstInvalid) firstInvalid.focus();
           return;
         }
 
@@ -285,7 +333,6 @@
               var expectedKobo = Math.round(offerTotal * 100);
               var config = window.CRYPVILLA_CONFIG || {};
               var anonKey = config.SUPABASE_ANON_KEY || '';
-              // complete-offer: Edge Function smart-responder (verify Paystack + complete offer order)
               window.supabase.functions.invoke('smart-responder', {
                 body: {
                   reference: result.reference,
@@ -302,17 +349,19 @@
                   btn.disabled = false;
                   btn.textContent = 'Pay with Paystack';
                   var msg = (r.data && r.data.error) || r.error.message || 'Order could not be completed.';
-                  alert(msg);
+                  toast(msg, 'error');
                   return;
                 }
                 var data = r.data;
                 if (typeof data === 'string') try { data = JSON.parse(data); } catch (e) { data = null; }
                 var orderNum = (data && data.order_number) ? data.order_number : result.reference;
-                window.location.href = 'checkout.html?success=1&order=' + encodeURIComponent(orderNum);
+                window.location.href = (window.CrypvillaPaths && window.CrypvillaPaths.checkout)
+                  ? window.CrypvillaPaths.checkout({ success: '1', order: orderNum })
+                  : ('checkout?success=1&order=' + encodeURIComponent(orderNum));
               }).catch(function(err) {
                 btn.disabled = false;
                 btn.textContent = 'Pay with Paystack';
-                alert(err && err.message ? err.message : 'Order could not be saved.');
+                toast(err && err.message ? err.message : 'Order could not be saved.', 'error');
               });
             },
             function failure() {
@@ -329,7 +378,7 @@
 
         var cart = window.CrypvillaCart ? window.CrypvillaCart.get() : [];
         if (!cart.length) {
-          alert('Your cart is empty.');
+          toast('Your bag is empty.', 'error');
           return;
         }
         var cartForPay = window.CrypvillaCart.get();
@@ -357,7 +406,9 @@
             var orderNumber = result.reference;
             if (!window.supabase || !window.supabase.functions) {
               window.CrypvillaCart.clear();
-              window.location.href = 'checkout.html?success=1&order=' + encodeURIComponent(orderNumber);
+              window.location.href = (window.CrypvillaPaths && window.CrypvillaPaths.checkout)
+                ? window.CrypvillaPaths.checkout({ success: '1', order: orderNumber })
+                : ('checkout?success=1&order=' + encodeURIComponent(orderNumber));
               return;
             }
             var cartSaved = window.CrypvillaCart.get();
@@ -396,14 +447,16 @@
               if (typeof data === 'string') try { data = JSON.parse(data); } catch (e) { data = null; }
               var orderNum = (data && data.order_number) ? data.order_number : orderNumber;
               window.CrypvillaCart.clear();
-              window.location.href = 'checkout.html?success=1&order=' + encodeURIComponent(orderNum);
+              window.location.href = (window.CrypvillaPaths && window.CrypvillaPaths.checkout)
+                ? window.CrypvillaPaths.checkout({ success: '1', order: orderNum })
+                : ('checkout?success=1&order=' + encodeURIComponent(orderNum));
             }).catch(function(err) {
               btn.disabled = false;
               btn.textContent = 'Pay with Paystack';
               var msg = err && err.message ? err.message : String(err);
-              if (msg.indexOf('non-2xx') !== -1) msg = msg + ' Check Supabase Dashboard → Edge Functions → quick-task → Logs for the error.';
+              if (msg.indexOf('non-2xx') !== -1) msg = 'Order could not be saved. Please try again or contact support.';
               console.error('Checkout save failed:', err);
-              alert('Order could not be saved. Please try again or contact support.\n\n(' + msg + ')');
+              toast(msg, 'error');
             });
           },
           function failure() {

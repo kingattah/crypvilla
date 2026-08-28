@@ -86,10 +86,10 @@
     if (!tbody) return;
     tbody.innerHTML = rows.map(function(r) {
       return '<tr data-id="' + r.id + '">' +
-        '<td><select class="form-select form-select-sm load-name">' + presetOptions(r.name) + '</select></td>' +
-        '<td><input type="number" class="form-control form-control-sm text-center load-qty" min="1" step="1" value="' + r.qty + '"></td>' +
-        '<td><input type="number" class="form-control form-control-sm text-center load-watts" min="0" step="1" value="' + r.watts + '"></td>' +
-        '<td><input type="number" class="form-control form-control-sm text-center load-hours" min="0" max="24" step="0.5" value="' + r.hours + '"></td>' +
+        '<td data-label="Appliance"><select class="form-select form-select-sm load-name">' + presetOptions(r.name) + '</select></td>' +
+        '<td data-label="Qty"><input type="number" class="form-control form-control-sm text-center load-qty" min="1" step="1" value="' + r.qty + '"></td>' +
+        '<td data-label="Watts"><input type="number" class="form-control form-control-sm text-center load-watts" min="0" step="1" value="' + r.watts + '"></td>' +
+        '<td data-label="Hours/day"><input type="number" class="form-control form-control-sm text-center load-hours" min="0" max="24" step="0.5" value="' + r.hours + '"></td>' +
         '<td class="text-end"><button type="button" class="btn btn-sm btn-link text-danger p-0 load-remove" aria-label="Remove">&times;</button></td>' +
       '</tr>';
     }).join('');
@@ -199,9 +199,11 @@
 
   function productLine(p, qty, fallbackLabel) {
     if (!p) {
-      return '<li class="solar-kit-item"><div><strong>' + safeHtml(fallbackLabel) + '</strong><p class="small text-muted mb-0">No matching product yet. <a href="shop.html?category=solar">Browse solar</a></p></div></li>';
+      return '<li class="solar-kit-item"><div><strong>' + safeHtml(fallbackLabel) + '</strong><p class="small text-muted mb-0">No matching product yet. <a href="shop?category=solar">Browse solar</a></p></div></li>';
     }
-    var href = 'product.html?id=' + encodeURIComponent(p.id);
+    var href = (window.CrypvillaPaths && window.CrypvillaPaths.product)
+      ? window.CrypvillaPaths.product(p)
+      : ('product?id=' + encodeURIComponent(p.id));
     var qtyLabel = qty > 1 ? qty + ' × ' : '';
     var price = formatNaira((p.price || 0) * (qty || 1));
     var img = p.image_url || '/images/solar/panel-array.jpg';
@@ -278,7 +280,8 @@
         name: p.name,
         price: p.price,
         image_url: p.image_url,
-        category_slug: 'solar'
+        category_slug: 'solar',
+        silent: true
       }, isNaN(stock) ? null : stock);
       added += 1;
     }
@@ -287,12 +290,14 @@
     add(lastKit.panel, lastKit.panelQty);
     add(lastKit.cable, lastKit.cableQty);
     updateCartCount();
+    if (added && window.CrypvillaCart && window.CrypvillaCart.openDrawer) window.CrypvillaCart.openDrawer();
     var msg = document.getElementById('solarCartMsg');
     if (msg) {
       if (added === 0) {
-        msg.innerHTML = 'No matching products to add yet. <a href="shop.html?category=solar">Browse solar</a>';
+        msg.innerHTML = 'No matching products to add yet. <a href="shop?category=solar">Browse solar</a>';
+        if (window.CrypvillaToast) window.CrypvillaToast.show('No matching products to add yet.', 'error');
       } else {
-        msg.innerHTML = 'Kit added to cart. <a href="cart.html">View cart</a>';
+        msg.innerHTML = 'Kit added to bag. <a href="cart.html">View bag</a>';
       }
       msg.classList.remove('d-none');
     }

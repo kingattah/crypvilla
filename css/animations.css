@@ -59,5 +59,24 @@
 
 /* Ensure main content stays above deco */
 body { position: relative; z-index: 1; }
+.home-section,
+.closing-band,
+.hero-editorial,
+main {
+  position: relative;
+}
+.home-section > .container,
+.closing-band > .container,
+.hero-editorial-inner,
+main > .container,
+.shop-hero > .container,
+.product-layout > .container {
+  position: relative;
+  z-index: 1;
+}
 main.container { position: relative; z-index: 1; }
 .parallax-content { position: relative; z-index: 1; }
+.section-cartoon-deco.cartoon-deco-dark img {
+  mix-blend-mode: lighten;
+  opacity: 0.22;
+}

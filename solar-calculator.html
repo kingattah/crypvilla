@@ -6,37 +6,36 @@
   <link rel="icon" href="images/crypvilla-removebg-preview.png" type="image/png">
   <title>Solar Calculator — Crypvilla</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="css/shop.css" rel="stylesheet">
   <link href="css/animations.css" rel="stylesheet">
 </head>
-<body class="d-flex flex-column min-vh-100">
-  <div class="cartoon-deco" aria-hidden="true">
-    <img class="deco-md" src="animations/WhatsApp Image 2026-02-26 at 12.04.45 AM (1).jpeg" alt="" style="top: 15%; left: 2%;">
-    <img class="deco-sm" src="animations/WhatsApp Image 2026-02-26 at 12.04.46 AM (1).jpeg" alt="" style="top: 10%; right: 5%;">
-    <img class="deco-lg" src="animations/WhatsApp Image 2026-02-26 at 12.04.48 AM (3).jpeg" alt="" style="bottom: 20%; left: 3%;">
-    <img class="deco-md" src="animations/WhatsApp Image 2026-02-26 at 12.04.43 AM.jpeg" alt="" style="bottom: 15%; right: 2%;">
-  </div>
+<body class="page-solar d-flex flex-column min-vh-100">
   <div class="top-bar">Free delivery in Lagos on orders over ₦500,000</div>
-  <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+  <nav class="navbar navbar-expand-lg navbar-light sticky-top" id="mainNav">
     <div class="container">
       <a class="navbar-brand" href="index.html">
         <img src="images/crypvilla-removebg-preview.png" alt="Crypvilla">
       </a>
-      <a href="cart.html" class="nav-cart-mobile nav-link btn btn-shop btn-cart-mobile" aria-label="Cart">Cart <span id="navCartCountMobile" class="cart-count-badge d-none">0</span></a>
+      <a href="cart.html" class="nav-cart-mobile" data-open-cart aria-label="Bag">
+        <svg class="nav-cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+        <span id="navCartCountMobile" class="cart-count-badge d-none">0</span>
+      </a>
       <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarMain">
-        <ul class="navbar-nav me-auto">
+        <ul class="navbar-nav ms-auto align-items-lg-center">
           <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
           <li class="nav-item"><a class="nav-link" href="shop.html">Shop</a></li>
-          <li class="nav-item"><a class="nav-link active" href="solar-calculator.html">Solar Calculator</a></li>
+          <li class="nav-item"><a class="nav-link active" href="solar-calculator.html">Solar</a></li>
           <li class="nav-item"><a class="nav-link" href="index.html#contact">Contact</a></li>
-        </ul>
-        <ul class="navbar-nav nav-cart-desktop">
-          <li class="nav-item position-relative">
-            <a class="nav-link btn btn-shop" href="cart.html">Cart <span id="navCartCount" class="cart-count-badge d-none">0</span></a>
+          <li class="nav-item nav-cart-desktop">
+            <a href="cart.html" class="nav-cart-link" data-open-cart aria-label="Bag">
+              <svg class="nav-cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+              <span class="nav-cart-label">Bag</span>
+              <span id="navCartCount" class="cart-count-badge d-none">0</span>
+            </a>
           </li>
         </ul>
       </div>
@@ -44,17 +43,19 @@
   </nav>
 
   <main class="flex-grow-1">
-    <div class="container py-4 py-md-5">
-      <p class="text-muted small mb-2"><a href="shop.html?category=solar" class="text-decoration-none">Solar</a> · Calculator</p>
-      <h1 class="section-title mb-2">Mini solar calculator</h1>
-      <p class="text-muted mb-4" style="max-width: 640px;">Add the appliances you want to run and how many hours a day. We size an inverter, battery, solar panels and cables, then match products from our Solar shop.</p>
+    <div class="container">
+      <header class="solar-intro">
+        <p class="kicker"><a href="shop?category=solar" class="text-decoration-none text-muted">Solar</a> · Calculator</p>
+        <h1 class="section-title mb-3">Mini solar calculator</h1>
+        <p class="text-muted mb-0">Add the appliances you want to run and how many hours a day. We size an inverter, battery, solar panels and cables, then match products from our Solar shop.</p>
+      </header>
 
-      <div class="row g-4">
+      <div class="row g-4 pb-5">
         <div class="col-lg-7">
           <div class="card solar-calc-card">
             <div class="card-body p-3 p-md-4">
               <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                <h2 class="h5 mb-0">Your loads</h2>
+                <h2 class="section-head mb-0">Your loads</h2>
                 <button type="button" class="btn btn-sm btn-outline-secondary" id="solarAddRow">Add appliance</button>
               </div>
               <div class="table-responsive">
@@ -73,7 +74,7 @@
               </div>
               <div class="row g-3 mt-2">
                 <div class="col-sm-6">
-                  <label class="form-label small text-muted mb-1" for="backupHours">Backup hours (no sun / NEPA out)</label>
+                  <label class="form-label" for="backupHours">Backup hours (no sun / NEPA out)</label>
                   <input type="number" class="form-control" id="backupHours" min="1" max="24" step="1" value="8">
                 </div>
               </div>
@@ -84,18 +85,18 @@
         <div class="col-lg-5">
           <div class="card solar-calc-card solar-calc-results" id="solarResultsCard">
             <div class="card-body p-3 p-md-4">
-              <h2 class="h5 mb-3">Recommended kit</h2>
+              <h2 class="section-head mb-3">Recommended kit</h2>
               <p class="text-muted small mb-0" id="solarResultsEmpty">Add your appliances and tap Calculate kit.</p>
               <div id="solarResultsBody" class="d-none">
                 <div class="row g-2 mb-3" id="solarSummaryStats"></div>
                 <ul class="list-unstyled solar-kit-list mb-3" id="solarKitList"></ul>
                 <p class="small text-muted mb-3" id="solarSizingNote"></p>
                 <div class="d-grid gap-2">
-                  <button type="button" class="btn btn-shop" id="solarAddKitBtn">Add recommended kit to cart</button>
+                  <button type="button" class="btn btn-shop" id="solarAddKitBtn">Add recommended kit to bag</button>
                   <a class="btn btn-outline-secondary" id="solarWhatsAppBtn" href="#" target="_blank" rel="noopener">WhatsApp this quote</a>
-                  <a class="btn btn-link text-decoration-none" href="shop.html?category=solar">Browse all solar products</a>
+                  <a class="btn-text" href="shop?category=solar">Browse all solar products</a>
                 </div>
-                <p class="small text-success mt-2 mb-0 d-none" id="solarCartMsg">Kit added to cart. <a href="cart.html">View cart</a></p>
+                <p class="small mt-2 mb-0 d-none" id="solarCartMsg">Kit added to bag. <a href="cart.html">View bag</a></p>
               </div>
             </div>
           </div>
@@ -106,43 +107,47 @@
 
   <footer class="footer">
     <div class="container">
-      <div class="row g-4">
-        <div class="col-md-4">
-          <strong class="text-dark d-block mb-2">Crypvilla</strong>
+      <div class="row g-5">
+        <div class="col-md-5">
+          <strong class="footer-brand d-block mb-2">Crypvilla</strong>
           <p class="mb-0">Grade A laptops, desktops &amp; MacBooks. Brand new and refurbished, delivered with care.</p>
           <p class="mb-0 mt-2 small">No 13 Balogun Street, Anifowoshe, Lagos State, Nigeria.</p>
           <p class="mb-0 mt-2 small"><a href="mailto:crypvilla@outlook.com">crypvilla@outlook.com</a> · <a href="https://wa.me/2347120043892" target="_blank" rel="noopener">07120043892</a> (WhatsApp)</p>
         </div>
-        <div class="col-md-2">
-          <strong class="text-dark d-block mb-2">Shop</strong>
+        <div class="col-md-3">
+          <span class="footer-heading">Shop</span>
           <ul class="list-unstyled mb-0">
-            <li><a href="shop.html?category=grade-a-uk-used-laptops">Grade A Laptops</a></li>
-            <li><a href="shop.html?category=brand-new-laptops">Brand New Laptops</a></li>
-            <li><a href="shop.html?category=laptop-accessories">Accessories</a></li>
-            <li><a href="shop.html?category=uk-used-desktops">UK Used Desktops</a></li>
-            <li><a href="shop.html?category=brand-new-desktops">Brand New Desktops</a></li>
-            <li><a href="shop.html?category=all-in-ones">All-in-Ones</a></li>
-            <li><a href="shop.html?category=solar">Solar</a></li>
+            <li><a href="shop?category=grade-a-uk-used-laptops">Grade A Laptops</a></li>
+            <li><a href="shop?category=brand-new-laptops">Brand New Laptops</a></li>
+            <li><a href="shop?category=laptop-accessories">Accessories</a></li>
+            <li><a href="shop?category=uk-used-desktops">UK Used Desktops</a></li>
+            <li><a href="shop?category=brand-new-desktops">Brand New Desktops</a></li>
+            <li><a href="shop?category=all-in-ones">All-in-Ones</a></li>
+            <li><a href="shop?category=solar">Solar</a></li>
             <li><a href="solar-calculator.html">Solar Calculator</a></li>
           </ul>
         </div>
-        <div class="col-md-2">
-          <strong class="text-dark d-block mb-2">Company</strong>
+        <div class="col-md-3">
+          <span class="footer-heading">Company</span>
           <ul class="list-unstyled mb-0">
+            <li><a href="index.html#why-us">About</a></li>
             <li><a href="index.html#contact">Contact</a></li>
+            <li><a href="index.html#why-us">Warranty</a></li>
           </ul>
         </div>
       </div>
-      <hr class="my-4 border-secondary">
+      <hr class="my-4">
       <p class="mb-0 text-center">&copy; Crypvilla. All rights reserved.</p>
     </div>
   </footer>
 
+  <script src="js/cartoon-deco.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="config.js"></script>
   <script src="js/escape.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase.js"></script>
+  <script src="js/paths.js"></script>
   <script src="js/cart.js"></script>
   <script src="js/solar-calculator.js"></script>
 </body>

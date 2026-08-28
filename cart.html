@@ -4,61 +4,61 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="images/crypvilla-removebg-preview.png" type="image/png">
-  <title>Cart — Crypvilla</title>
+  <title>Bag — Crypvilla</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="css/shop.css" rel="stylesheet">
   <link href="css/animations.css" rel="stylesheet">
 </head>
-<body class="d-flex flex-column min-vh-100">
-  <div class="cartoon-deco" aria-hidden="true">
-    <img class="deco-md" src="animations/WhatsApp Image 2026-02-26 at 12.04.49 AM (2).jpeg" alt="" style="top: 14%; left: 3%;">
-    <img class="deco-sm" src="animations/WhatsApp Image 2026-02-26 at 12.04.49 AM (3).jpeg" alt="" style="top: 8%; right: 4%;">
-    <img class="deco-lg" src="animations/WhatsApp Image 2026-02-26 at 12.04.43 AM (1).jpeg" alt="" style="bottom: 18%; right: 2%;">
-    <img class="deco-sm" src="animations/WhatsApp Image 2026-02-26 at 12.04.48 AM (2).jpeg" alt="" style="bottom: 10%; left: 5%;">
-  </div>
+<body class="page-cart d-flex flex-column min-vh-100">
   <div class="top-bar">Free delivery in Lagos on orders over ₦500,000</div>
-  <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+  <nav class="navbar navbar-expand-lg navbar-light sticky-top" id="mainNav">
     <div class="container">
       <a class="navbar-brand" href="index.html">
         <img src="images/crypvilla-removebg-preview.png" alt="Crypvilla">
       </a>
-      <a href="cart.html" class="nav-cart-mobile nav-link btn btn-shop btn-cart-mobile" aria-label="Cart">Cart <span id="navCartCountMobile" class="cart-count-badge">0</span></a>
+      <a href="cart.html" class="nav-cart-mobile" aria-label="Bag">
+        <svg class="nav-cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+        <span id="navCartCountMobile" class="cart-count-badge">0</span>
+      </a>
       <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarMain">
-        <ul class="navbar-nav me-auto">
+        <ul class="navbar-nav ms-auto align-items-lg-center">
           <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
           <li class="nav-item"><a class="nav-link" href="shop.html">Shop</a></li>
-          <li class="nav-item"><a class="nav-link" href="solar-calculator.html">Solar Calculator</a></li>
+          <li class="nav-item"><a class="nav-link" href="solar-calculator.html">Solar</a></li>
           <li class="nav-item"><a class="nav-link" href="index.html#contact">Contact</a></li>
-        </ul>
-        <ul class="navbar-nav nav-cart-desktop">
-          <li class="nav-item position-relative">
-            <a class="nav-link btn btn-shop" href="cart.html">Cart <span id="navCartCount" class="cart-count-badge">0</span></a>
+          <li class="nav-item nav-cart-desktop">
+            <a href="cart.html" class="nav-cart-link" aria-label="Bag">
+              <svg class="nav-cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+              <span class="nav-cart-label">Bag</span>
+              <span id="navCartCount" class="cart-count-badge">0</span>
+            </a>
           </li>
         </ul>
       </div>
     </div>
   </nav>
 
-  <main class="container flex-grow-1 py-4">
-    <h1 class="section-title mb-4">Your cart</h1>
+  <main class="container flex-grow-1 py-4 py-md-5">
+    <p class="kicker">Shopping</p>
+    <h1 class="section-title mb-4">Your bag</h1>
 
     <div id="cartEmpty" class="empty-state d-none">
-      <p class="mb-2">Your cart is empty.</p>
+      <p class="mb-3">Your bag is empty.</p>
       <a href="shop.html" class="btn btn-shop">Continue shopping</a>
     </div>
 
     <div id="cartContent" class="d-none">
-      <div class="row">
+      <div class="row g-5">
         <div class="col-lg-8">
-          <ul class="list-group list-group-flush" id="cartItems"></ul>
+          <ul class="list-unstyled mb-0" id="cartItems"></ul>
         </div>
         <div class="col-lg-4">
-          <div class="card border rounded-3 p-3">
-            <h5 class="mb-3">Summary</h5>
+          <div class="summary-card">
+            <h2>Summary</h2>
             <p class="d-flex justify-content-between mb-2">
               <span class="text-muted">Subtotal</span>
               <span id="cartSubtotal">₦0</span>
@@ -73,11 +73,11 @@
             </p>
             <p class="small mb-0" id="freeShippingHint"></p>
             <hr>
-            <p class="d-flex justify-content-between fw-bold mb-3">
+            <p class="d-flex justify-content-between fw-semibold mb-2">
               <span>Total</span>
               <span id="cartTotal">₦0</span>
             </p>
-            <p class="small text-muted mb-0">Final total depends on delivery location at checkout.</p>
+            <p class="small text-muted mb-3">Final total depends on delivery location at checkout.</p>
             <a href="checkout.html" class="btn btn-shop w-100">Proceed to checkout</a>
             <a href="shop.html" class="btn btn-outline-secondary w-100 mt-2">Continue shopping</a>
           </div>
@@ -88,34 +88,45 @@
 
   <footer class="footer">
     <div class="container">
-      <div class="row g-4">
-        <div class="col-md-4">
-          <strong class="text-dark d-block mb-2">Crypvilla</strong>
-          <p class="mb-0">Grade A laptops, desktops & MacBooks. Brand new and refurbished, delivered with care.</p>
+      <div class="row g-5">
+        <div class="col-md-5">
+          <strong class="footer-brand d-block mb-2">Crypvilla</strong>
+          <p class="mb-0">Grade A laptops, desktops &amp; MacBooks. Brand new and refurbished, delivered with care.</p>
           <p class="mb-0 mt-2 small">No 13 Balogun Street, Anifowoshe, Lagos State, Nigeria.</p>
           <p class="mb-0 mt-2 small"><a href="mailto:crypvilla@outlook.com">crypvilla@outlook.com</a> · <a href="https://wa.me/2347120043892" target="_blank" rel="noopener">07120043892</a> (WhatsApp)</p>
         </div>
-        <div class="col-md-2">
-          <strong class="text-dark d-block mb-2">Shop</strong>
+        <div class="col-md-3">
+          <span class="footer-heading">Shop</span>
           <ul class="list-unstyled mb-0">
             <li><a href="shop.html">All products</a></li>
+            <li><a href="solar-calculator.html">Solar Calculator</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3">
+          <span class="footer-heading">Company</span>
+          <ul class="list-unstyled mb-0">
+            <li><a href="index.html#why-us">About</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+            <li><a href="index.html#why-us">Warranty</a></li>
           </ul>
         </div>
       </div>
-      <hr class="my-4 border-secondary">
+      <hr class="my-4">
       <p class="mb-0 text-center">&copy; Crypvilla. All rights reserved.</p>
     </div>
   </footer>
 
+  <script src="js/cartoon-deco.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="config.js"></script>
   <script src="js/escape.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase.js"></script>
+  <script src="js/paths.js"></script>
   <script src="js/cart.js"></script>
   <script>
     (function() {
-      var stockMap = {}; // product id -> available stock (set after fetch)
+      var stockMap = {};
 
       function formatNaira(n) {
         return '₦' + (Number(n) || 0).toLocaleString();
@@ -184,7 +195,7 @@
             if (available === undefined) available = 999;
             var qty = item.quantity || 1;
             var row = document.createElement('li');
-            row.className = 'list-group-item d-flex align-items-center gap-3 py-3';
+            row.className = 'cart-line';
             var imgUrl = safeImgUrl(item.image_url);
             var lineTotal = (item.price * qty);
             var nameSafe = safeHtml((item.name || 'Product').substring(0, 50));
@@ -192,16 +203,20 @@
             if (available === 0) stockHint = '<p class="text-danger small mb-0">Out of stock</p>';
             var maxAttr = available > 0 ? ' max="' + available + '"' : '';
             row.innerHTML =
-              '<img src="' + imgUrl.replace(/"/g, '&quot;') + '" alt="" width="80" height="60" class="rounded object-fit-cover" style="object-fit: cover;">' +
-              '<div class="flex-grow-1">' +
-                '<a href="product.html?id=' + encodeURIComponent(item.id) + '" class="fw-semibold text-dark text-decoration-none">' + nameSafe + '</a>' +
-                '<p class="text-muted small mb-0">' + formatNaira(item.price) + ' each</p>' +
+              '<img src="' + imgUrl.replace(/"/g, '&quot;') + '" alt="">' +
+              '<div>' +
+                '<a href="' + ((window.CrypvillaPaths && window.CrypvillaPaths.product)
+                  ? window.CrypvillaPaths.product({ id: item.id })
+                  : ('product?id=' + encodeURIComponent(item.id))) + '" class="cart-line-name">' + nameSafe + '</a>' +
+                '<p class="cart-line-meta mb-1">' + formatNaira(item.price) + ' each</p>' +
                 stockHint +
               '</div>' +
-              '<div class="d-flex align-items-center gap-2">' +
-                '<input type="number" class="form-control form-control-sm cart-qty" data-id="' + safeHtml(item.id) + '" data-max="' + available + '" value="' + qty + '" min="1"' + maxAttr + ' style="width: 60px;"' + (available === 0 ? ' disabled' : '') + '>' +
-                '<span class="fw-semibold" style="min-width: 80px;">' + formatNaira(lineTotal) + '</span>' +
-                '<button type="button" class="btn btn-outline-danger btn-sm cart-remove" data-id="' + safeHtml(item.id) + '" aria-label="Remove">×</button>' +
+              '<div class="cart-line-controls">' +
+                '<div class="qty-stepper">' +
+                  '<input type="number" class="cart-qty" data-id="' + safeHtml(item.id) + '" data-max="' + available + '" value="' + qty + '" min="1"' + maxAttr + (available === 0 ? ' disabled' : '') + '>' +
+                '</div>' +
+                '<span class="fw-semibold">' + formatNaira(lineTotal) + '</span>' +
+                '<button type="button" class="cart-remove" data-id="' + safeHtml(item.id) + '">Remove</button>' +
               '</div>';
             list.appendChild(row);
           });
@@ -211,7 +226,6 @@
 
       function updateSummary() {
         var cart = window.CrypvillaCart ? window.CrypvillaCart.get() : [];
-
         var subtotal = window.CrypvillaCart ? window.CrypvillaCart.getSubtotal() : 0;
         var getSh = window.CrypvillaCart && window.CrypvillaCart.getShipping;
         var shLagos = getSh ? window.CrypvillaCart.getShipping(cart, true).fee : 0;

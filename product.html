@@ -6,54 +6,44 @@
   <link rel="icon" href="images/crypvilla-removebg-preview.png" type="image/png">
   <title>Product — Crypvilla</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="css/shop.css" rel="stylesheet">
   <link href="css/animations.css" rel="stylesheet">
-  <style>
-    .product-gallery { border-radius: 16px; overflow: hidden; background: var(--crypvilla-bg-soft); }
-    .product-gallery img { width: 100%; height: auto; display: block; }
-    .breadcrumb { background: none; padding: 0; }
-    .breadcrumb-item + .breadcrumb-item::before { content: "›"; }
-    /* Ensure Make an Offer modal and backdrop sit above cartoon deco and all content */
-    #offerModal { z-index: 1060 !important; }
-    body .modal-backdrop { z-index: 1055 !important; }
-  </style>
 </head>
-<body class="d-flex flex-column min-vh-100">
-  <div class="cartoon-deco" aria-hidden="true">
-    <img class="deco-sm" src="animations/WhatsApp Image 2026-02-26 at 12.04.44 AM.jpeg" alt="" style="top: 18%; left: 4%;">
-    <img class="deco-md" src="animations/WhatsApp Image 2026-02-26 at 12.04.46 AM.jpeg" alt="" style="top: 25%; right: 3%;">
-    <img class="deco-md" src="animations/WhatsApp Image 2026-02-26 at 12.04.48 AM (1).jpeg" alt="" style="bottom: 22%; left: 2%;">
-    <img class="deco-sm" src="animations/WhatsApp Image 2026-02-26 at 12.04.49 AM.jpeg" alt="" style="bottom: 12%; right: 6%;">
-  </div>
+<body class="page-product d-flex flex-column min-vh-100">
   <div class="top-bar">Free delivery in Lagos on orders over ₦500,000</div>
-  <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+  <nav class="navbar navbar-expand-lg navbar-light sticky-top" id="mainNav">
     <div class="container">
       <a class="navbar-brand" href="index.html">
         <img src="images/crypvilla-removebg-preview.png" alt="Crypvilla">
       </a>
-      <a href="cart.html" class="nav-cart-mobile nav-link btn btn-shop btn-cart-mobile" aria-label="Cart">Cart <span id="navCartCountMobile" class="cart-count-badge d-none">0</span></a>
+      <a href="cart.html" class="nav-cart-mobile" data-open-cart aria-label="Bag">
+        <svg class="nav-cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+        <span id="navCartCountMobile" class="cart-count-badge d-none">0</span>
+      </a>
       <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarMain">
-        <ul class="navbar-nav me-auto">
+        <ul class="navbar-nav ms-auto align-items-lg-center">
           <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
           <li class="nav-item"><a class="nav-link" href="shop.html">Shop</a></li>
-          <li class="nav-item"><a class="nav-link" href="solar-calculator.html">Solar Calculator</a></li>
+          <li class="nav-item"><a class="nav-link" href="solar-calculator.html">Solar</a></li>
           <li class="nav-item"><a class="nav-link" href="index.html#contact">Contact</a></li>
-        </ul>
-        <ul class="navbar-nav nav-cart-desktop">
-          <li class="nav-item position-relative">
-            <a class="nav-link btn btn-shop" href="cart.html">Cart <span id="navCartCount" class="cart-count-badge d-none">0</span></a>
+          <li class="nav-item nav-cart-desktop">
+            <a href="cart.html" class="nav-cart-link" data-open-cart aria-label="Bag">
+              <svg class="nav-cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+              <span class="nav-cart-label">Bag</span>
+              <span id="navCartCount" class="cart-count-badge d-none">0</span>
+            </a>
           </li>
         </ul>
       </div>
     </div>
   </nav>
 
-  <main class="container flex-grow-1 py-4">
-    <nav aria-label="breadcrumb" class="mb-3">
+  <main class="container flex-grow-1 py-4 product-layout">
+    <nav aria-label="breadcrumb" class="mb-4">
       <ol class="breadcrumb" id="breadcrumb">
         <li class="breadcrumb-item"><a href="index.html">Home</a></li>
         <li class="breadcrumb-item"><a href="shop.html">Shop</a></li>
@@ -67,48 +57,59 @@
     </div>
 
     <div id="productDetail" class="d-none">
-      <div class="row g-4">
+      <div class="row g-4 g-lg-5">
         <div class="col-md-6">
           <div class="product-gallery position-relative">
-            <span id="productSaleBadge" class="badge-sale d-none">Sale</span>
-            <img id="productImage" src="" alt="" class="img-fluid">
-            <div id="productImageThumbs" class="d-flex gap-2 mt-2 flex-wrap d-none"></div>
+            <div class="product-gallery-main">
+              <span id="productSaleBadge" class="badge-sale d-none">Sale</span>
+              <img id="productImage" src="" alt="">
+            </div>
+            <div id="productImageThumbs" class="product-thumbs d-none"></div>
           </div>
         </div>
         <div class="col-md-6">
-          <h1 class="section-title mb-2" id="productName"></h1>
-          <p class="mb-2" id="productPrice"></p>
-          <p class="text-muted small" id="productDesc"></p>
-          <div class="spec-pills mb-3" id="productSpecs"></div>
-          <p id="productStockStatus" class="mb-2 small"></p>
-          <p class="mb-3 d-none" id="productLaptopBag"><span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">✓ Includes laptop bag</span></p>
-          <div class="d-flex align-items-center gap-2 mb-3">
-            <label class="text-muted small mb-0">Quantity:</label>
-            <input type="number" id="productQty" class="form-control form-control-sm" style="width: 80px;" min="1" value="1">
-          </div>
-          <div class="product-actions d-flex flex-wrap gap-2">
-            <button type="button" class="btn btn-shop btn-lg" id="addToCartBtn">Add to cart</button>
-            <button type="button" class="btn btn-outline-secondary btn-lg" id="makeOfferBtn">Make an Offer</button>
-            <a href="shop.html" class="btn btn-outline-secondary btn-lg">Continue shopping</a>
-          </div>
-          <div id="offerStatusBar" class="mt-3 mb-0">
-            <div id="offerUnderReviewBanner" class="alert alert-warning d-none mb-0">
-              <strong>Offer under review.</strong> <span id="offerUnderReviewText">We'll get back to you shortly. Once approved, you can complete payment here.</span>
-              <button type="button" class="btn btn-sm btn-outline-dark ms-2" id="offerCheckNowBtn">Check now</button>
-              <p id="offerUnderReviewMessage" class="small mb-0 mt-2 d-none"></p>
-            </div>
-            <div id="offerPendingBanner" class="alert alert-success d-none mb-0">
-              <strong>Pending payment</strong> — <span id="offerPendingText">Time remaining: </span><strong id="offerPendingCountdown">20:00</strong>.
-              <a href="#" id="offerPendingCheckoutBtn" class="btn btn-shop btn-sm ms-2">Proceed to pay</a>
-              <button type="button" class="btn btn-link btn-sm text-muted ms-2 p-0 align-baseline" id="offerPendingDismissBtn" aria-label="Dismiss">Dismiss</button>
-            </div>
-            <div id="offerCheckStatusWrap" class="alert alert-light border d-none mb-0">
-              <p class="mb-2 small text-muted">Made an offer? Enter the email you used to see if it&apos;s approved.</p>
-              <div class="d-flex flex-wrap gap-2 align-items-center">
-                <input type="email" class="form-control form-control-sm" id="offerCheckStatusEmail" placeholder="your@email.com" style="max-width: 220px;">
-                <button type="button" class="btn btn-shop btn-sm" id="offerCheckStatusBtn">Check status</button>
+          <div class="product-buy">
+            <p class="kicker d-none" id="productLaptopBag">Includes laptop bag</p>
+            <h1 class="section-title mb-2" id="productName"></h1>
+            <p class="mb-3" id="productPrice"></p>
+            <p class="product-desc" id="productDesc"></p>
+            <dl class="spec-list d-none" id="productSpecList"></dl>
+            <p id="productStockStatus" class="mb-3 small"></p>
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <label class="kicker mb-0" for="productQty">Quantity</label>
+              <div class="qty-stepper">
+                <button type="button" id="qtyMinus" aria-label="Decrease quantity">−</button>
+                <input type="number" id="productQty" min="1" value="1">
+                <button type="button" id="qtyPlus" aria-label="Increase quantity">+</button>
               </div>
-              <p id="offerCheckStatusMessage" class="small mb-0 mt-2 d-none"></p>
+            </div>
+            <div class="product-actions">
+              <button type="button" class="btn btn-shop btn-lg" id="addToCartBtn">Add to bag</button>
+              <button type="button" class="btn btn-outline-secondary" id="makeOfferBtn">Make an offer</button>
+              <a href="shop.html" class="btn-text align-self-start">Continue shopping</a>
+            </div>
+            <div id="offerStatusBar" class="offer-panel">
+              <p class="offer-kicker">Offers</p>
+              <div id="offerUnderReviewBanner" class="alert alert-warning d-none mb-3">
+                <strong>Offer under review.</strong> <span id="offerUnderReviewText">We'll get back to you shortly. Once approved, you can complete payment here.</span>
+                <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="offerCheckNowBtn">Check now</button>
+                <p id="offerUnderReviewMessage" class="small mb-0 mt-2 d-none"></p>
+              </div>
+              <div id="offerPendingBanner" class="alert alert-success d-none mb-3">
+                <strong>Pending payment</strong> — <span id="offerPendingText">Time remaining: </span><strong id="offerPendingCountdown">20:00</strong>.
+                <div class="mt-2">
+                  <a href="#" id="offerPendingCheckoutBtn" class="btn btn-shop btn-sm">Proceed to pay</a>
+                  <button type="button" class="btn btn-link btn-sm" id="offerPendingDismissBtn" aria-label="Dismiss">Dismiss</button>
+                </div>
+              </div>
+              <div id="offerCheckStatusWrap" class="alert alert-light d-none mb-0">
+                <p class="mb-2 small text-muted">Made an offer? Enter the email you used to see if it&apos;s approved.</p>
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                  <input type="email" class="form-control" id="offerCheckStatusEmail" placeholder="your@email.com" style="max-width: 240px;">
+                  <button type="button" class="btn btn-shop btn-sm" id="offerCheckStatusBtn">Check status</button>
+                </div>
+                <p id="offerCheckStatusMessage" class="small mb-0 mt-2 d-none"></p>
+              </div>
             </div>
           </div>
         </div>
@@ -121,12 +122,11 @@
     </div>
   </main>
 
-  <!-- Make an Offer modal (outside main so it stacks above cartoon deco and is fully interactive) -->
   <div class="modal fade" id="offerModal" tabindex="-1" aria-labelledby="offerModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="offerModalLabel">Make an Offer</h5>
+          <h5 class="modal-title" id="offerModalLabel">Make an offer</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -157,7 +157,7 @@
             <div id="offerMessage" class="alert d-none" role="alert"></div>
           </div>
           <div id="offerThinking" class="text-center py-5 d-none">
-            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+            <div class="spinner-border loading-spinner" role="status" style="width: 3rem; height: 3rem;"></div>
             <p class="mt-3 mb-0 text-muted">Considering your offer...</p>
           </div>
           <div id="offerSuccessWrap" class="d-none">
@@ -180,43 +180,45 @@
 
   <footer class="footer">
     <div class="container">
-      <div class="row g-4">
-        <div class="col-md-4">
-          <strong class="text-dark d-block mb-2">Crypvilla</strong>
-          <p class="mb-0">Grade A laptops, desktops & MacBooks. Brand new and refurbished, delivered with care.</p>
+      <div class="row g-5">
+        <div class="col-md-5">
+          <strong class="footer-brand d-block mb-2">Crypvilla</strong>
+          <p class="mb-0">Grade A laptops, desktops &amp; MacBooks. Brand new and refurbished, delivered with care.</p>
           <p class="mb-0 mt-2 small">No 13 Balogun Street, Anifowoshe, Lagos State, Nigeria.</p>
           <p class="mb-0 mt-2 small"><a href="mailto:crypvilla@outlook.com">crypvilla@outlook.com</a> · <a href="https://wa.me/2347120043892" target="_blank" rel="noopener">07120043892</a> (WhatsApp)</p>
         </div>
-        <div class="col-md-2">
-          <strong class="text-dark d-block mb-2">Shop</strong>
+        <div class="col-md-3">
+          <span class="footer-heading">Shop</span>
           <ul class="list-unstyled mb-0">
             <li><a href="shop.html">All products</a></li>
+            <li><a href="shop?category=solar">Solar</a></li>
+            <li><a href="solar-calculator.html">Solar Calculator</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3">
+          <span class="footer-heading">Company</span>
+          <ul class="list-unstyled mb-0">
+            <li><a href="index.html#why-us">About</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+            <li><a href="index.html#why-us">Warranty</a></li>
           </ul>
         </div>
       </div>
-      <hr class="my-4 border-secondary">
+      <hr class="my-4">
       <p class="mb-0 text-center">&copy; Crypvilla. All rights reserved.</p>
     </div>
   </footer>
 
+  <script src="js/cartoon-deco.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="config.js"></script>
   <script src="js/escape.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase.js"></script>
+  <script src="js/paths.js"></script>
   <script src="js/cart.js"></script>
   <script>
     (function() {
-      function updateCartCount() {
-        var n = window.CrypvillaCart ? window.CrypvillaCart.getCount() : 0;
-        ['navCartCount', 'navCartCountMobile'].forEach(function(id) {
-          var el = document.getElementById(id);
-          if (el) { el.textContent = n; el.classList.toggle('d-none', n === 0); }
-        });
-      }
-      updateCartCount();
-      if (window.CrypvillaCart) window.CrypvillaCart.onUpdate(updateCartCount);
-
       var params = new URLSearchParams(window.location.search);
       var id = params.get('id');
       var slug = params.get('slug');
@@ -323,7 +325,9 @@
             paymentBanner.classList.remove('d-none');
             reviewBanner.classList.add('d-none');
             if (checkWrap) checkWrap.classList.add('d-none');
-            if (btn) btn.href = 'checkout.html?offer=' + encodeURIComponent(pending.token);
+            if (btn) btn.href = (window.CrypvillaPaths && window.CrypvillaPaths.checkout)
+              ? window.CrypvillaPaths.checkout({ offer: pending.token })
+              : ('checkout?offer=' + encodeURIComponent(pending.token));
             if (sec <= 0) {
               clearPendingOffer();
               paymentBanner.classList.add('d-none');
@@ -406,6 +410,17 @@
         });
       }
 
+      function clampQty() {
+        var qtyEl = document.getElementById('productQty');
+        if (!qtyEl) return 1;
+        var stock = currentProduct ? Math.max(0, parseInt(currentProduct.stock, 10) || 0) : 999;
+        var qty = parseInt(qtyEl.value, 10) || 1;
+        if (qty < 1) qty = 1;
+        if (stock > 0 && qty > stock) qty = stock;
+        qtyEl.value = qty;
+        return qty;
+      }
+
       function showProduct(p) {
         currentProduct = p;
         if (!p) {
@@ -431,11 +446,11 @@
           if (qtyEl) { qtyEl.value = 1; qtyEl.disabled = true; qtyEl.removeAttribute('max'); }
           if (addBtn) { addBtn.disabled = true; addBtn.textContent = 'Out of stock'; addBtn.classList.remove('btn-shop'); addBtn.classList.add('btn-outline-secondary'); }
         } else {
-          if (stock <= 5) stockEl.innerHTML = '<span class="text-warning">Only ' + stock + ' left in stock</span>';
-          else stockEl.innerHTML = '<span class="text-success">In stock</span>';
+          if (stock <= 5) stockEl.innerHTML = '<span>Only ' + stock + ' left in stock</span>';
+          else stockEl.innerHTML = '<span>In stock</span>';
           stockEl.classList.remove('d-none');
-          if (qtyEl) { qtyEl.max = stock; qtyEl.disabled = false; qtyEl.value = Math.min(1, stock); }
-          if (addBtn) { addBtn.disabled = false; addBtn.textContent = 'Add to cart'; addBtn.classList.add('btn-shop'); addBtn.classList.remove('btn-outline-secondary'); }
+          if (qtyEl) { qtyEl.max = stock; qtyEl.disabled = false; qtyEl.value = 1; }
+          if (addBtn) { addBtn.disabled = false; addBtn.textContent = 'Add to bag'; addBtn.classList.add('btn-shop'); addBtn.classList.remove('btn-outline-secondary'); }
         }
         var imgList = Array.isArray(p.images) && p.images.length ? p.images : (p.image_url ? [p.image_url] : []);
         var mainSrc = imgList[0] || p.image_url || 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80';
@@ -449,28 +464,28 @@
           imgList.forEach(function(url, i) {
             var btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'product-thumb-btn border rounded overflow-hidden p-0' + (i === 0 ? ' border-primary' : '');
-            btn.style.cssText = 'width:56px;height:56px;flex-shrink:0;';
+            btn.className = 'product-thumb-btn' + (i === 0 ? ' is-active' : '');
             var img = document.createElement('img');
             img.src = url;
             img.alt = '';
-            img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
             btn.appendChild(img);
             btn.addEventListener('click', function() {
               document.getElementById('productImage').src = url;
-              thumbsEl.querySelectorAll('.product-thumb-btn').forEach(function(b) { b.classList.remove('border-primary'); });
-              btn.classList.add('border-primary');
+              thumbsEl.querySelectorAll('.product-thumb-btn').forEach(function(b) { b.classList.remove('is-active'); });
+              btn.classList.add('is-active');
             });
             thumbsEl.appendChild(btn);
           });
         }
 
         var specs = p.specs || {};
-        var specEl = document.getElementById('productSpecs');
+        var specEl = document.getElementById('productSpecList');
         var esc = window.CrypvillaEscape && window.CrypvillaEscape.html ? window.CrypvillaEscape.html : function(s) { return String(s == null ? '' : s); };
-        specEl.innerHTML = Object.keys(specs).map(function(k) {
-          return '<span class="spec-pill">' + esc(k) + ': ' + esc(specs[k]) + '</span>';
+        var keys = Object.keys(specs).filter(function(k) { return specs[k] != null && specs[k] !== ''; });
+        specEl.innerHTML = keys.map(function(k) {
+          return '<div><dt>' + esc(String(k).replace(/_/g, ' ')) + '</dt><dd>' + esc(specs[k]) + '</dd></div>';
         }).join('');
+        specEl.classList.toggle('d-none', !keys.length);
 
         document.title = (p.name || 'Product') + ' — Crypvilla';
         document.getElementById('breadcrumbProduct').textContent = (p.name || 'Product').substring(0, 40);
@@ -495,19 +510,17 @@
         if (review && review.productId === p.id && review.email) startOfferStatusPolling();
 
         document.getElementById('addToCartBtn').onclick = function() {
-          var stock = Math.max(0, parseInt(p.stock, 10) || 0);
-          if (stock <= 0) return;
-          var qty = parseInt(document.getElementById('productQty').value, 10) || 1;
-          if (qty > stock) qty = stock;
+          var stockNow = Math.max(0, parseInt(p.stock, 10) || 0);
+          if (stockNow <= 0) return;
+          var qty = clampQty();
           if (window.CrypvillaCart) {
-            var cat = p.categories ? (Array.isArray(p.categories) ? p.categories[0] : p.categories) : null;
-            var catSlug = (cat && cat.slug) ? cat.slug : '';
-            window.CrypvillaCart.add(p.id, qty, { name: p.name, price: p.price, image_url: p.image_url, category_slug: catSlug }, stock);
-            updateCartCount();
+            var catNow = p.categories ? (Array.isArray(p.categories) ? p.categories[0] : p.categories) : null;
+            var slugNow = (catNow && catNow.slug) ? catNow.slug : '';
+            window.CrypvillaCart.add(p.id, qty, { name: p.name, price: p.price, image_url: p.image_url, category_slug: slugNow }, stockNow);
             var btn = document.getElementById('addToCartBtn');
-            btn.textContent = 'Added to cart';
+            btn.textContent = 'Added to bag';
             btn.disabled = true;
-            setTimeout(function() { btn.textContent = 'Add to cart'; btn.disabled = false; }, 2000);
+            setTimeout(function() { btn.textContent = 'Add to bag'; btn.disabled = false; }, 2000);
           }
         };
 
@@ -556,8 +569,8 @@
         var offerCheckNowBtn = document.getElementById('offerCheckNowBtn');
         if (offerCheckNowBtn) {
           offerCheckNowBtn.addEventListener('click', function() {
-            var review = getPendingReview();
-            if (review && review.email && currentProduct) checkOfferStatusWithEmail(review.email, currentProduct.id);
+            var reviewNow = getPendingReview();
+            if (reviewNow && reviewNow.email && currentProduct) checkOfferStatusWithEmail(reviewNow.email, currentProduct.id);
           });
         }
         var offerCheckStatusBtn = document.getElementById('offerCheckStatusBtn');
@@ -677,7 +690,9 @@
                 }, 1000);
                 updateOfferBanner(currentProduct.id);
               }, 2500);
-              document.getElementById('offerProceedToCheckoutBtn').href = 'checkout.html?offer=' + encodeURIComponent(token);
+              document.getElementById('offerProceedToCheckoutBtn').href = (window.CrypvillaPaths && window.CrypvillaPaths.checkout)
+                ? window.CrypvillaPaths.checkout({ offer: token })
+                : ('checkout?offer=' + encodeURIComponent(token));
               return;
             }
             if (status === 'pending') {
@@ -706,6 +721,19 @@
         });
       }
 
+      var qtyMinus = document.getElementById('qtyMinus');
+      var qtyPlus = document.getElementById('qtyPlus');
+      if (qtyMinus) qtyMinus.addEventListener('click', function() {
+        var el = document.getElementById('productQty');
+        el.value = Math.max(1, (parseInt(el.value, 10) || 1) - 1);
+        clampQty();
+      });
+      if (qtyPlus) qtyPlus.addEventListener('click', function() {
+        var el = document.getElementById('productQty');
+        el.value = (parseInt(el.value, 10) || 1) + 1;
+        clampQty();
+      });
+
       if (!id && !slug) {
         showProduct(null);
         return;
@@ -730,7 +758,7 @@
             var catLi = document.createElement('li');
             catLi.className = 'breadcrumb-item';
             var esc = window.CrypvillaEscape && window.CrypvillaEscape.html ? window.CrypvillaEscape.html : function(s) { return String(s == null ? '' : s); };
-            catLi.innerHTML = '<a href="shop.html?category=' + encodeURIComponent(cat.slug) + '">' + esc(cat.name) + '</a>';
+            catLi.innerHTML = '<a href="shop?category=' + encodeURIComponent(cat.slug) + '">' + esc(cat.name) + '</a>';
             bc.insertBefore(catLi, last);
           }
         }
