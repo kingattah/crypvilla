@@ -314,6 +314,31 @@
       return '<option value="' + c.id + '">' + esc(c.name || c.slug) + '</option>';
     }).join('');
 
+    function isSolarCategory(categoryId) {
+      var cat = categories.filter(function(c) { return c.id === categoryId; })[0];
+      return !!(cat && cat.slug === 'solar');
+    }
+
+    function updateSpecGroups() {
+      var solar = isSolarCategory(document.getElementById('productCategory').value);
+      var laptopEl = document.getElementById('laptopSpecFields');
+      var solarEl = document.getElementById('solarSpecFields');
+      if (laptopEl) laptopEl.classList.toggle('d-none', solar);
+      if (solarEl) solarEl.classList.toggle('d-none', !solar);
+    }
+
+    function clearSpecFields() {
+      ['productSpecProcessor', 'productSpecRam', 'productSpecStorage', 'productSpecKind',
+        'productSpecWatts', 'productSpecKva', 'productSpecCapacityWh', 'productSpecVoltage', 'productSpecCableMm2'].forEach(function(fid) {
+        var el = document.getElementById(fid);
+        if (el) el.value = '';
+      });
+    }
+
+    catSelect.onchange = updateSpecGroups;
+    clearSpecFields();
+    updateSpecGroups();
+
     if (id) {
       supabase.from('products').select('*').eq('id', id).single().then(function(r) {
         if (r.data) {
@@ -332,6 +357,13 @@
           document.getElementById('productSpecProcessor').value = spec.processor || '';
           document.getElementById('productSpecRam').value = spec.ram || '';
           document.getElementById('productSpecStorage').value = spec.storage || '';
+          document.getElementById('productSpecKind').value = spec.kind || '';
+          document.getElementById('productSpecWatts').value = spec.watts != null ? spec.watts : '';
+          document.getElementById('productSpecKva').value = spec.kva != null ? spec.kva : '';
+          document.getElementById('productSpecCapacityWh').value = spec.capacity_wh != null ? spec.capacity_wh : '';
+          document.getElementById('productSpecVoltage').value = spec.voltage != null ? spec.voltage : '';
+          document.getElementById('productSpecCableMm2').value = spec.cable_mm2 != null ? spec.cable_mm2 : '';
+          updateSpecGroups();
         }
       });
     } else {
@@ -408,12 +440,36 @@
       return;
     }
 
-    var specs = {
-      processor: document.getElementById('productSpecProcessor').value.trim() || undefined,
-      ram: document.getElementById('productSpecRam').value.trim() || undefined,
-      storage: document.getElementById('productSpecStorage').value.trim() || undefined
-    };
-    if (!specs.processor && !specs.ram && !specs.storage) specs = {};
+    var specs = {};
+    var processor = document.getElementById('productSpecProcessor').value.trim();
+    var ram = document.getElementById('productSpecRam').value.trim();
+    var storage = document.getElementById('productSpecStorage').value.trim();
+    if (processor) specs.processor = processor;
+    if (ram) specs.ram = ram;
+    if (storage) specs.storage = storage;
+    var kind = document.getElementById('productSpecKind').value.trim();
+    if (kind) specs.kind = kind;
+    function numOrUndef(fid) {
+      var v = document.getElementById(fid).value.trim();
+      if (!v) return undefined;
+      var n = parseFloat(v);
+      return isNaN(n) ? undefined : n;
+    }
+    var watts = numOrUndef('productSpecWatts');
+    var kva = numOrUndef('productSpecKva');
+    var capacityWh = numOrUndef('productSpecCapacityWh');
+    var voltage = numOrUndef('productSpecVoltage');
+    var cableMm2 = numOrUndef('productSpecCableMm2');
+    if (watts != null) specs.watts = watts;
+    if (kva != null) specs.kva = kva;
+    if (capacityWh != null) specs.capacity_wh = capacityWh;
+    if (voltage != null) specs.voltage = voltage;
+    if (cableMm2 != null) specs.cable_mm2 = cableMm2;
+    if (kind === 'panel' && watts != null) specs.label = watts + 'W';
+    else if (kind === 'inverter' && kva != null) specs.label = kva + ' kVA';
+    else if ((kind === 'battery' || kind === 'powerstation') && capacityWh != null) {
+      specs.label = capacityWh >= 1000 ? (Math.round(capacityWh / 100) / 10) + ' kWh' : capacityWh + ' Wh';
+    } else if (kind === 'cable' && cableMm2 != null) specs.label = cableMm2 + ' mm²';
 
     var slug = document.getElementById('productSlug').value.trim() || makeSlug(name);
     var payload = {

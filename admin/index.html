@@ -225,17 +225,59 @@
             <p class="text-muted small mt-1 mb-1">First image is used as the main product image. You can reorder by removing and re-adding.</p>
             <div id="productImagesList" class="d-flex flex-wrap gap-2 mt-2"></div>
           </div>
-          <div class="form-group">
-            <label>Processor</label>
-            <input type="text" class="form-control" id="productSpecProcessor" placeholder="e.g. Intel Core i5">
+          <div id="laptopSpecFields">
+            <p class="spec-section-title">Laptop specs</p>
+            <div class="form-group">
+              <label>Processor</label>
+              <input type="text" class="form-control" id="productSpecProcessor" placeholder="e.g. Intel Core i5">
+            </div>
+            <div class="form-group">
+              <label>RAM</label>
+              <input type="text" class="form-control" id="productSpecRam" placeholder="e.g. 8GB">
+            </div>
+            <div class="form-group">
+              <label>Storage</label>
+              <input type="text" class="form-control" id="productSpecStorage" placeholder="e.g. 256GB SSD">
+            </div>
           </div>
-          <div class="form-group">
-            <label>RAM</label>
-            <input type="text" class="form-control" id="productSpecRam" placeholder="e.g. 8GB">
-          </div>
-          <div class="form-group">
-            <label>Storage</label>
-            <input type="text" class="form-control" id="productSpecStorage" placeholder="e.g. 256GB SSD">
+          <div id="solarSpecFields" class="d-none">
+            <p class="spec-section-title">Solar specs</p>
+            <p class="text-muted small mb-2">Used by the solar calculator to match kits. Leave laptop specs empty.</p>
+            <div class="form-group">
+              <label>Type</label>
+              <select class="form-control" id="productSpecKind">
+                <option value="">Select type</option>
+                <option value="panel">Panel</option>
+                <option value="inverter">Inverter</option>
+                <option value="battery">Battery</option>
+                <option value="powerstation">Power station</option>
+                <option value="cable">Cable</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Watts</label>
+                <input type="number" class="form-control" id="productSpecWatts" min="0" step="1" placeholder="e.g. 550">
+              </div>
+              <div class="form-group">
+                <label>kVA</label>
+                <input type="number" class="form-control" id="productSpecKva" min="0" step="0.1" placeholder="e.g. 3.5">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Capacity (Wh)</label>
+                <input type="number" class="form-control" id="productSpecCapacityWh" min="0" step="1" placeholder="e.g. 5120">
+              </div>
+              <div class="form-group">
+                <label>Voltage</label>
+                <input type="number" class="form-control" id="productSpecVoltage" min="0" step="1" placeholder="e.g. 24">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Cable mm²</label>
+              <input type="number" class="form-control" id="productSpecCableMm2" min="0" step="0.1" placeholder="e.g. 6">
+            </div>
           </div>
         </form>
       </div>

@@ -474,6 +474,7 @@
         <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
           <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
           <li class="nav-item"><a class="nav-link" href="shop.html">Shop</a></li>
+          <li class="nav-item"><a class="nav-link" href="solar-calculator.html">Solar Calculator</a></li>
           <li class="nav-item"><a class="nav-link" href="#why-us">Why Us</a></li>
           <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
           <li class="nav-item ms-lg-2 position-relative nav-cart-desktop">
@@ -565,7 +566,7 @@
   <section class="py-5" id="products">
     <div class="container py-5">
       <h2 class="section-title text-center mb-2 animate-on-scroll">Shop by category</h2>
-      <p class="text-center text-muted mb-5 animate-on-scroll delay-1">Grade A UK used · Brand new · Accessories · Desktops · All-in-ones</p>
+      <p class="text-center text-muted mb-5 animate-on-scroll delay-1">Grade A UK used · Brand new · Accessories · Desktops · All-in-ones · Solar</p>
       <div class="row g-4" id="categoryCards">
         <div class="col-md-6 col-lg-4 animate-on-scroll delay-1">
           <a href="shop.html?category=grade-a-uk-used-laptops" class="text-decoration-none text-dark">
@@ -645,9 +646,27 @@
             </div>
           </a>
         </div>
+        <div class="col-md-6 col-lg-4 animate-on-scroll delay-1">
+          <a href="shop.html?category=solar" class="text-decoration-none text-dark">
+            <div class="card card-product h-100">
+              <div class="img-wrap">
+                <img src="images/solar/panel-array.jpg" alt="Solar">
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">Solar</h5>
+                <p class="text-muted mb-0">Panels, inverters, batteries, power stations and cables.</p>
+              </div>
+            </div>
+          </a>
+        </div>
       </div>
       <div class="text-center mt-5 animate-on-scroll">
         <a href="shop.html" class="btn btn-shop btn-lg">View all products</a>
+      </div>
+      <div class="cta-section text-center mt-5 animate-on-scroll">
+        <h2 class="section-title mb-3">Size a solar kit for your house</h2>
+        <p class="text-muted mb-4 mx-auto" style="max-width: 520px;">Enter your appliances and hours of use. We recommend inverter, battery, panels and cables — then you can add the kit to your cart.</p>
+        <a href="solar-calculator.html" class="btn btn-shop btn-lg">Open solar calculator</a>
       </div>
       <div class="row g-4 mt-4" id="featuredProducts">
         <!-- Filled by JS from Supabase -->
@@ -698,6 +717,8 @@
             <li><a href="shop.html?category=uk-used-desktops">UK Used Desktops</a></li>
             <li><a href="shop.html?category=brand-new-desktops">Brand New Desktops</a></li>
             <li><a href="shop.html?category=all-in-ones">All-in-Ones</a></li>
+            <li><a href="shop.html?category=solar">Solar</a></li>
+            <li><a href="solar-calculator.html">Solar Calculator</a></li>
           </ul>
         </div>
         <div class="col-md-2">
@@ -753,8 +774,36 @@
             featuredEl.parentNode.insertBefore(title, featuredEl);
             var esc = window.CrypvillaEscape && window.CrypvillaEscape.html ? window.CrypvillaEscape.html : function(s) { return String(s == null ? '' : s); };
             var safeImgUrl = window.CrypvillaEscape && window.CrypvillaEscape.url ? function(u) { var s = window.CrypvillaEscape.url(u); return s || 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&q=80'; } : function(u) { return u || 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&q=80'; };
+            function specDisplayValues(specs, max) {
+              max = max || 2;
+              specs = specs || {};
+              var laptop = [specs.processor, specs.ram, specs.storage].filter(Boolean);
+              if (laptop.length) return laptop.slice(0, max);
+              var out = [];
+              if (specs.label) {
+                out.push(String(specs.label));
+                if (specs.voltage != null && specs.voltage !== '') out.push(Number(specs.voltage) + 'V');
+                return out.slice(0, max);
+              }
+              if (specs.watts != null && specs.watts !== '') out.push(Number(specs.watts) + 'W');
+              if (specs.kva != null && specs.kva !== '') out.push(Number(specs.kva) + ' kVA');
+              if (specs.capacity_wh != null && specs.capacity_wh !== '') {
+                var wh = Number(specs.capacity_wh);
+                if (!isNaN(wh)) out.push(wh >= 1000 ? (Math.round(wh / 100) / 10) + ' kWh' : wh + ' Wh');
+              }
+              if (specs.voltage != null && specs.voltage !== '') out.push(Number(specs.voltage) + 'V');
+              if (specs.cable_mm2 != null && specs.cable_mm2 !== '') out.push(Number(specs.cable_mm2) + ' mm²');
+              if (!out.length) {
+                Object.keys(specs).forEach(function(k) {
+                  if (k === 'kind' || specs[k] == null || specs[k] === '') return;
+                  out.push(String(specs[k]));
+                });
+              }
+              return out.slice(0, max);
+            }
             r.data.forEach(function(p) {
-              var spec = (p.specs && (p.specs.processor || p.specs.ram || p.specs.storage)) ? [p.specs.processor, p.specs.ram, p.specs.storage].filter(Boolean).slice(0, 2).join(' · ') : '';
+              var specPills = specDisplayValues(p.specs, 2);
+              var spec = specPills.join(' · ');
               var priceHtml = p.compare_at_price ? '<span class="price-current">₦' + Number(p.price).toLocaleString() + '</span> <span class="price-compare">₦' + Number(p.compare_at_price).toLocaleString() + '</span>' : '<span class="price-current">₦' + Number(p.price).toLocaleString() + '</span>';
               var saleBadge = p.compare_at_price ? '<span class="badge-sale">Sale</span>' : '';
               var imgUrl = (safeImgUrl(p.image_url) || '').replace(/"/g, '&quot;');
